@@ -92,12 +92,17 @@ export default function HomePage() {
 
           <TwoPathsVideoSection />
 
-          <div className="rounded-card border border-home-border/25 bg-home-surface-raised/72 p-6 shadow-home-glow backdrop-blur-sm lg:p-8">
-            <p className="text-eyebrow text-accent-warm">Methodology note</p>
-            <p className="mt-3 max-w-measure text-body-sm text-surface-strong/70">
-              A reflection tool for clearer tradeoffs, not legal, financial, or immigration advice.
+          <div className="py-16 text-center lg:py-24">
+            <p className="mx-auto max-w-3xl text-balance font-serif text-section-title text-surface-strong/90">
+              A decision this big deserves your clearest thinking.
             </p>
           </div>
+
+          <footer className="border-t border-surface-strong/10 pt-8">
+            <p className="mx-auto max-w-measure text-center text-label text-surface-strong/70">
+              A reflection tool for clearer tradeoffs, not legal, financial, or immigration advice.
+            </p>
+          </footer>
         </div>
       </section>
     </>
