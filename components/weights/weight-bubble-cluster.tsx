@@ -142,22 +142,22 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
     <section className="rounded-feature border border-border bg-surface p-5 shadow-soft sm:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent-warm">Priority map</p>
-          <h2 className="mt-2 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+          <p className="text-eyebrow text-ink-accent">Priority map</p>
+          <h2 className="mt-2 font-serif text-section-title text-ink">
             Shape your decision priorities
           </h2>
         </div>
-        <p className="max-w-md text-sm leading-6 text-ink/70">
+        <p className="max-w-md text-body-sm text-ink/70">
           Increasing one priority reduces the others proportionally.
         </p>
       </div>
 
-      <div className="mt-4 max-w-3xl space-y-2">
-        <h3 className="text-sm font-semibold text-ink">How weights work</h3>
-        <p className="text-sm leading-6 text-ink/70">
+      <div className="mt-4 max-w-measure space-y-2">
+        <h3 className="text-body-sm font-semibold text-ink">How weights work</h3>
+        <p className="text-body-sm text-ink/70">
           This step does not change your answers. It changes how strongly each dimension affects the final score.
         </p>
-        <p className="text-sm leading-6 text-ink/75">
+        <p className="text-body-sm text-ink/70">
           Make a bubble larger when that area matters more right now. The app saves the same six weight values as before,
           and scoring still treats them as relative priorities.
         </p>
@@ -209,7 +209,7 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
                   <span className="mt-2 max-w-[82%] text-sm font-semibold leading-tight text-ink">
                     {dimension.shortLabel}
                   </span>
-                  <span className="mt-1 rounded-pill bg-surface-strong/75 px-2 py-1 text-xs font-semibold text-ink/70">
+                  <span className="mt-1 rounded-pill bg-surface-strong/75 px-2 py-1 text-label font-semibold text-ink/70">
                     {percentage}%
                   </span>
                 </button>

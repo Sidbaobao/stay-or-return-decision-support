@@ -24,11 +24,11 @@ export function WeightFineTuneSlider({
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-warm">Fine tune</p>
-          <h3 className="mt-2 font-serif text-xl font-semibold leading-tight text-ink">
+          <p className="text-eyebrow text-ink-accent">Fine tune</p>
+          <h3 className="mt-2 font-serif text-card-title text-ink">
             {dimension.label}
           </h3>
-          <p className="mt-2 text-sm leading-6 text-ink/65">{dimension.description}</p>
+          <p className="mt-2 max-w-measure text-body-sm text-ink/65">{dimension.description}</p>
         </div>
         <div className="shrink-0 rounded-pill bg-surface-strong px-4 py-2 text-sm font-semibold text-action-primary shadow-legacy-sm">
           {percentage}%
@@ -46,12 +46,12 @@ export function WeightFineTuneSlider({
         className="interaction-range mt-5 w-full"
       />
 
-      <div className="mt-2 flex justify-between gap-4 text-xs leading-5 text-ink/55">
+      <div className="mt-2 flex justify-between gap-4 text-label text-ink/65">
         <span>Minimum priority</span>
         <span>Maximum possible share</span>
       </div>
 
-      <p className="mt-3 text-sm leading-6 text-ink/70">{helperMessage}</p>
+      <p className="mt-3 text-body-sm text-ink/70">{helperMessage}</p>
     </div>
   );
 }
