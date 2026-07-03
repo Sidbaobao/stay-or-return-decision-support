@@ -35,6 +35,7 @@ const config: Config = {
         "path-stay": "rgb(var(--color-path-stay) / <alpha-value>)",
         "path-return": "rgb(var(--color-path-return) / <alpha-value>)",
         "accent-warm": "rgb(var(--color-accent-warm) / <alpha-value>)",
+        "ink-accent": "rgb(var(--color-ink-accent) / <alpha-value>)",
         hero: "rgb(var(--color-hero) / <alpha-value>)",
         "hero-raised": "rgb(var(--color-hero-raised) / <alpha-value>)",
         "home-surface": "rgb(var(--color-home-surface) / <alpha-value>)",
@@ -93,13 +94,29 @@ const config: Config = {
         interaction: "var(--motion-ease-interaction)"
       },
       fontSize: {
-        display: ["var(--text-display)", { lineHeight: "var(--leading-display)" }],
-        "page-title": ["var(--text-page-title)", { lineHeight: "var(--leading-page-title)" }],
-        "section-title": ["var(--text-section-title)", { lineHeight: "var(--leading-section-title)" }],
-        "card-title": ["var(--text-card-title)", { lineHeight: "var(--leading-card-title)" }],
+        display: [
+          "var(--text-display)",
+          { lineHeight: "var(--leading-display)", letterSpacing: "var(--tracking-display)", fontWeight: "600" }
+        ],
+        "page-title": [
+          "var(--text-page-title)",
+          { lineHeight: "var(--leading-page-title)", letterSpacing: "var(--tracking-page-title)", fontWeight: "600" }
+        ],
+        "section-title": [
+          "var(--text-section-title)",
+          { lineHeight: "var(--leading-section-title)", letterSpacing: "var(--tracking-section-title)", fontWeight: "600" }
+        ],
+        "card-title": ["var(--text-card-title)", { lineHeight: "var(--leading-card-title)", fontWeight: "600" }],
         "body-lg": ["var(--text-body-lg)", { lineHeight: "var(--leading-body-lg)" }],
         body: ["var(--text-body)", { lineHeight: "var(--leading-body)" }],
+        "body-sm": ["var(--text-body-sm)", { lineHeight: "var(--leading-body-sm)" }],
         label: ["var(--text-label)", { lineHeight: "var(--leading-label)" }]
+      },
+      letterSpacing: {
+        eyebrow: "var(--tracking-eyebrow)"
+      },
+      maxWidth: {
+        measure: "var(--measure-text)"
       }
     }
   },
