@@ -35,8 +35,8 @@ function VideoPanel({ accentClassName, label, shouldPlayVideo, supportingText, s
 
       <div className="px-2 pb-2 pt-5">
         <div className={`mb-4 h-1 w-16 rounded-pill ${accentClassName}`} />
-        <h3 className="text-3xl font-semibold leading-tight text-surface-strong sm:text-4xl">{label}</h3>
-        <p className="mt-2 max-w-md text-sm leading-6 text-surface-strong/64 sm:text-base">{supportingText}</p>
+        <h3 className="text-section-title text-surface-strong">{label}</h3>
+        <p className="mt-2 max-w-md text-body text-surface-strong/70">{supportingText}</p>
       </div>
     </div>
   );
@@ -78,11 +78,11 @@ export function TwoPathsVideoSection() {
   return (
     <section ref={sectionRef} className="py-16 lg:py-24" aria-labelledby="two-paths-heading">
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-warm">Two paths</p>
-        <h2 id="two-paths-heading" className="mt-3 text-4xl font-semibold leading-tight text-surface-strong sm:text-5xl">
+        <p className="text-eyebrow text-accent-warm">Two paths</p>
+        <h2 id="two-paths-heading" className="mt-3 text-page-title text-surface-strong">
           See both paths clearly.
         </h2>
-        <p className="mt-4 text-base leading-7 text-surface-strong/68">
+        <p className="mt-4 text-body text-surface-strong/70">
           Picture each future before you weigh the tradeoffs.
         </p>
       </div>
