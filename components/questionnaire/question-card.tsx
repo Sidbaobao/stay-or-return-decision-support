@@ -10,10 +10,10 @@ export function QuestionCard({ question, value, onChange }: QuestionCardProps) {
   return (
     <div className="rounded-card border border-ink/10 bg-surface-strong p-5 shadow-legacy-sm">
       <div className="space-y-2">
-        <h3 id={`${question.id}-prompt`} className="text-lg font-semibold leading-tight text-ink sm:text-xl">
+        <h3 id={`${question.id}-prompt`} className="text-card-title text-ink">
           {question.prompt}
         </h3>
-        {question.helpText ? <p className="text-sm leading-6 text-ink/65">{question.helpText}</p> : null}
+        {question.helpText ? <p className="max-w-measure text-body-sm text-ink/65">{question.helpText}</p> : null}
       </div>
 
       <div className="mt-5 space-y-3" role="radiogroup" aria-labelledby={`${question.id}-prompt`}>
@@ -53,9 +53,9 @@ export function QuestionCard({ question, value, onChange }: QuestionCardProps) {
                   />
                 </span>
                 <span className="flex min-w-0 flex-col gap-2">
-                  <span className="font-medium leading-6 text-ink">{option.label}</span>
+                  <span className="text-body font-medium text-ink">{option.label}</span>
                   {option.note ? (
-                    <span className="text-sm leading-6 text-ink/65">{option.note}</span>
+                    <span className="text-body-sm text-ink/65">{option.note}</span>
                   ) : null}
                 </span>
               </div>
