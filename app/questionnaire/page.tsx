@@ -158,17 +158,17 @@ function DimensionIntroHeader({ dimension }: DimensionIntroHeaderProps) {
 
       <div className="min-w-0 space-y-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent-warm">
+          <p className="text-eyebrow text-ink-accent">
             Current dimension
           </p>
-          <h2 className="mt-2 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+          <h2 className="mt-2 font-serif text-section-title text-ink">
             {dimension.label}
           </h2>
         </div>
-        <p className="max-w-3xl text-sm leading-6 text-ink/70 sm:text-base">
+        <p className="max-w-measure text-body text-ink/70">
           {dimension.description}
         </p>
-        <p className="max-w-3xl border-l-2 border-accent-warm/40 pl-4 text-sm font-medium leading-6 text-ink">
+        <p className="max-w-measure border-l-2 border-accent-warm/40 pl-4 text-body-sm font-medium text-ink">
           {guidingQuestion}
         </p>
       </div>
@@ -237,7 +237,7 @@ export default function QuestionnairePage() {
       />
 
       <div className="sticky top-3 z-20 rounded-pill border border-border bg-surface/95 px-4 py-3 shadow-legacy-sm backdrop-blur">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-ink/70">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-label font-medium text-ink/70">
           <span>
             {completedCount} of {questions.length} answered
           </span>
@@ -253,8 +253,8 @@ export default function QuestionnairePage() {
       </div>
 
       <section>
-        <h2 className="text-xl font-semibold leading-tight text-ink sm:text-2xl">Questionnaire steps</h2>
-        <p className="mt-2 text-sm leading-6 text-ink/70">
+        <h2 className="text-section-title text-ink">Questionnaire steps</h2>
+        <p className="mt-2 max-w-measure text-body-sm text-ink/70">
           Move through one decision dimension at a time. You can jump back to any step without losing your selected answers.
         </p>
         <div className="-mx-2 mt-5 overflow-x-auto px-2">
@@ -289,13 +289,13 @@ export default function QuestionnairePage() {
                       isComplete={isComplete}
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block text-xs font-semibold uppercase tracking-[0.2em]">
+                      <span className="text-eyebrow block">
                         Step {index + 1}
                       </span>
-                      <span className="mt-2 block text-sm font-semibold leading-5">
+                      <span className="mt-2 block text-body-sm font-semibold">
                         {group.dimension.label}
                       </span>
-                      <span className="mt-3 block text-xs text-ink/55">
+                      <span className="mt-3 block text-label text-ink/65">
                         {isComplete ? "Done" : `${answeredCount} of ${group.questions.length}`}
                       </span>
                     </span>
@@ -311,7 +311,7 @@ export default function QuestionnairePage() {
         <section>
           <DimensionIntroHeader dimension={currentGroup.dimension} />
 
-          <p className="mb-6 mt-6 text-sm text-ink/65">
+          <p className="mb-6 mt-6 text-body-sm text-ink/65">
             <span className="font-medium text-ink">
               {currentGroupAnsweredCount} of {currentGroup.questions.length}
             </span>{" "}
