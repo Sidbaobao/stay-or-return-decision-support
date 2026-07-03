@@ -233,7 +233,7 @@ export default function QuestionnairePage() {
       <PageHeader
         eyebrow="Step 1"
         title="Questionnaire"
-        description="Answer based on your current situation. You can come back and change any response before reviewing results."
+        description="Answer based on your current situation."
       />
 
       <div className="sticky top-3 z-20 rounded-pill border border-border bg-surface/95 px-4 py-3 shadow-legacy-sm backdrop-blur">
@@ -242,7 +242,6 @@ export default function QuestionnairePage() {
             {completedCount} of {questions.length} answered
           </span>
           <span>{questions.length - completedCount} remaining</span>
-          <span>{progressPercent}% complete</span>
         </div>
         <div className="h-2 rounded-pill bg-action-primary/10">
           <div
@@ -255,7 +254,7 @@ export default function QuestionnairePage() {
       <section>
         <h2 className="text-section-title text-ink">Questionnaire steps</h2>
         <p className="mt-2 max-w-measure text-body-sm text-ink/70">
-          Move through one decision dimension at a time. You can jump back to any step without losing your selected answers.
+          Move through one dimension at a time — you can jump back to any step.
         </p>
         <div className="-mx-2 mt-5 overflow-x-auto px-2">
           <div className="flex min-w-max gap-3 pb-1">

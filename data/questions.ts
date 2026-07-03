@@ -12,7 +12,7 @@ export const questions: Question[] = [
         label: "Mostly in the US",
         stay_us_score: 5,
         return_china_score: 1,
-        note: "A clearly stronger US job market fit is a strong practical reason to stay."
+        note: "A clearly stronger US job market fit is a solid practical case for staying."
       },
       {
         id: "career_job_access_balanced",
@@ -25,7 +25,7 @@ export const questions: Question[] = [
         label: "Mostly in China",
         stay_us_score: 1,
         return_china_score: 5,
-        note: "A clearly stronger China job market fit is a strong practical reason to return."
+        note: "A clearly stronger China job market fit is a solid practical case for returning."
       }
     ]
   },
@@ -51,7 +51,7 @@ export const questions: Question[] = [
         label: "A lot; it is a major bottleneck",
         stay_us_score: 1,
         return_china_score: 5,
-        note: "If sponsorship is a major career bottleneck, returning becomes much more practical."
+        note: "A sponsorship bottleneck makes returning much more practical."
       }
     ]
   },
@@ -116,7 +116,7 @@ export const questions: Question[] = [
         label: "Likely stronger in the US",
         stay_us_score: 5,
         return_china_score: 1,
-        note: "A clearly better near-term financial outcome leans strongly toward that path."
+        note: "A clearly better near-term financial outcome deserves real weight."
       },
       {
         id: "salary_take_home_outlook_balanced",
@@ -230,7 +230,7 @@ export const questions: Question[] = [
         label: "It is one of my biggest concerns",
         stay_us_score: 1,
         return_china_score: 5,
-        note: "High immigration stress is a strong practical reason to consider returning."
+        note: "High immigration stress materially strengthens the case for returning."
       }
     ]
   },
@@ -357,7 +357,7 @@ export const questions: Question[] = [
         label: "It is a major consideration",
         stay_us_score: 1,
         return_china_score: 5,
-        note: "Strong family obligations are a strong practical reason to return."
+        note: "Strong family obligations pull hard toward returning."
       }
     ]
   },
@@ -517,7 +517,7 @@ export const questions: Question[] = [
   {
     id: "long_term_location_alignment",
     dimensionId: "long_term",
-    prompt: "Based on your current plans, which path seems more aligned with where you realistically want to be based over the next 5 to 10 years?",
+    prompt: "Where do you realistically want to be based over the next 5 to 10 years?",
     options: [
       {
         id: "long_term_location_alignment_us",
@@ -594,7 +594,7 @@ export const questions: Question[] = [
   {
     id: "long_term_growth_platform",
     dimensionId: "long_term",
-    prompt: "Which path currently looks like the stronger platform for the kind of career and life development you want over time?",
+    prompt: "Which path currently looks like the stronger platform for your long-term development?",
     helpText: "Focus on realistic growth conditions, not ideal-case upside.",
     options: [
       {

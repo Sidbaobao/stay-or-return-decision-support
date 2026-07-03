@@ -59,16 +59,13 @@ export default function HomePage() {
             <h2 className="mt-3 text-page-title text-surface-strong">
               Three steps. Clear reasoning.
             </h2>
-            <p className="mt-3 max-w-measure text-body text-surface-strong/70">
-              Your answers and priorities stay visible from start to finish.
-            </p>
           </div>
 
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             <StepSection
               step="Step 1"
               title="Answer questions"
-              description="Answer practical questions across six decision dimensions."
+              description="Practical questions across six decision dimensions."
               Icon={ListChecks}
               iconClassName="border-path-stay/35 bg-path-stay/15 text-surface-strong"
             />
@@ -76,7 +73,7 @@ export default function HomePage() {
             <StepSection
               step="Step 2"
               title="Set priorities"
-              description="Set how much each dimension should shape the result."
+              description="Decide how much each dimension counts."
               Icon={SlidersHorizontal}
               iconClassName="border-accent-warm/35 bg-accent-warm/15 text-surface-strong"
             />

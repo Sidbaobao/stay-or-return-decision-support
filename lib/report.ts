@@ -72,7 +72,7 @@ export function buildRecommendationReport(scoringResult: ScoringResult): Recomme
         ? "points more clearly"
         : "points clearly";
 
-  const summary = `Your current responses ${leadStrength} toward ${scenarioLabelMap[scoringResult.recommendedScenario]}. This is based on your current answers and weights rather than a fixed judgment about which path is always better.`;
+  const summary = `Your current responses ${leadStrength} toward ${scenarioLabelMap[scoringResult.recommendedScenario]}.`;
 
   const confidenceNote =
     scoringResult.confidence === "low"

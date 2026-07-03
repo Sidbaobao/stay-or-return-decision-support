@@ -158,8 +158,7 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
           This step does not change your answers. It changes how strongly each dimension affects the final score.
         </p>
         <p className="text-body-sm text-ink/70">
-          Make a bubble larger when that area matters more right now. The app saves the same six weight values as before,
-          and scoring still treats them as relative priorities.
+          Make a bubble larger when that area matters more right now.
         </p>
       </div>
 

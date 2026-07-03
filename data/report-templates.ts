@@ -118,4 +118,4 @@ export const reportTemplates: RecommendationTemplate[] = [
 ];
 
 export const reportDisclaimer =
-  "This is a decision-support tool, not legal, immigration, or financial advice. Your results depend on your own answers and weights, and should be treated as a structured reflection tool rather than a final verdict.";
+  "This is a decision-support tool, not legal, immigration, or financial advice. Treat your results as structured reflection, not a final verdict.";

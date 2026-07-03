@@ -18,7 +18,7 @@ const navItems = [
   { href: "/questionnaire", label: "Questionnaire", requirement: "none" },
   { href: "/weights", label: "Weights", requirement: "answers" },
   { href: "/results", label: "Results", requirement: "weights" },
-  { href: "/report", label: "Report", requirement: "weights" }
+  { href: "/report", label: "Memo", requirement: "weights" }
 ] as const;
 
 type UnlockState = {

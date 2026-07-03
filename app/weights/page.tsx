@@ -38,7 +38,7 @@ export default function WeightsPage() {
       <PageHeader
         eyebrow="Step 2"
         title="Set your priorities"
-        description="Choose how much each dimension should influence the final result. A higher weight gives that dimension more say in the comparison."
+        description="Choose how much each dimension should influence the final result."
       />
 
       <WeightBubbleCluster

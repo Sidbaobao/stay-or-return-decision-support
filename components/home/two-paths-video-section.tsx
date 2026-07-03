@@ -7,11 +7,10 @@ type VideoPanelProps = {
   accentClassName: string;
   label: string;
   shouldPlayVideo: boolean;
-  supportingText: string;
   src: string;
 };
 
-function VideoPanel({ accentClassName, label, shouldPlayVideo, supportingText, src }: VideoPanelProps) {
+function VideoPanel({ accentClassName, label, shouldPlayVideo, src }: VideoPanelProps) {
   const [hasVideoError, setHasVideoError] = useState(false);
 
   return (
@@ -36,7 +35,6 @@ function VideoPanel({ accentClassName, label, shouldPlayVideo, supportingText, s
       <div className="px-2 pb-2 pt-5">
         <div className={`mb-4 h-1 w-16 rounded-pill ${accentClassName}`} />
         <h3 className="text-section-title text-surface-strong">{label}</h3>
-        <p className="mt-2 max-w-md text-body text-surface-strong/70">{supportingText}</p>
       </div>
     </div>
   );
@@ -92,14 +90,12 @@ export function TwoPathsVideoSection() {
           accentClassName="bg-path-stay"
           label="Stay in the US"
           shouldPlayVideo={shouldPlayVideo}
-          supportingText="Build your life on the US path."
           src="/manhattan.mp4"
         />
         <VideoPanel
           accentClassName="bg-path-return"
           label="Return to China"
           shouldPlayVideo={shouldPlayVideo}
-          supportingText="Build your life on the China path."
           src="/shanghai.mp4"
         />
       </div>

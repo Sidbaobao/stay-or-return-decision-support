@@ -387,8 +387,6 @@ export default function ResultsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="interaction-card rounded-feature border border-ink/10 bg-surface-strong p-5 shadow-legacy-sm sm:p-6">
           <h2 className="font-serif text-section-title text-ink">Total score comparison</h2>
-          <p className="mt-2 text-body-sm text-ink/70">Compare the two weighted totals.</p>
-
           <div className="mt-5">
             <TotalScoreChart
               stayUsScore={scoringResult.weightedTotals.stay_us}
@@ -399,7 +397,6 @@ export default function ResultsPage() {
 
         <section className="interaction-card rounded-feature border border-ink/10 bg-surface-strong p-5 shadow-legacy-sm sm:p-6">
           <h2 className="font-serif text-section-title text-ink">Dimension contributions</h2>
-          <p className="mt-2 text-body-sm text-ink/70">See which dimensions move the result.</p>
           <div className="mt-5">
             <DimensionChart contributions={scoringResult.contributions} />
           </div>
@@ -408,7 +405,6 @@ export default function ResultsPage() {
 
       <section className="interaction-card rounded-feature border border-ink/10 bg-surface-strong p-5 shadow-legacy-sm sm:p-6">
         <h2 className="font-serif text-section-title text-ink">Shape comparison</h2>
-        <p className="mt-2 text-body-sm text-ink/70">Compare each path across all dimensions.</p>
         <div className="mt-5">
           <RadarChart scores={scoringResult.normalizedByDimension} />
         </div>
@@ -470,7 +466,6 @@ export default function ResultsPage() {
             <div className="mt-4 rounded-tile bg-surface-strong p-4 shadow-legacy-sm">
               <DimensionScoreTable scores={scoringResult.normalizedByDimension} />
             </div>
-            <p className="mt-3 text-label text-ink/65">Reflects your current answers and weights.</p>
           </section>
         </div>
       </details>
@@ -487,7 +482,7 @@ export default function ResultsPage() {
           >
             Adjust weights
           </Link>
-          <PrimaryButtonLink href="/report">Open full report</PrimaryButtonLink>
+          <PrimaryButtonLink href="/report">Open the memo</PrimaryButtonLink>
         </div>
       </footer>
     </>

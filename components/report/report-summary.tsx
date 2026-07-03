@@ -132,7 +132,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           </div>
         </div>
 
-        <p className="mt-3 text-label text-ink/65">Higher values are emphasized. Scores reflect the same dimension data used in your results.</p>
+        <p className="mt-3 text-label text-ink/65">Higher values are emphasized.</p>
       </section>
 
       <div className="grid border-t border-border lg:grid-cols-[0.9fr_1.1fr]">

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Report",
+  title: "Memo",
   description: "A personal decision memo with the recommendation, tradeoffs, and next steps."
 };
 
