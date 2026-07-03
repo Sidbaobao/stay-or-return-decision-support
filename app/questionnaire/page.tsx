@@ -19,7 +19,6 @@ import { filterAnswersToCurrent, loadAppState, saveAnswers } from "@/lib/storage
 import { Answers, Dimension, DimensionId } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { SectionCard } from "@/components/ui/section-card";
 import { QuestionCard } from "@/components/questionnaire/question-card";
 
 const groupedQuestions = dimensions.map((dimension) => ({
@@ -152,28 +151,26 @@ function DimensionIntroHeader({ dimension }: DimensionIntroHeaderProps) {
   const { Icon, guidingQuestion } = dimensionIntroById[dimension.id];
 
   return (
-    <div className="rounded-panel border border-border bg-surface p-5 shadow-legacy-sm sm:p-6">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-tile bg-accent-warm/10 text-accent-warm shadow-legacy-sm">
-          <Icon aria-hidden="true" strokeWidth={1.8} className="h-7 w-7" />
-        </div>
+    <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-tile bg-accent-warm/10 text-accent-warm shadow-legacy-sm">
+        <Icon aria-hidden="true" strokeWidth={1.8} className="h-7 w-7" />
+      </div>
 
-        <div className="min-w-0 space-y-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent-warm">
-              Current dimension
-            </p>
-            <h2 className="mt-2 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
-              {dimension.label}
-            </h2>
-          </div>
-          <p className="max-w-3xl text-sm leading-6 text-ink/70 sm:text-base">
-            {dimension.description}
+      <div className="min-w-0 space-y-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent-warm">
+            Current dimension
           </p>
-          <p className="max-w-3xl rounded-tile border border-accent-warm/15 bg-surface-strong/70 px-4 py-3 text-sm font-medium leading-6 text-ink">
-            {guidingQuestion}
-          </p>
+          <h2 className="mt-2 font-serif text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+            {dimension.label}
+          </h2>
         </div>
+        <p className="max-w-3xl text-sm leading-6 text-ink/70 sm:text-base">
+          {dimension.description}
+        </p>
+        <p className="max-w-3xl border-l-2 border-accent-warm/40 pl-4 text-sm font-medium leading-6 text-ink">
+          {guidingQuestion}
+        </p>
       </div>
     </div>
   );
@@ -255,12 +252,12 @@ export default function QuestionnairePage() {
         </div>
       </div>
 
-      <SectionCard
-        title="Questionnaire steps"
-        description="Move through one decision dimension at a time. You can jump back to any step without losing your selected answers."
-        variant="subtle"
-      >
-        <div className="-mx-2 overflow-x-auto px-2">
+      <section>
+        <h2 className="text-xl font-semibold leading-tight text-ink sm:text-2xl">Questionnaire steps</h2>
+        <p className="mt-2 text-sm leading-6 text-ink/70">
+          Move through one decision dimension at a time. You can jump back to any step without losing your selected answers.
+        </p>
+        <div className="-mx-2 mt-5 overflow-x-auto px-2">
           <div className="flex min-w-max gap-3 pb-1">
             {groupedQuestions.map((group, index) => {
               const answeredCount = group.questions.filter(
@@ -308,18 +305,18 @@ export default function QuestionnairePage() {
             })}
           </div>
         </div>
-      </SectionCard>
+      </section>
 
       {currentGroup ? (
-        <SectionCard variant="subtle">
+        <section>
           <DimensionIntroHeader dimension={currentGroup.dimension} />
 
-          <div className="mb-6 mt-6 rounded-tile border border-border bg-surface-raised p-4 text-sm text-ink/65">
+          <p className="mb-6 mt-6 text-sm text-ink/65">
             <span className="font-medium text-ink">
               {currentGroupAnsweredCount} of {currentGroup.questions.length}
             </span>{" "}
             questions answered in this dimension.
-          </div>
+          </p>
 
           <div className="space-y-4">
             {currentGroup.questions.map((question) => (
@@ -331,10 +328,10 @@ export default function QuestionnairePage() {
               />
             ))}
           </div>
-        </SectionCard>
+        </section>
       ) : null}
 
-      <div className="flex flex-col gap-3 rounded-card border border-ink/10 bg-surface-strong p-4 shadow-legacy-sm sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
         <Link
           href="/"
           className="interaction-quiet -mx-1 self-center rounded-control px-1 py-1 text-sm font-medium text-ink/70 hover:text-ink sm:self-auto"
