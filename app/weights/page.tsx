@@ -8,7 +8,6 @@ import { usePrerequisiteGuard } from "@/lib/guards";
 import { loadAppState, saveWeights } from "@/lib/storage";
 import { Weights } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
-import { SectionCard } from "@/components/ui/section-card";
 import { WeightBubbleCluster } from "@/components/weights/weight-bubble-cluster";
 import { getWeightTotal } from "@/components/weights/weight-bubble-utils";
 import { PrimaryButton } from "@/components/ui/primary-button";
@@ -41,17 +40,6 @@ export default function WeightsPage() {
         title="Set your priorities"
         description="Choose how much each dimension should influence the final result. A higher weight gives that dimension more say in the comparison."
       />
-
-      <SectionCard
-        title="How weights work"
-        description="This step does not change your answers. It changes how strongly each dimension affects the final score."
-        variant="subtle"
-      >
-        <p className="text-sm leading-6 text-ink/75">
-          Make a bubble larger when that area matters more right now. The app saves the same six weight values as before,
-          and scoring still treats them as relative priorities.
-        </p>
-      </SectionCard>
 
       <WeightBubbleCluster
         dimensions={dimensions}

@@ -152,9 +152,19 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
         </p>
       </div>
 
-      <div className="mt-6 rounded-feature border border-surface-strong/80 bg-surface-strong/70 p-3 shadow-legacy-sm">
-        <div className="relative mx-auto aspect-[680/520] w-full max-w-4xl overflow-hidden rounded-panel bg-gradient-to-br from-surface via-surface-strong to-surface-warm">
-          {packedBubbles.map((node) => {
+      <div className="mt-4 max-w-3xl space-y-2">
+        <h3 className="text-sm font-semibold text-ink">How weights work</h3>
+        <p className="text-sm leading-6 text-ink/70">
+          This step does not change your answers. It changes how strongly each dimension affects the final score.
+        </p>
+        <p className="text-sm leading-6 text-ink/75">
+          Make a bubble larger when that area matters more right now. The app saves the same six weight values as before,
+          and scoring still treats them as relative priorities.
+        </p>
+      </div>
+
+      <div className="relative mx-auto mt-6 aspect-[680/520] w-full max-w-4xl overflow-hidden rounded-panel border border-surface-strong/80 bg-gradient-to-br from-surface via-surface-strong to-surface-warm shadow-legacy-sm">
+        {packedBubbles.map((node) => {
             const dimensionId = node.data.id as DimensionId;
             const dimension = dimensions.find((item) => item.id === dimensionId);
 
@@ -227,10 +237,9 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
               </div>
             );
           })}
-        </div>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-6 border-t border-border pt-6">
         <WeightFineTuneSlider
           dimension={activeDimension}
           value={activeWeight}

@@ -21,7 +21,7 @@ export function WeightFineTuneSlider({
   const percentage = getWeightPercentage(value, totalBudget);
 
   return (
-    <div className="rounded-card border border-border bg-surface p-5 shadow-legacy-sm">
+    <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-warm">Fine tune</p>
