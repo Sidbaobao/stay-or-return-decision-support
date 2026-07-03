@@ -261,70 +261,6 @@ export default function ResultsPage() {
                 </div>
               </div>
 
-              <div className="rounded-card border border-surface-strong/80 bg-surface-strong/80 p-4 shadow-legacy-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/55">Score face-off</p>
-                  <span className="text-xs font-medium" style={{ color: accentColor }}>
-                    {recommendedLabel} leads
-                  </span>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div
-                    className={`rounded-tile border p-4 ${isStayRecommended ? "shadow-legacy-sm" : "opacity-75"}`}
-                    style={{
-                      borderColor: isStayRecommended ? "#3C5CCF80" : "#3C5CCF25",
-                      backgroundColor: "#3C5CCF0D"
-                    }}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-medium text-ink/65">Stay</p>
-                      {isStayRecommended ? (
-                        <span className="text-[10px] font-semibold uppercase text-path-stay">Leading</span>
-                      ) : null}
-                    </div>
-                    <p className="mt-2 text-3xl font-semibold text-path-stay sm:text-4xl">
-                      <AnimatedNumber value={scoringResult.weightedTotals.stay_us} delay={80} />
-                    </p>
-                    <div className="mt-3 h-2 overflow-hidden rounded-pill bg-path-stay/10">
-                      <div
-                        className="h-full rounded-pill bg-path-stay transition-[width] duration-700 ease-out motion-reduce:transition-none"
-                        style={{ width: isRevealed ? `${scoringResult.weightedTotals.stay_us}%` : "0%" }}
-                      />
-                    </div>
-                  </div>
-
-                  <div
-                    className={`rounded-tile border p-4 ${!isStayRecommended ? "shadow-legacy-sm" : "opacity-75"}`}
-                    style={{
-                      borderColor: !isStayRecommended ? "#D7263880" : "#D7263825",
-                      backgroundColor: "#D726380D"
-                    }}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-medium text-ink/65">Return</p>
-                      {!isStayRecommended ? (
-                        <span className="text-[10px] font-semibold uppercase text-path-return">Leading</span>
-                      ) : null}
-                    </div>
-                    <p className="mt-2 text-3xl font-semibold text-path-return sm:text-4xl">
-                      <AnimatedNumber value={scoringResult.weightedTotals.return_china} delay={140} />
-                    </p>
-                    <div className="mt-3 h-2 overflow-hidden rounded-pill bg-path-return/10">
-                      <div
-                        className="h-full rounded-pill bg-path-return transition-[width] duration-700 ease-out motion-reduce:transition-none"
-                        style={{ width: isRevealed ? `${scoringResult.weightedTotals.return_china}%` : "0%" }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex items-center justify-center">
-                  <span className="rounded-pill border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-ink/70">
-                    Gap <AnimatedNumber value={scoringResult.weightedTotals.difference} delay={220} />
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -388,6 +324,70 @@ export default function ResultsPage() {
         <section className="interaction-card rounded-feature border border-ink/10 bg-surface-strong p-5 shadow-legacy-sm sm:p-6">
           <h2 className="font-serif text-2xl font-semibold text-ink">Total score comparison</h2>
           <p className="mt-2 text-sm text-ink/60">Compare the two weighted totals.</p>
+
+          <div className="mt-5 flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/55">Score face-off</p>
+            <span className="text-xs font-medium" style={{ color: accentColor }}>
+              {recommendedLabel} leads
+            </span>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div
+              className={`rounded-tile border p-4 ${isStayRecommended ? "shadow-legacy-sm" : "opacity-75"}`}
+              style={{
+                borderColor: isStayRecommended ? "#3C5CCF80" : "#3C5CCF25",
+                backgroundColor: "#3C5CCF0D"
+              }}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-medium text-ink/65">Stay</p>
+                {isStayRecommended ? (
+                  <span className="text-[10px] font-semibold uppercase text-path-stay">Leading</span>
+                ) : null}
+              </div>
+              <p className="mt-2 text-3xl font-semibold text-path-stay sm:text-4xl">
+                <AnimatedNumber value={scoringResult.weightedTotals.stay_us} delay={80} />
+              </p>
+              <div className="mt-3 h-2 overflow-hidden rounded-pill bg-path-stay/10">
+                <div
+                  className="h-full rounded-pill bg-path-stay transition-[width] duration-700 ease-out motion-reduce:transition-none"
+                  style={{ width: isRevealed ? `${scoringResult.weightedTotals.stay_us}%` : "0%" }}
+                />
+              </div>
+            </div>
+
+            <div
+              className={`rounded-tile border p-4 ${!isStayRecommended ? "shadow-legacy-sm" : "opacity-75"}`}
+              style={{
+                borderColor: !isStayRecommended ? "#D7263880" : "#D7263825",
+                backgroundColor: "#D726380D"
+              }}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-medium text-ink/65">Return</p>
+                {!isStayRecommended ? (
+                  <span className="text-[10px] font-semibold uppercase text-path-return">Leading</span>
+                ) : null}
+              </div>
+              <p className="mt-2 text-3xl font-semibold text-path-return sm:text-4xl">
+                <AnimatedNumber value={scoringResult.weightedTotals.return_china} delay={140} />
+              </p>
+              <div className="mt-3 h-2 overflow-hidden rounded-pill bg-path-return/10">
+                <div
+                  className="h-full rounded-pill bg-path-return transition-[width] duration-700 ease-out motion-reduce:transition-none"
+                  style={{ width: isRevealed ? `${scoringResult.weightedTotals.return_china}%` : "0%" }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 flex items-center justify-center">
+            <span className="rounded-pill border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-ink/70">
+              Gap <AnimatedNumber value={scoringResult.weightedTotals.difference} delay={220} />
+            </span>
+          </div>
+
           <div className="mt-5">
             <TotalScoreChart
               stayUsScore={scoringResult.weightedTotals.stay_us}

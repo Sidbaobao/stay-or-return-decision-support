@@ -5,7 +5,6 @@ import {
   type LucideIcon
 } from "lucide-react";
 import { HeroSection } from "@/components/home/hero-section";
-import { HomeProgressCta } from "@/components/home/home-progress-cta";
 import { TwoPathsVideoSection } from "@/components/home/two-paths-video-section";
 
 type StepSectionProps = {
@@ -93,15 +92,11 @@ export default function HomePage() {
 
           <TwoPathsVideoSection />
 
-          <div className="grid gap-6 rounded-card border border-home-border/25 bg-home-surface-raised/72 p-6 shadow-home-glow backdrop-blur-sm lg:grid-cols-[1fr_auto] lg:items-center lg:p-8">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-warm">Methodology note</p>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-surface-strong/68">
-                A reflection tool for clearer tradeoffs, not legal, financial, or immigration advice.
-              </p>
-            </div>
-
-            <HomeProgressCta align="end" />
+          <div className="rounded-card border border-home-border/25 bg-home-surface-raised/72 p-6 shadow-home-glow backdrop-blur-sm lg:p-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-warm">Methodology note</p>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-surface-strong/68">
+              A reflection tool for clearer tradeoffs, not legal, financial, or immigration advice.
+            </p>
           </div>
         </div>
       </section>
