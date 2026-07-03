@@ -55,21 +55,21 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
     <article className="decision-memo overflow-hidden rounded-panel border border-border bg-surface shadow-legacy-sm">
       <header className="memo-block px-memo-x py-memo-header-y sm:px-memo-x-sm sm:py-memo-header-y-sm lg:px-memo-x-lg">
         <div className="flex flex-col gap-2 border-b border-ink/15 pb-4 sm:flex-row sm:items-end sm:justify-between">
-          <p className="font-serif text-2xl font-semibold tracking-[-0.02em] text-ink">Decision Memo</p>
-          <p className="text-xs font-medium uppercase tracking-[0.16em] text-ink/50">{generatedDate}</p>
+          <p className="font-serif text-section-title text-ink">Decision Memo</p>
+          <p className="text-eyebrow text-ink/65">{generatedDate}</p>
         </div>
-        <p className="mt-3 max-w-4xl text-sm leading-5 text-ink/60">
+        <p className="mt-3 max-w-measure text-body-sm text-ink/70">
           A personal memo on whether to stay in the US or return to China.
         </p>
       </header>
 
       <section className="memo-block border-t border-border px-memo-x py-memo-section-y sm:px-memo-x-sm sm:py-memo-section-y-sm lg:px-memo-x-lg lg:py-memo-section-y-lg" aria-labelledby="recommendation-heading">
         <div className="max-w-4xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink/45">Recommendation</p>
-          <h1 id="recommendation-heading" className="mt-2 font-serif text-4xl font-semibold leading-none tracking-[-0.04em] text-ink sm:text-5xl lg:text-[3.5rem]">
+          <p className="text-eyebrow text-ink/65">Recommendation</p>
+          <h1 id="recommendation-heading" className="mt-2 font-serif text-page-title text-ink">
             {recommendationLabel}.
           </h1>
-          <span className="mt-4 inline-flex rounded-pill border border-memo-badge-border bg-surface-strong/55 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink/65">
+          <span className="text-eyebrow mt-4 inline-flex rounded-pill border border-memo-badge-border bg-surface-strong/55 px-3 py-1.5 text-ink/65">
             {confidenceLabels[report.confidence]}
           </span>
         </div>
@@ -77,24 +77,24 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
 
       <section className="memo-block border-t border-border" aria-labelledby="summary-heading">
         <div className="px-memo-x py-memo-section-y sm:px-memo-x-sm sm:py-memo-section-y-sm lg:px-memo-x-lg lg:py-memo-section-y-lg">
-          <h2 id="summary-heading" className="font-serif text-xl font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-2xl">
+          <h2 id="summary-heading" className="font-serif text-card-title text-ink">
             Executive summary
           </h2>
-          <p className="mt-3 max-w-4xl text-base font-medium leading-6 text-ink/80">{displayedSummary}</p>
+          <p className="mt-3 max-w-measure text-body-lg font-medium text-ink/80">{displayedSummary}</p>
         </div>
       </section>
 
       <section className="memo-comparison border-t border-border px-memo-x py-memo-comparison-y sm:px-memo-x-sm sm:py-memo-comparison-y-sm lg:px-memo-x-lg lg:py-memo-comparison-y-lg" aria-labelledby="comparison-heading">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/45">Why not the other path</p>
-          <h2 id="comparison-heading" className="mt-2 max-w-5xl font-serif text-2xl font-semibold leading-tight tracking-[-0.025em] text-ink sm:text-3xl">
+          <p className="text-eyebrow text-ink/65">Why not the other path</p>
+          <h2 id="comparison-heading" className="mt-2 max-w-5xl font-serif text-section-title text-ink">
             What each path gives, and asks.
           </h2>
         </div>
 
         <div className="mt-6 border-y border-border-strong">
-          <div className="grid grid-cols-2 border-b border-border-strong text-sm font-semibold sm:grid-cols-[1.35fr_0.9fr_0.9fr]">
-            <div className="hidden px-memo-row-x-sm py-memo-row-y text-ink/45 sm:block">Dimension</div>
+          <div className="grid grid-cols-2 border-b border-border-strong text-body-sm font-semibold sm:grid-cols-[1.35fr_0.9fr_0.9fr]">
+            <div className="hidden px-memo-row-x-sm py-memo-row-y text-ink/65 sm:block">Dimension</div>
             <div className="bg-path-stay px-memo-row-x py-memo-header-cell-y text-white sm:border-l sm:border-border-strong sm:px-memo-row-x-sm sm:py-memo-row-y">Stay in the US</div>
             <div className="border-l border-white/25 bg-path-return px-memo-row-x py-memo-header-cell-y text-white sm:border-border-strong sm:px-memo-row-x-sm sm:py-memo-row-y">Return to China</div>
           </div>
@@ -111,9 +111,9 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
                 <div key={score.dimensionId} className="grid grid-cols-2 sm:grid-cols-[1.35fr_0.9fr_0.9fr]">
                   <div className="col-span-2 flex items-center gap-3 border-b border-memo-row-border-soft px-memo-row-x py-memo-row-y sm:col-span-1 sm:border-b-0 sm:px-memo-row-x-sm">
                     <Icon aria-hidden="true" className="h-4 w-4 shrink-0 text-ink/45" strokeWidth={1.6} />
-                    <span className="text-sm font-medium text-ink">{dimension?.label ?? score.dimensionId}</span>
+                    <span className="text-body-sm font-medium text-ink">{dimension?.label ?? score.dimensionId}</span>
                     {isBalanced ? (
-                      <span className="ml-auto text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-ink/40">Balanced</span>
+                      <span className="text-eyebrow ml-auto text-ink/65">Balanced</span>
                     ) : null}
                   </div>
                   <div className={`flex items-center justify-end border-l border-memo-row-border px-memo-row-x py-memo-row-y sm:px-memo-row-x-sm ${stayIsHigher ? "bg-path-stay/[0.07]" : ""}`}>
@@ -132,24 +132,24 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           </div>
         </div>
 
-        <p className="mt-3 text-xs leading-5 text-ink/45">Higher values are emphasized. Scores reflect the same dimension data used in your results.</p>
+        <p className="mt-3 text-label text-ink/65">Higher values are emphasized. Scores reflect the same dimension data used in your results.</p>
       </section>
 
       <div className="grid border-t border-border lg:grid-cols-[0.9fr_1.1fr]">
         <section className="memo-block border-b border-border px-memo-x py-memo-comparison-y sm:px-memo-x-sm lg:border-b-0 lg:border-r lg:px-memo-x-lg lg:py-memo-section-y-lg" aria-labelledby="risks-heading">
-          <h2 id="risks-heading" className="font-serif text-xl font-semibold tracking-[-0.02em] text-ink sm:text-2xl">Risks & uncertainty</h2>
+          <h2 id="risks-heading" className="font-serif text-card-title text-ink">Risks & uncertainty</h2>
           <ul className="mt-4 space-y-3">
             {report.tradeoffs.slice(1).map((item) => (
-              <li key={item} className="border-l border-ink/20 pl-4 text-sm leading-5 text-ink/70">{item}</li>
+              <li key={item} className="border-l border-ink/20 pl-4 text-body-sm text-ink/70">{item}</li>
             ))}
           </ul>
         </section>
 
         <section className="memo-block px-memo-x py-memo-comparison-y sm:px-memo-x-sm lg:px-memo-x-lg lg:py-memo-section-y-lg" aria-labelledby="next-steps-heading">
-          <h2 id="next-steps-heading" className="font-serif text-xl font-semibold tracking-[-0.02em] text-ink sm:text-2xl">Next steps</h2>
+          <h2 id="next-steps-heading" className="font-serif text-card-title text-ink">Next steps</h2>
           <ul className="mt-4 space-y-3">
             {report.nextSteps.map((item) => (
-              <li key={item} className="grid grid-cols-[auto_1fr] gap-3 text-sm leading-5 text-ink/75">
+              <li key={item} className="grid grid-cols-[auto_1fr] gap-3 text-body-sm text-ink/70">
                 <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded border border-ink/25 text-ink/60">
                   <Check aria-hidden="true" className="h-3 w-3" strokeWidth={2} />
                 </span>
@@ -161,8 +161,8 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
       </div>
 
       <footer className="memo-block border-t border-ink/10 px-memo-x py-memo-footer-y sm:px-memo-x-sm lg:px-memo-x-lg">
-        <p className="max-w-3xl text-xs leading-5 text-ink/50">{report.disclaimer}</p>
-        <p className="mt-5 font-serif text-base font-semibold text-ink/70">This reflects my thinking as of {generatedDate}.</p>
+        <p className="max-w-measure text-label text-ink/65">{report.disclaimer}</p>
+        <p className="mt-5 font-serif text-body font-semibold text-ink/70">This reflects my thinking as of {generatedDate}.</p>
       </footer>
     </article>
   );
