@@ -139,7 +139,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
         <section className="memo-block border-b border-border px-memo-x py-memo-comparison-y sm:px-memo-x-sm lg:border-b-0 lg:border-r lg:px-memo-x-lg lg:py-memo-section-y-lg" aria-labelledby="risks-heading">
           <h2 id="risks-heading" className="font-serif text-card-title text-ink">Risks & uncertainty</h2>
           <ul className="mt-4 space-y-3">
-            {report.tradeoffs.slice(1).map((item) => (
+            {report.tradeoffs.map((item) => (
               <li key={item} className="border-l border-ink/20 pl-4 text-body-sm text-ink/70">{item}</li>
             ))}
           </ul>
