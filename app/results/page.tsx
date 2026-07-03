@@ -207,13 +207,13 @@ export default function ResultsPage() {
             isRevealed ? "translate-y-0 scale-100 opacity-100" : "translate-y-3 scale-[0.985] opacity-0"
           }`}
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ink/55">Step 3 / Results</p>
+          <p className="text-eyebrow text-ink-accent">Step 3 / Results</p>
 
           <div className="mt-7 grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-end">
             <div>
-              <p className="text-sm font-medium text-ink/60">Your conclusion</p>
+              <p className="text-body-sm font-medium text-ink/70">Your conclusion</p>
               <h1
-                className="mt-3 max-w-3xl font-serif text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl"
+                className="mt-3 max-w-3xl font-serif text-display"
                 style={{ color: accentColor }}
               >
                 {conclusionHeadline}
@@ -230,14 +230,14 @@ export default function ResultsPage() {
                 >
                   <TopContributionIcon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                 </span>
-                <p className="pt-1 text-base leading-7 text-ink/75">{conclusionHook}</p>
+                <p className="pt-1 text-body-lg text-ink/70">{conclusionHook}</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="rounded-tile border border-surface-strong/80 bg-surface-strong/80 px-4 py-3 shadow-legacy-sm">
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-sm font-medium text-ink/65">Confidence</span>
+                  <span className="text-body-sm font-medium text-ink/70">Confidence</span>
                   <span className="text-sm font-semibold capitalize text-ink">{scoringResult.confidence}</span>
                 </div>
                 <div className="mt-3 flex gap-2" role="img" aria-label={`${scoringResult.confidence} confidence`}>
@@ -269,10 +269,10 @@ export default function ResultsPage() {
       <section className="rounded-feature border border-border bg-surface p-6 shadow-legacy-sm sm:p-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent-warm">Key drivers</p>
-            <h2 className="mt-2 font-serif text-2xl font-semibold text-ink sm:text-3xl">What moves the result</h2>
+            <p className="text-eyebrow text-ink-accent">Key drivers</p>
+            <h2 className="mt-2 font-serif text-section-title text-ink">What moves the result</h2>
           </div>
-          <p className="text-sm text-ink/60">Largest weighted gaps first.</p>
+          <p className="text-body-sm text-ink/70">Largest weighted gaps first.</p>
         </div>
 
         <div className="mt-6 space-y-4">
@@ -298,8 +298,8 @@ export default function ResultsPage() {
                   </span>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="font-medium text-ink">{dimension?.label ?? contribution.dimensionId}</p>
-                      <span className="text-xs font-medium" style={{ color: driverColor }}>
+                      <p className="text-body font-medium text-ink">{dimension?.label ?? contribution.dimensionId}</p>
+                      <span className="text-label font-medium" style={{ color: driverColor }}>
                         {driverLabel}
                       </span>
                     </div>
@@ -310,24 +310,24 @@ export default function ResultsPage() {
                       />
                     </div>
                   </div>
-                  <span className="text-sm font-semibold text-ink">{Math.abs(contribution.weightedGap)}</span>
+                  <span className="text-body-sm font-semibold text-ink">{Math.abs(contribution.weightedGap)}</span>
                 </div>
               );
             })
           ) : (
-            <p className="rounded-tile bg-surface-strong/75 p-4 text-sm text-ink/65">No single dimension stands out.</p>
+            <p className="rounded-tile bg-surface-strong/75 p-4 text-body-sm text-ink/65">No single dimension stands out.</p>
           )}
         </div>
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="interaction-card rounded-feature border border-ink/10 bg-surface-strong p-5 shadow-legacy-sm sm:p-6">
-          <h2 className="font-serif text-2xl font-semibold text-ink">Total score comparison</h2>
-          <p className="mt-2 text-sm text-ink/60">Compare the two weighted totals.</p>
+          <h2 className="font-serif text-section-title text-ink">Total score comparison</h2>
+          <p className="mt-2 text-body-sm text-ink/70">Compare the two weighted totals.</p>
 
           <div className="mt-5 flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/55">Score face-off</p>
-            <span className="text-xs font-medium" style={{ color: accentColor }}>
+            <p className="text-eyebrow text-ink/65">Score face-off</p>
+            <span className="text-label font-medium" style={{ color: accentColor }}>
               {recommendedLabel} leads
             </span>
           </div>
@@ -341,9 +341,9 @@ export default function ResultsPage() {
               }}
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-medium text-ink/65">Stay</p>
+                <p className="text-body-sm font-medium text-ink/70">Stay</p>
                 {isStayRecommended ? (
-                  <span className="text-[10px] font-semibold uppercase text-path-stay">Leading</span>
+                  <span className="text-eyebrow text-path-stay">Leading</span>
                 ) : null}
               </div>
               <p className="mt-2 text-3xl font-semibold text-path-stay sm:text-4xl">
@@ -365,9 +365,9 @@ export default function ResultsPage() {
               }}
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-medium text-ink/65">Return</p>
+                <p className="text-body-sm font-medium text-ink/70">Return</p>
                 {!isStayRecommended ? (
-                  <span className="text-[10px] font-semibold uppercase text-path-return">Leading</span>
+                  <span className="text-eyebrow text-path-return">Leading</span>
                 ) : null}
               </div>
               <p className="mt-2 text-3xl font-semibold text-path-return sm:text-4xl">
@@ -383,7 +383,7 @@ export default function ResultsPage() {
           </div>
 
           <div className="mt-3 flex items-center justify-center">
-            <span className="rounded-pill border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-ink/70">
+            <span className="rounded-pill border border-border bg-surface px-3 py-1.5 text-label font-semibold text-ink/70">
               Gap <AnimatedNumber value={scoringResult.weightedTotals.difference} delay={220} />
             </span>
           </div>
@@ -397,8 +397,8 @@ export default function ResultsPage() {
         </section>
 
         <section className="interaction-card rounded-feature border border-ink/10 bg-surface-strong p-5 shadow-legacy-sm sm:p-6">
-          <h2 className="font-serif text-2xl font-semibold text-ink">Dimension contributions</h2>
-          <p className="mt-2 text-sm text-ink/60">See which dimensions move the result.</p>
+          <h2 className="font-serif text-section-title text-ink">Dimension contributions</h2>
+          <p className="mt-2 text-body-sm text-ink/70">See which dimensions move the result.</p>
           <div className="mt-5">
             <DimensionChart contributions={scoringResult.contributions} />
           </div>
@@ -406,8 +406,8 @@ export default function ResultsPage() {
       </div>
 
       <section className="interaction-card rounded-feature border border-ink/10 bg-surface-strong p-5 shadow-legacy-sm sm:p-6">
-        <h2 className="font-serif text-2xl font-semibold text-ink">Shape comparison</h2>
-        <p className="mt-2 text-sm text-ink/60">Compare each path across all dimensions.</p>
+        <h2 className="font-serif text-section-title text-ink">Shape comparison</h2>
+        <p className="mt-2 text-body-sm text-ink/70">Compare each path across all dimensions.</p>
         <div className="mt-5">
           <RadarChart scores={scoringResult.normalizedByDimension} />
         </div>
@@ -416,8 +416,8 @@ export default function ResultsPage() {
       <details className="interaction-disclosure group rounded-feature border border-border bg-surface/70 shadow-legacy-sm">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-6">
           <div>
-            <h2 className="font-serif text-xl font-semibold text-ink sm:text-2xl">More detail</h2>
-            <p className="mt-1 text-sm text-ink/60">Uncertainty, weight sensitivity, and score table.</p>
+            <h2 className="font-serif text-card-title text-ink">More detail</h2>
+            <p className="mt-1 text-body-sm text-ink/70">Uncertainty, weight sensitivity, and score table.</p>
           </div>
           <ChevronDown
             aria-hidden="true"
@@ -427,37 +427,37 @@ export default function ResultsPage() {
 
         <div className="grid gap-6 border-t border-border p-5 sm:p-6 lg:grid-cols-2">
           <section>
-            <h3 className="font-semibold text-ink">Still close</h3>
+            <h3 className="text-body font-semibold text-ink">Still close</h3>
             <div className="mt-3 flex flex-wrap gap-2">
               {closeDimensions.length > 0 ? (
                 closeDimensions.map((dimension) => (
-                  <span key={dimension.id} className="rounded-pill bg-surface-strong px-3 py-2 text-sm text-ink/70 shadow-legacy-sm">
+                  <span key={dimension.id} className="rounded-pill bg-surface-strong px-3 py-2 text-body-sm text-ink/70 shadow-legacy-sm">
                     {dimension.shortLabel}
                   </span>
                 ))
               ) : (
-                <span className="text-sm text-ink/60">No close dimensions.</span>
+                <span className="text-body-sm text-ink/70">No close dimensions.</span>
               )}
             </div>
           </section>
 
           <section>
-            <h3 className="font-semibold text-ink">Weight sensitivity</h3>
+            <h3 className="text-body font-semibold text-ink">Weight sensitivity</h3>
             <div className="mt-3 flex gap-3">
               <div className="rounded-tile bg-surface-strong px-4 py-3 shadow-legacy-sm">
-                <p className="text-xs text-ink/55">Current gap</p>
+                <p className="text-label text-ink/65">Current gap</p>
                 <p className="mt-1 text-lg font-semibold text-ink">
                   {scoringResult.weightFlipAnalysis.currentTotalGap}
                 </p>
               </div>
               <div className="rounded-tile bg-surface-strong px-4 py-3 shadow-legacy-sm">
-                <p className="text-xs text-ink/55">Possible shift</p>
+                <p className="text-label text-ink/65">Possible shift</p>
                 <p className="mt-1 text-lg font-semibold text-ink">
                   {scoringResult.weightFlipAnalysis.totalPotentialShift}
                 </p>
               </div>
             </div>
-            <p className="mt-3 text-sm text-ink/65">
+            <p className="mt-3 text-body-sm text-ink/65">
               {scoringResult.weightFlipAnalysis.couldFlip
                 ? "Weight changes could reverse the lead."
                 : "Weights alone are unlikely to reverse the lead."}
@@ -465,19 +465,19 @@ export default function ResultsPage() {
           </section>
 
           <section className="lg:col-span-2">
-            <h3 className="font-semibold text-ink">Dimension scores</h3>
+            <h3 className="text-body font-semibold text-ink">Dimension scores</h3>
             <div className="mt-4 rounded-tile bg-surface-strong p-4 shadow-legacy-sm">
               <DimensionScoreTable scores={scoringResult.normalizedByDimension} />
             </div>
-            <p className="mt-3 text-xs text-ink/55">Reflects your current answers and weights.</p>
+            <p className="mt-3 text-label text-ink/65">Reflects your current answers and weights.</p>
           </section>
         </div>
       </details>
 
       <footer className="flex flex-col gap-5 rounded-feature border border-border bg-surface-strong p-6 shadow-legacy-sm sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <div>
-          <h2 className="font-serif text-2xl font-semibold text-ink">Read the full memo</h2>
-          <p className="mt-2 text-sm text-ink/60">Recommendation, tradeoffs, and next steps.</p>
+          <h2 className="font-serif text-section-title text-ink">Read the full memo</h2>
+          <p className="mt-2 text-body-sm text-ink/70">Recommendation, tradeoffs, and next steps.</p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link
