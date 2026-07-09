@@ -6,24 +6,46 @@ import { useEffect, useRef, useState } from "react";
 type VideoPanelProps = {
   accentClassName: string;
   label: string;
-  shouldPlayVideo: boolean;
+  posterSrc: string;
+  shouldLoadVideo: boolean;
   src: string;
 };
 
-function VideoPanel({ accentClassName, label, shouldPlayVideo, src }: VideoPanelProps) {
+function VideoPanel({ accentClassName, label, posterSrc, shouldLoadVideo, src }: VideoPanelProps) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [hasVideoError, setHasVideoError] = useState(false);
+  const showVideo = shouldLoadVideo && !hasVideoError;
+
+  useEffect(() => {
+    if (!showVideo) {
+      return;
+    }
+
+    videoRef.current?.play().catch(() => {
+      // Autoplay can still be blocked by some browser settings; the poster stays visible.
+    });
+  }, [showVideo]);
 
   return (
     <div className="rounded-card border border-home-border/25 bg-home-surface/75 p-3 shadow-home-glow backdrop-blur-sm">
       <div className="relative min-h-[34rem] overflow-hidden rounded-tile bg-hero sm:min-h-[42rem] lg:min-h-[48rem]">
-        {!hasVideoError ? (
+        <img
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
+          loading="lazy"
+          src={posterSrc}
+        />
+        {showVideo ? (
           <video
+            ref={videoRef}
             aria-hidden="true"
             className="absolute inset-0 h-full w-full object-cover"
-            autoPlay={shouldPlayVideo}
+            autoPlay
             loop
             muted
             playsInline
+            poster={posterSrc}
             preload="metadata"
             src={src}
             tabIndex={-1}
@@ -42,36 +64,54 @@ function VideoPanel({ accentClassName, label, shouldPlayVideo, src }: VideoPanel
 
 export function TwoPathsVideoSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const [shouldPlayVideo, setShouldPlayVideo] = useState(false);
+  const [isNearView, setIsNearView] = useState(false);
+  const [allowsMotion, setAllowsMotion] = useState(false);
 
   useEffect(() => {
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    const syncVideoPlayback = () => {
-      const canPlay = !motionQuery.matches;
-      const videos = Array.from(sectionRef.current?.querySelectorAll("video") ?? []);
-
-      setShouldPlayVideo(canPlay);
-
-      videos.forEach((video) => {
-        if (canPlay) {
-          video.play().catch(() => {
-            // Autoplay can still be blocked by some browser settings; the fallback panel remains readable.
-          });
-        } else {
-          video.pause();
-          video.currentTime = 0;
-        }
-      });
+    const syncMotionPreference = () => {
+      setAllowsMotion(!motionQuery.matches);
     };
 
-    syncVideoPlayback();
-    motionQuery.addEventListener("change", syncVideoPlayback);
+    syncMotionPreference();
+    motionQuery.addEventListener("change", syncMotionPreference);
 
     return () => {
-      motionQuery.removeEventListener("change", syncVideoPlayback);
+      motionQuery.removeEventListener("change", syncMotionPreference);
     };
   }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+
+    if (!section) {
+      return;
+    }
+
+    if (typeof IntersectionObserver === "undefined") {
+      setIsNearView(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setIsNearView(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+
+    observer.observe(section);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  const shouldLoadVideo = isNearView && allowsMotion;
 
   return (
     <section ref={sectionRef} className="py-16 lg:py-24" aria-labelledby="two-paths-heading">
@@ -89,13 +129,15 @@ export function TwoPathsVideoSection() {
         <VideoPanel
           accentClassName="bg-path-stay"
           label="Stay in the US"
-          shouldPlayVideo={shouldPlayVideo}
+          posterSrc="/manhattan-poster.jpg"
+          shouldLoadVideo={shouldLoadVideo}
           src="/manhattan.mp4"
         />
         <VideoPanel
           accentClassName="bg-path-return"
           label="Return to China"
-          shouldPlayVideo={shouldPlayVideo}
+          posterSrc="/shanghai-poster.jpg"
+          shouldLoadVideo={shouldLoadVideo}
           src="/shanghai.mp4"
         />
       </div>
