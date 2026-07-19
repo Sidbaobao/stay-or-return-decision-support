@@ -1,29 +1,12 @@
-import {
-  Briefcase,
-  Check,
-  HeartHandshake,
-  Scale,
-  Sprout,
-  Stamp,
-  Sun,
-  type LucideIcon
-} from "lucide-react";
+import { Check } from "lucide-react";
 import { dimensions } from "@/data/dimensions";
-import { DimensionId, RecommendationReport, ScoringResult, ScenarioId } from "@/types";
+import { dimensionIcons } from "@/components/results/dimension-icons";
+import { RecommendationReport, ScoringResult, ScenarioId } from "@/types";
 
 type ReportSummaryProps = {
   report: RecommendationReport;
   scoringResult: ScoringResult;
   generatedDate: string;
-};
-
-const dimensionIcons: Record<DimensionId, LucideIcon> = {
-  career: Briefcase,
-  salary_cost: Scale,
-  immigration: Stamp,
-  family_emotion: HeartHandshake,
-  lifestyle: Sun,
-  long_term: Sprout
 };
 
 const scenarioLabels: Record<ScenarioId, string> = {
@@ -37,8 +20,27 @@ const confidenceLabels = {
   high: "High confidence"
 } as const;
 
-function formatScore(value: number) {
-  return Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1);
+// Shared floor with the Results lean rows so tiny leans don't overfill the bar.
+const MIN_SHARED_SCALE = 20;
+
+// "Still close" comes from uncertainDimensions membership (|rawGap| ≤ 10 in lib/scoring.ts);
+// the ≤25 wording boundary echoes the engine's moderate-confidence band but is presentation copy.
+function getLeanStatement(favoredScenario: ScenarioId | "tie", rawGap: number, isStillClose: boolean) {
+  if (favoredScenario === "tie") {
+    return "Balanced between the paths";
+  }
+
+  const pathLabel = favoredScenario === "stay_us" ? "staying" : "returning";
+
+  if (isStillClose) {
+    return `Leans toward ${pathLabel} — still close`;
+  }
+
+  if (Math.abs(rawGap) <= 25) {
+    return `Leans toward ${pathLabel}`;
+  }
+
+  return `Clearly favors ${pathLabel}`;
 }
 
 function normalizeDisplayedSummary(summary: string) {
@@ -92,47 +94,94 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           </h2>
         </div>
 
-        <div className="mt-6 border-y border-border-strong">
-          <div className="grid grid-cols-2 border-b border-border-strong text-body-sm font-semibold sm:grid-cols-[1.35fr_0.9fr_0.9fr]">
-            <div className="hidden px-memo-row-x-sm py-memo-row-y text-ink/65 sm:block">Dimension</div>
-            <div className="bg-path-stay px-memo-row-x py-memo-header-cell-y text-white sm:border-l sm:border-border-strong sm:px-memo-row-x-sm sm:py-memo-row-y">Stay in the US</div>
-            <div className="border-l border-white/25 bg-path-return px-memo-row-x py-memo-header-cell-y text-white sm:border-border-strong sm:px-memo-row-x-sm sm:py-memo-row-y">Return to China</div>
+        <div className="mt-5 max-w-measure space-y-3">
+          {report.whyNotOtherPath.map((paragraph) => (
+            <p key={paragraph} className="text-body text-ink/80">
+              {paragraph}
+            </p>
+          ))}
+        </div>
+
+        <div className="mt-7 border-y border-border-strong">
+          <div className="grid grid-cols-1 border-b border-border-strong text-label sm:grid-cols-[1.35fr_1fr]">
+            <div className="hidden px-memo-row-x-sm py-memo-row-y font-semibold text-ink/65 sm:block">Dimension</div>
+            <div className="flex items-baseline justify-between px-memo-row-x py-memo-row-y sm:px-memo-row-x-sm">
+              <span className="font-semibold text-path-stay">Stay</span>
+              <span className="font-semibold text-ink/65">Balanced</span>
+              <span className="font-semibold text-path-return">Return</span>
+            </div>
           </div>
 
           <div className="divide-y divide-memo-row-border">
-            {scoringResult.normalizedByDimension.map((score) => {
-              const dimension = dimensions.find((item) => item.id === score.dimensionId);
-              const Icon = dimensionIcons[score.dimensionId];
-              const stayIsHigher = score.stay_us > score.return_china;
-              const returnIsHigher = score.return_china > score.stay_us;
-              const isBalanced = score.stay_us === score.return_china;
-
-              return (
-                <div key={score.dimensionId} className="grid grid-cols-2 sm:grid-cols-[1.35fr_0.9fr_0.9fr]">
-                  <div className="col-span-2 flex items-center gap-3 border-b border-memo-row-border-soft px-memo-row-x py-memo-row-y sm:col-span-1 sm:border-b-0 sm:px-memo-row-x-sm">
-                    <Icon aria-hidden="true" className="h-4 w-4 shrink-0 text-ink/45" strokeWidth={1.6} />
-                    <span className="text-body-sm font-medium text-ink">{dimension?.label ?? score.dimensionId}</span>
-                    {isBalanced ? (
-                      <span className="text-eyebrow ml-auto text-ink/65">Balanced</span>
-                    ) : null}
-                  </div>
-                  <div className={`flex items-center justify-end border-l border-memo-row-border px-memo-row-x py-memo-row-y sm:px-memo-row-x-sm ${stayIsHigher ? "bg-path-stay/[0.07]" : ""}`}>
-                    <span className={`font-serif text-xl text-path-stay ${stayIsHigher ? "font-semibold" : "font-medium opacity-60"}`}>
-                      {formatScore(score.stay_us)}
-                    </span>
-                  </div>
-                  <div className={`flex items-center justify-end border-l border-memo-row-border px-memo-row-x py-memo-row-y sm:px-memo-row-x-sm ${returnIsHigher ? "bg-path-return/[0.06]" : ""}`}>
-                    <span className={`font-serif text-xl text-path-return ${returnIsHigher ? "font-semibold" : "font-medium opacity-60"}`}>
-                      {formatScore(score.return_china)}
-                    </span>
-                  </div>
-                </div>
+            {(() => {
+              const sharedScale = Math.max(
+                MIN_SHARED_SCALE,
+                ...scoringResult.contributions.map((contribution) => Math.abs(contribution.rawGap))
               );
-            })}
+
+              return scoringResult.contributions.map((contribution) => {
+                const dimension = dimensions.find((item) => item.id === contribution.dimensionId);
+                const Icon = dimensionIcons[contribution.dimensionId];
+                const isBalanced = contribution.favoredScenario === "tie";
+                const supportsStay = contribution.favoredScenario === "stay_us";
+                const isStillClose = scoringResult.uncertainDimensions.includes(contribution.dimensionId);
+                const statement = getLeanStatement(contribution.favoredScenario, contribution.rawGap, isStillClose);
+                const barWidth = (Math.abs(contribution.rawGap) / sharedScale) * 50;
+
+                return (
+                  <div
+                    key={contribution.dimensionId}
+                    className="grid grid-cols-1 gap-2.5 px-memo-row-x py-memo-row-y sm:grid-cols-[1.35fr_1fr] sm:items-center sm:gap-4 sm:px-memo-row-x-sm"
+                  >
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                      <span className="flex items-center gap-3">
+                        <Icon aria-hidden="true" className="h-4 w-4 shrink-0 self-center text-ink/45" strokeWidth={1.6} />
+                        <span className="text-body-sm font-medium text-ink">
+                          {dimension?.label ?? contribution.dimensionId}
+                          <span className="sr-only">
+                            {isBalanced ? "" : `, leans by ${Math.abs(contribution.rawGap)} points`}
+                          </span>
+                        </span>
+                      </span>
+                      <span
+                        className="text-label font-medium"
+                        style={
+                          isBalanced
+                            ? undefined
+                            : {
+                                color: supportsStay
+                                  ? "rgb(var(--color-path-stay))"
+                                  : "rgb(var(--color-path-return))"
+                              }
+                        }
+                      >
+                        {statement}
+                      </span>
+                    </div>
+
+                    <div aria-hidden="true" className="relative h-2 rounded-pill bg-result-driver-track">
+                      {!isBalanced ? (
+                        <div
+                          className={`absolute inset-y-0 ${
+                            supportsStay
+                              ? "right-1/2 rounded-l-pill bg-path-stay"
+                              : "left-1/2 rounded-r-pill bg-path-return"
+                          }`}
+                          style={{ width: `${barWidth}%` }}
+                        />
+                      ) : null}
+                      <div className="absolute left-1/2 top-1/2 h-3.5 w-px -translate-x-1/2 -translate-y-1/2 bg-ink/20" />
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
 
-        <p className="mt-3 text-label text-ink/65">Higher values are emphasized.</p>
+        <p className="mt-3 text-label text-ink/65">
+          One lean per dimension — bars share one scale and show which path each dimension favors, and how strongly.
+        </p>
       </section>
 
       <div className="grid border-t border-border lg:grid-cols-[0.9fr_1.1fr]">
