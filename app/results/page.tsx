@@ -2,45 +2,39 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, User } from "lucide-react";
 import { questions } from "@/data/questions";
 import { dimensions } from "@/data/dimensions";
-import { filterAnswersToCurrent, loadAppState } from "@/lib/storage";
+import {
+  buildRunSignature,
+  filterAnswersToCurrent,
+  ensureLocalProfile,
+  hasReportedRunStat,
+  loadAppState,
+  markRunStatReported,
+  recordRunInHistory,
+  updateLocalProfile
+} from "@/lib/storage";
+import { reportCompletionStat } from "@/lib/stats-client";
 import { usePrerequisiteGuard } from "@/lib/guards";
 import { scoreDecision } from "@/lib/scoring";
-import { AppState, ConfidenceLevel, ScenarioId } from "@/types";
+import { AppState, LocalProfile } from "@/types";
 import { DecisionBalance } from "@/components/results/decision-balance";
 import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
 import { dimensionIcons } from "@/components/results/dimension-icons";
+import { getConclusionHeadline } from "@/components/results/verdict-copy";
+import { ShareResultButton } from "@/components/share/share-result-button";
 import { PrimaryButtonLink } from "@/components/ui/primary-button";
-
-function getConclusionHeadline(direction: ScenarioId, confidence: ConfidenceLevel, gap: number) {
-  const isStayDirection = direction === "stay_us";
-
-  if (confidence === "high" && gap > 25) {
-    return isStayDirection
-      ? "The US is clearly your path right now."
-      : "Returning to China is clearly your path right now.";
-  }
-
-  if (confidence === "medium" && gap >= 10 && gap <= 25) {
-    return isStayDirection
-      ? "You're leaning toward staying—with real tradeoffs."
-      : "You're leaning toward returning—with real tradeoffs.";
-  }
-
-  return isStayDirection
-    ? "It's close. You lean slightly toward staying."
-    : "It's close. You lean slightly toward returning.";
-}
 
 export default function ResultsPage() {
   const isReady = usePrerequisiteGuard("weights");
   const [state, setState] = useState<AppState | null>(null);
   const [isRevealed, setIsRevealed] = useState(false);
+  const [profile, setProfile] = useState<LocalProfile | null>(null);
 
   useEffect(() => {
     setState(loadAppState());
+    setProfile(ensureLocalProfile());
   }, []);
 
   const scoringResult = useMemo(() => {
@@ -51,6 +45,52 @@ export default function ResultsPage() {
     const currentAnswers = filterAnswersToCurrent(state.answers, questions);
     return scoreDecision(currentAnswers, state.weights);
   }, [state]);
+
+  // Every completed run is snapshotted into device-local history (dedupe by
+  // signature makes re-visits update the existing entry instead of stacking).
+  useEffect(() => {
+    if (!scoringResult || !state) {
+      return;
+    }
+
+    const currentAnswers = filterAnswersToCurrent(state.answers, questions);
+
+    if (Object.keys(currentAnswers).length < questions.length) {
+      return;
+    }
+
+    const rankedByWeightedGap = [...scoringResult.contributions].sort(
+      (left, right) => Math.abs(right.weightedGap) - Math.abs(left.weightedGap)
+    );
+    const strongestContribution = rankedByWeightedGap[0];
+
+    recordRunInHistory({
+      answers: currentAnswers,
+      weights: state.weights,
+      direction: scoringResult.recommendedScenario,
+      confidence: scoringResult.confidence,
+      difference: scoringResult.weightedTotals.difference,
+      topDimensionId:
+        strongestContribution && Math.abs(strongestContribution.weightedGap) > 0
+          ? strongestContribution.dimensionId
+          : null
+    });
+
+    // One anonymous stat event per unique completed run: the signature is
+    // marked locally before sending, so reloads and re-visits never
+    // double-count. Only the coarse direction + confidence tier are sent.
+    const signature = buildRunSignature(currentAnswers, state.weights);
+
+    if (!hasReportedRunStat(signature)) {
+      markRunStatReported(signature);
+      reportCompletionStat(
+        scoringResult.weightedTotals.difference === 0
+          ? "balanced"
+          : scoringResult.recommendedScenario,
+        scoringResult.confidence
+      );
+    }
+  }, [scoringResult, state]);
 
   useEffect(() => {
     if (!scoringResult) {
@@ -69,7 +109,7 @@ export default function ResultsPage() {
     return () => window.cancelAnimationFrame(frameId);
   }, [scoringResult]);
 
-  if (!isReady || !scoringResult) {
+  if (!isReady || !scoringResult || !state) {
     return null;
   }
 
@@ -241,6 +281,65 @@ export default function ResultsPage() {
           </section>
         </div>
       </details>
+
+      <section
+        aria-labelledby="share-heading"
+        className="flex flex-col gap-4 rounded-feature border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
+      >
+        <div className="min-w-0">
+          <h2 id="share-heading" className="font-serif text-card-title text-ink">
+            Share this result
+          </h2>
+          <p className="mt-1 max-w-measure text-body-sm text-ink/65">
+            The link carries your answers and weights inside it — nothing is uploaded, but anyone
+            you send it to can see this result. Share it only with people you trust.
+          </p>
+        </div>
+        <div className="shrink-0">
+          <ShareResultButton
+            answers={filterAnswersToCurrent(state.answers, questions)}
+            weights={state.weights}
+          />
+        </div>
+      </section>
+
+      {profile && !profile.nickname && !profile.nudgeDismissed ? (
+        <aside
+          aria-label="Local profile suggestion"
+          className="flex flex-col gap-4 rounded-feature border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
+        >
+          <div className="flex items-start gap-3">
+            <span
+              aria-hidden="true"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-tile text-ink-accent"
+              style={{ backgroundColor: "rgb(var(--color-accent-warm) / 0.16)" }}
+            >
+              <User className="h-5 w-5" strokeWidth={1.8} />
+            </span>
+            <div>
+              <p className="text-body font-medium text-ink">This result is saved on this device.</p>
+              <p className="mt-1 text-body-sm text-ink/70">
+                Add a nickname to make it yours — everything stays in this browser, private to you.
+              </p>
+            </div>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <Link
+              href="/profile"
+              className="interaction-secondary rounded-control border border-ink/15 px-4 py-2 text-sm font-medium text-ink/75"
+            >
+              Add a nickname
+            </Link>
+            <button
+              type="button"
+              onClick={() => setProfile(updateLocalProfile({ nudgeDismissed: true }))}
+              className="interaction-quiet rounded-control px-2 py-1.5 text-sm font-medium text-ink/60 hover:text-ink"
+            >
+              Not now
+            </button>
+          </div>
+        </aside>
+      ) : null}
 
       <footer className="flex flex-col gap-5 rounded-feature border border-border bg-surface-strong p-6 shadow-legacy-sm sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <div>

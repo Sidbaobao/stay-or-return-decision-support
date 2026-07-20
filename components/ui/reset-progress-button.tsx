@@ -26,7 +26,7 @@ export function ResetProgressButton({ variant = "default" }: ResetProgressButton
       onClick={handleReset}
       className={className}
     >
-      Reset progress
+      Reset current run
     </button>
   );
 }

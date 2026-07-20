@@ -9,6 +9,7 @@ import {
   hasCompleteAnswers,
   hasWeights,
   loadAppState,
+  loadRunHistory,
   resetAppState
 } from "@/lib/storage";
 
@@ -25,6 +26,7 @@ export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
   const router = useRouter();
   const [progressState, setProgressState] = useState<ProgressState>("fresh");
   const [canReviewResults, setCanReviewResults] = useState(false);
+  const [hasHistory, setHasHistory] = useState(false);
   const alignmentClassName = align === "end" ? "items-center lg:items-end" : "items-center";
 
   useEffect(() => {
@@ -42,6 +44,7 @@ export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
     }
 
     setCanReviewResults(answersComplete && hasWeights(state));
+    setHasHistory(loadRunHistory().length > 0);
   }, []);
 
   const handleStartOver = () => {
@@ -80,6 +83,14 @@ export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
         >
           Or start over
         </button>
+      ) : null}
+      {progressState === "fresh" && hasHistory ? (
+        <Link
+          href="/profile"
+          className="interaction-quiet rounded-control px-1 text-xs font-medium leading-5 text-current opacity-65 hover:opacity-100"
+        >
+          Or revisit a past decision
+        </Link>
       ) : null}
     </div>
   );

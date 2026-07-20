@@ -8,11 +8,16 @@ import { DimensionContribution, DimensionId } from "@/types";
 type DimensionLeanRowsProps = {
   contributions: DimensionContribution[];
   uncertainDimensionIds: DimensionId[];
+  footnote?: string;
 };
 
 const MIN_SHARED_SCALE = 20;
 
-export function DimensionLeanRows({ contributions, uncertainDimensionIds }: DimensionLeanRowsProps) {
+export function DimensionLeanRows({
+  contributions,
+  uncertainDimensionIds,
+  footnote = "Bars share one scale and show how far your answers lean; the number is each dimension's weighted pull on the overall result."
+}: DimensionLeanRowsProps) {
   const listRef = useRef<HTMLUListElement | null>(null);
   const [isInView, setIsInView] = useState(false);
 
@@ -154,10 +159,7 @@ export function DimensionLeanRows({ contributions, uncertainDimensionIds }: Dime
         })}
       </ul>
 
-      <p className="mt-4 text-label text-ink/65">
-        Bars share one scale and show how far your answers lean; the number is each dimension&apos;s weighted pull
-        on the overall result.
-      </p>
+      <p className="mt-4 text-label text-ink/65">{footnote}</p>
     </div>
   );
 }

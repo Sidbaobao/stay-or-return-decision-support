@@ -12,6 +12,7 @@ import {
   loadAppState
 } from "@/lib/storage";
 import { ResetProgressButton } from "@/components/ui/reset-progress-button";
+import { ProfileChip } from "@/components/layout/profile-chip";
 
 const navItems = [
   { href: "/", label: "Home", requirement: "none" },
@@ -141,7 +142,10 @@ export function TopNav() {
             <NavLinks pathname={pathname} isHome={isHome} unlockState={unlockState} />
           </nav>
 
-          <ResetProgressButton variant={isHome ? "light" : "default"} />
+          <div className="flex items-center gap-3">
+            <ResetProgressButton variant={isHome ? "light" : "default"} />
+            <ProfileChip variant={isHome ? "light" : "default"} />
+          </div>
         </div>
 
         <nav

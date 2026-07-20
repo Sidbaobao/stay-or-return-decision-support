@@ -83,6 +83,31 @@ export type AppState = {
   weights: Weights;
 };
 
+// Device-only identity and history. Stored in this browser's localStorage and
+// never sent anywhere — there is no account, no sync, no server copy.
+export type ProfileAccentId = "stay" | "return" | "warm";
+
+export type LocalProfile = {
+  profileVersion: "v1";
+  nickname: string;
+  accentId: ProfileAccentId;
+  createdAt: string;
+  nudgeDismissed: boolean;
+};
+
+export type HistoryEntry = {
+  id: string;
+  completedAt: string;
+  questionsVersion: string;
+  signature: string;
+  direction: ScenarioId;
+  confidence: ConfidenceLevel;
+  difference: number;
+  topDimensionId: DimensionId | null;
+  answers: Answers;
+  weights: Weights;
+};
+
 export type ScoringResult = {
   rawByDimension: RawDimensionScore[];
   normalizedByDimension: NormalizedDimensionScore[];
