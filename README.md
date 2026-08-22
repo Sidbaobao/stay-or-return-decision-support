@@ -1,4 +1,4 @@
-### 1. Stay or Return
+## Stay or Return
 
 **An explainable decision tool for Chinese international students choosing between staying in the U.S. and returning to China.**
 
