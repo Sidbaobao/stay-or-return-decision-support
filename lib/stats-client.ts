@@ -1,14 +1,14 @@
 "use client";
 
-import { ConfidenceLevel } from "@/types";
+import { StatConfidence, StatDirection } from "@/lib/stats-schema";
 
-export type StatDirection = "stay_us" | "return_china" | "balanced";
+export type { StatDirection } from "@/lib/stats-schema";
 
 // Fire-and-forget anonymous completion event. The payload is the entire
 // transmission: one coarse direction and one confidence tier. No ids, no
 // answers, no weights, no nickname — and failures are swallowed so stats can
 // never block or break the experience.
-export function reportCompletionStat(direction: StatDirection, confidence: ConfidenceLevel) {
+export function reportCompletionStat(direction: StatDirection, confidence: StatConfidence) {
   try {
     const payload = JSON.stringify({ direction, confidence });
 
