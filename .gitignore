@@ -1,8 +1,8 @@
 node_modules
 dist
 .env
+.env*.local
 .next/
 .next
-.agents/
 output/
 tsconfig.tsbuildinfo
