@@ -16,6 +16,7 @@ import {
   updateLocalProfile
 } from "@/lib/storage";
 import { reportCompletionStat } from "@/lib/stats-client";
+import { toStatDirection } from "@/lib/stats-schema";
 import { usePrerequisiteGuard } from "@/lib/guards";
 import { scoreDecision } from "@/lib/scoring";
 import { AppState, LocalProfile } from "@/types";
@@ -83,12 +84,7 @@ export default function ResultsPage() {
 
     if (!hasReportedRunStat(signature)) {
       markRunStatReported(signature);
-      reportCompletionStat(
-        scoringResult.weightedTotals.difference === 0
-          ? "balanced"
-          : scoringResult.recommendedScenario,
-        scoringResult.confidence
-      );
+      reportCompletionStat(toStatDirection(scoringResult), scoringResult.confidence);
     }
   }, [scoringResult, state]);
 

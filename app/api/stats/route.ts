@@ -1,43 +1,41 @@
 import { createHash, timingSafeEqual } from "crypto";
-import { isStatsStoreConfigured, runRedisPipeline } from "@/lib/server/stats-store";
+import { isStatConfidence, isStatDirection, STAT_CONFIDENCES, STAT_DIRECTIONS } from "@/lib/stats-schema";
+import { readEnv } from "@/lib/server/env";
+import {
+  closeDay,
+  COUNT_COMPLETION_SCRIPT,
+  getClientIp,
+  GLOBAL_DAILY_LIMIT,
+  GLOBAL_WINDOW_SECONDS,
+  ipLimiterKeys,
+  isDayClosed,
+  PER_IP_DAY_WINDOW_SECONDS,
+  PER_IP_LIMIT_PER_DAY,
+  PER_IP_LIMIT_PER_MINUTE,
+  PER_IP_MINUTE_WINDOW_SECONDS,
+  retryAfterSeconds
+} from "@/lib/server/rate-limit";
+import {
+  allTimeKeys,
+  completionCounterKeys,
+  CounterGroupKeys,
+  dayKey,
+  flattenGroupKeys,
+  monthKey,
+  monthlyKeys,
+  recentMonthKeys
+} from "@/lib/server/stats-keys";
+import { isStatsStoreConfigured, readRedisValues, runRedisScript } from "@/lib/server/stats-store";
 
-// Anonymous aggregate completion counters. What gets stored, in full:
-//   stats:total                            — all-time completions
-//   stats:direction:{stay_us|return_china|balanced}
-//   stats:confidence:{low|medium|high}
-//   stats:m:{YYYY-MM}:… same three groups, bucketed by month
-// Counters only — no per-user records, no ids, no timestamps finer than the
-// month bucket, no answers, no weights, nothing joinable to a person.
+// Anonymous aggregate completion counters. See lib/server/stats-keys.ts for
+// the complete list of what is stored: counters only — no per-user records,
+// no ids, no timestamps finer than the month bucket, no answers, no weights,
+// nothing joinable to a person.
 
-const ALLOWED_DIRECTIONS = ["stay_us", "return_china", "balanced"] as const;
-const ALLOWED_CONFIDENCE = ["low", "medium", "high"] as const;
+export const runtime = "nodejs";
 
 const MAX_BODY_LENGTH = 300;
-const PER_IP_LIMIT_PER_MINUTE = 5;
-const GLOBAL_DAILY_LIMIT = 500;
-
-function monthKey(date: Date) {
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
-}
-
-function sha256(value: string) {
-  return createHash("sha256").update(value).digest();
-}
-
-// The limiter key is an HMAC-style salted hash of the caller's IP with a
-// 2-minute TTL. It exists only to throttle; it is never stored alongside the
-// counters, expires almost immediately, and the raw IP is never persisted.
-function rateLimiterKey(request: Request) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    request.headers.get("x-real-ip") ??
-    "unknown";
-  const salt =
-    process.env.STATS_RATE_SALT ?? process.env.STATS_ADMIN_TOKEN ?? "stay-or-return-rl";
-  const minuteBucket = Math.floor(Date.now() / 60_000);
-
-  return `rl:ip:${sha256(`${salt}|${ip}`).toString("hex").slice(0, 24)}:${minuteBucket}`;
-}
+const RECENT_MONTHS = 6;
 
 function isSameOrigin(request: Request) {
   const origin = request.headers.get("origin");
@@ -55,6 +53,13 @@ function isSameOrigin(request: Request) {
   }
 }
 
+function tooManyRequests(reason: "ip" | "global") {
+  return new Response(null, {
+    status: 429,
+    headers: { "Retry-After": String(retryAfterSeconds(reason)) }
+  });
+}
+
 export async function POST(request: Request) {
   // Free first-line filters — no Redis commands spent on junk.
   if (!isSameOrigin(request)) {
@@ -63,6 +68,12 @@ export async function POST(request: Request) {
 
   if (!request.headers.get("content-type")?.includes("application/json")) {
     return new Response(null, { status: 415 });
+  }
+
+  const declaredLength = Number(request.headers.get("content-length") ?? 0);
+
+  if (declaredLength > MAX_BODY_LENGTH) {
+    return new Response(null, { status: 413 });
   }
 
   let rawBody: string;
@@ -77,84 +88,97 @@ export async function POST(request: Request) {
     return new Response(null, { status: 413 });
   }
 
-  let direction: string;
-  let confidence: string;
+  let parsed: { direction?: unknown; confidence?: unknown } | null;
 
   try {
-    const parsed = JSON.parse(rawBody) as { direction?: unknown; confidence?: unknown };
-    direction = String(parsed.direction);
-    confidence = String(parsed.confidence);
+    parsed = JSON.parse(rawBody);
   } catch {
     return new Response(null, { status: 400 });
   }
 
   if (
-    !ALLOWED_DIRECTIONS.includes(direction as (typeof ALLOWED_DIRECTIONS)[number]) ||
-    !ALLOWED_CONFIDENCE.includes(confidence as (typeof ALLOWED_CONFIDENCE)[number])
+    !parsed ||
+    typeof parsed !== "object" ||
+    !isStatDirection(parsed.direction) ||
+    !isStatConfidence(parsed.confidence)
   ) {
     return new Response(null, { status: 400 });
   }
 
   if (!isStatsStoreConfigured()) {
-    // Local dev / store not provisioned: accept silently so the client never
-    // sees an error, store nothing.
+    // Local dev / store not provisioned: accept silently, store nothing.
     return new Response(null, { status: 204 });
   }
 
-  const now = new Date();
-  const dayBucket = `${monthKey(now)}-${String(now.getUTCDate()).padStart(2, "0")}`;
-  const ipKey = rateLimiterKey(request);
-  const globalKey = `rl:global:${dayBucket}`;
+  const nowMs = Date.now();
 
-  const limitResults = await runRedisPipeline([
-    ["INCR", ipKey],
-    ["EXPIRE", ipKey, 120],
-    ["INCR", globalKey],
-    ["EXPIRE", globalKey, 60 * 60 * 48]
-  ]);
-
-  if (!limitResults) {
-    return new Response(null, { status: 204 });
+  if (isDayClosed(nowMs)) {
+    return tooManyRequests("global");
   }
 
-  const ipCount = Number(limitResults[0] ?? 0);
-  const globalCount = Number(limitResults[2] ?? 0);
+  const now = new Date(nowMs);
+  const day = dayKey(now);
+  const ip = getClientIp(request);
+  const ipKeys = ipLimiterKeys(ip ?? "none", nowMs, day);
+  const keys = [
+    ipKeys.minute,
+    ipKeys.day,
+    `rl:global:${day}`,
+    ...completionCounterKeys(monthKey(now), parsed.direction, parsed.confidence)
+  ];
+  const args = [
+    ip ? PER_IP_LIMIT_PER_MINUTE : 0,
+    PER_IP_MINUTE_WINDOW_SECONDS,
+    PER_IP_LIMIT_PER_DAY,
+    PER_IP_DAY_WINDOW_SECONDS,
+    GLOBAL_DAILY_LIMIT,
+    GLOBAL_WINDOW_SECONDS
+  ];
 
-  if (ipCount > PER_IP_LIMIT_PER_MINUTE || globalCount > GLOBAL_DAILY_LIMIT) {
-    return new Response(null, { status: 429 });
+  const outcome = await runRedisScript(COUNT_COMPLETION_SCRIPT, keys, args);
+
+  if (outcome === "ip") {
+    return tooManyRequests("ip");
   }
 
-  const month = monthKey(now);
+  if (outcome === "global") {
+    closeDay(nowMs);
+    return tooManyRequests("global");
+  }
 
-  await runRedisPipeline([
-    ["INCR", "stats:total"],
-    ["INCR", `stats:direction:${direction}`],
-    ["INCR", `stats:confidence:${confidence}`],
-    ["INCR", `stats:m:${month}:total`],
-    ["INCR", `stats:m:${month}:direction:${direction}`],
-    ["INCR", `stats:m:${month}:confidence:${confidence}`]
-  ]);
-
+  // "ok" counted; null (store unreachable) is deliberately indistinguishable
+  // to the client — stats are best-effort.
   return new Response(null, { status: 204 });
 }
 
+function sha256(value: string) {
+  return createHash("sha256").update(value).digest();
+}
+
+// Bearer only: query-string tokens would land in request logs, browser
+// history and Referer headers.
 function isAuthorized(request: Request) {
-  const adminToken = process.env.STATS_ADMIN_TOKEN;
-
-  if (!adminToken) {
-    return false;
-  }
-
+  const adminToken = readEnv("STATS_ADMIN_TOKEN");
   const header = request.headers.get("authorization");
-  const bearer = header?.startsWith("Bearer ") ? header.slice(7) : null;
-  const queryToken = new URL(request.url).searchParams.get("token");
-  const provided = bearer ?? queryToken;
+  const provided = header?.startsWith("Bearer ") ? header.slice(7).trim() : null;
 
-  if (!provided) {
+  if (!adminToken || !provided) {
     return false;
   }
 
   return timingSafeEqual(sha256(provided), sha256(adminToken));
+}
+
+function decodeGroup(values: Map<string, unknown>, group: CounterGroupKeys) {
+  const count = (key: string) => Number(values.get(key) ?? 0) || 0;
+
+  return {
+    total: count(group.total),
+    byDirection: Object.fromEntries(STAT_DIRECTIONS.map((value) => [value, count(group.direction[value])])),
+    byConfidence: Object.fromEntries(
+      STAT_CONFIDENCES.map((value) => [value, count(group.confidence[value])])
+    )
+  };
 }
 
 export async function GET(request: Request) {
@@ -163,60 +187,32 @@ export async function GET(request: Request) {
     return new Response(null, { status: 404 });
   }
 
+  const noStore = { "Cache-Control": "no-store" };
+
   if (!isStatsStoreConfigured()) {
-    return Response.json({ configured: false, note: "Stats store env vars are not set." });
+    return Response.json({ configured: false, note: "Stats store env vars are not set." }, { headers: noStore });
   }
 
-  const months: string[] = [];
-  const cursor = new Date();
+  const months = recentMonthKeys(new Date(), RECENT_MONTHS);
+  const monthGroups = months.map((month) => monthlyKeys(month));
+  const keys = [...flattenGroupKeys(allTimeKeys), ...monthGroups.flatMap(flattenGroupKeys)];
+  const values = await readRedisValues(keys);
 
-  for (let index = 0; index < 6; index += 1) {
-    months.push(monthKey(cursor));
-    cursor.setUTCMonth(cursor.getUTCMonth() - 1);
-  }
-
-  const commands: (string | number)[][] = [
-    ["GET", "stats:total"],
-    ...ALLOWED_DIRECTIONS.map((value) => ["GET", `stats:direction:${value}`]),
-    ...ALLOWED_CONFIDENCE.map((value) => ["GET", `stats:confidence:${value}`]),
-    ...months.flatMap((month) => [
-      ["GET", `stats:m:${month}:total`],
-      ...ALLOWED_DIRECTIONS.map((value) => ["GET", `stats:m:${month}:direction:${value}`]),
-      ...ALLOWED_CONFIDENCE.map((value) => ["GET", `stats:m:${month}:confidence:${value}`])
-    ])
-  ];
-
-  const results = await runRedisPipeline(commands);
-
-  if (!results) {
-    return Response.json({ configured: true, error: "Stats store unreachable." }, { status: 502 });
-  }
-
-  const asCount = (value: unknown) => Number(value ?? 0) || 0;
-  let index = 0;
-  const readGroup = () => {
-    const total = asCount(results[index]);
-    index += 1;
-    const byDirection = Object.fromEntries(
-      ALLOWED_DIRECTIONS.map((value) => {
-        const count = asCount(results[index]);
-        index += 1;
-        return [value, count];
-      })
+  if (!values) {
+    return Response.json(
+      { configured: true, error: "Stats store unreachable." },
+      { status: 502, headers: noStore }
     );
-    const byConfidence = Object.fromEntries(
-      ALLOWED_CONFIDENCE.map((value) => {
-        const count = asCount(results[index]);
-        index += 1;
-        return [value, count];
-      })
-    );
+  }
 
-    return { total, byDirection, byConfidence };
-  };
-
-  const allTime = readGroup();
-  const byMonth = Object.fromEntries(months.map((month) => [month, readGroup()]));
-
-  return Response.json({ configured: true, allTime, byMonth });
+  return Response.json(
+    {
+      configured: true,
+      allTime: decodeGroup(values, allTimeKeys),
+      byMonth: Object.fromEntries(
+        months.map((month, index) => [month, decodeGroup(values, monthGroups[index])])
+      )
+    },
+    { headers: noStore }
+  );
 }
