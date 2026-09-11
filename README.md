@@ -54,9 +54,9 @@ interface shows exactly that, once, instead of two mirror-image numbers.
 
 | | |
 |---|---|
-| No accounts | Profiles and a ten-result history live in the browser only, behind `lib/storage.ts`; nothing about a user is ever sent anywhere |
+| No accounts | Profiles and a ten-result history live in the browser only, behind `lib/storage.ts` — no profile, answer or result ever leaves the device |
 | Private sharing | Shared results are encoded in the URL **fragment**, which browsers never send to any server — the site cannot see what was shared (`lib/share.ts`) |
-| Minimal analytics | The only server surface, `app/api/stats`, keeps coarse anonymous counters by direction and confidence tier in Upstash Redis — no ids, no IPs, no answers, no timestamps finer than a month.  One atomic script per completion; rate-limit keys are HMAC-hashed and expire within minutes (`lib/server/`) |
+| Minimal analytics | The only server surface, `app/api/stats`, keeps coarse anonymous counters by direction and confidence tier in Upstash Redis — no ids, no IPs, no answers, no timestamps finer than a month.  One atomic script per completion; rate-limit keys are HMAC-hashed and expire on their own (a 2-minute per-IP burst window, a 48-hour daily window — `lib/server/rate-limit.ts`) |
 | Owner-only view | Aggregate stats are readable only with a Bearer token; every other request to that endpoint answers 404 |
 | Export / delete | Users can export everything the device knows as JSON, or erase profile and history, at any time |
 
