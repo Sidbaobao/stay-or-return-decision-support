@@ -8,8 +8,8 @@ import { dimensions } from "@/data/dimensions";
 import {
   buildRunSignature,
   filterAnswersToCurrent,
-  ensureLocalProfile,
   hasReportedRunStat,
+  loadLocalProfile,
   loadAppState,
   markRunStatReported,
   recordRunInHistory,
@@ -35,7 +35,7 @@ export default function ResultsPage() {
 
   useEffect(() => {
     setState(loadAppState());
-    setProfile(ensureLocalProfile());
+    setProfile(loadLocalProfile());
   }, []);
 
   const scoringResult = useMemo(() => {
@@ -299,7 +299,7 @@ export default function ResultsPage() {
         </div>
       </section>
 
-      {profile && !profile.nickname && !profile.nudgeDismissed ? (
+      {!profile || (!profile.nickname && !profile.nudgeDismissed) ? (
         <aside
           aria-label="Local profile suggestion"
           className="flex flex-col gap-4 rounded-feature border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"

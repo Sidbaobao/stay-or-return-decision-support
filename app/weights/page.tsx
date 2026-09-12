@@ -17,12 +17,27 @@ export default function WeightsPage() {
   const router = useRouter();
   const [weights, setWeights] = useState<Weights>(defaultWeights);
   const [totalBudget, setTotalBudget] = useState(getWeightTotal(defaultWeights, dimensions.map((dimension) => dimension.id)));
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     const savedWeights = loadAppState().weights;
     setWeights(savedWeights);
     setTotalBudget(getWeightTotal(savedWeights, dimensions.map((dimension) => dimension.id)));
+    setIsHydrated(true);
   }, []);
+
+  // Autosave once the user stops adjusting, so leaving the page keeps their
+  // priorities. Debounced because the fine-tune slider emits on every drag
+  // tick; the hydration guard keeps the defaults from overwriting saved
+  // weights on first paint.
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => saveWeights(weights), 400);
+    return () => window.clearTimeout(timeoutId);
+  }, [isHydrated, weights]);
 
   const handleSave = () => {
     saveWeights(weights);

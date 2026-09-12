@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { User } from "lucide-react";
-import { ensureLocalProfile, loadLocalProfile, subscribeToProfileUpdates } from "@/lib/storage";
+import { loadLocalProfile, subscribeToProfileUpdates } from "@/lib/storage";
 import { getMonogram, profileAccentStyles } from "@/components/profile/profile-utils";
 import { LocalProfile } from "@/types";
 
@@ -16,8 +16,11 @@ export function ProfileChip({ variant = "default" }: ProfileChipProps) {
   const pathname = usePathname();
   const [profile, setProfile] = useState<LocalProfile | null>(null);
 
+  // Read-only: a profile record is created when someone deliberately makes
+  // one, never merely by visiting a page (a /shared recipient must stay
+  // untouched).
   useEffect(() => {
-    setProfile(ensureLocalProfile());
+    setProfile(loadLocalProfile());
 
     return subscribeToProfileUpdates(() => {
       setProfile(loadLocalProfile());

@@ -202,11 +202,14 @@ export default function QuestionnairePage() {
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === groupedQuestions.length - 1;
 
+  // Persist on every choice: previously only "Save and continue" wrote to
+  // storage, and that button stays disabled until all 24 are answered, so a
+  // refresh or a nav click mid-questionnaire lost every answer.
   const handleChange = (questionId: string, optionId: string) => {
-    setAnswers((currentAnswers) => ({
-      ...currentAnswers,
-      [questionId]: optionId
-    }));
+    const nextAnswers = { ...answers, [questionId]: optionId };
+
+    setAnswers(nextAnswers);
+    saveAnswers(nextAnswers);
   };
 
   const handleSave = () => {
