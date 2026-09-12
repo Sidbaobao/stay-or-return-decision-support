@@ -2,16 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { questions } from "@/data/questions";
-import { scoreDecision } from "@/lib/scoring";
-import {
-  filterAnswersToCurrent,
-  hasCompleteAnswers,
-  hasWeights,
-  loadAppState,
-  recordRunInHistory,
-  restoreRunFromHistory
-} from "@/lib/storage";
+import { readRunStatus, restoreSnapshotAsCurrentRun } from "@/lib/run-state";
 import { HistoryEntry } from "@/types";
 
 type RestoreRunButtonProps = {
@@ -21,59 +12,54 @@ type RestoreRunButtonProps = {
 const quietButtonClassName =
   "interaction-quiet rounded-control px-1.5 py-1 text-sm font-medium text-action-primary hover:text-action-primary-hover";
 
-// Restoring replaces the current run with the snapshot. Three cases:
-// - current run empty → restore directly;
-// - current run complete → snapshot it into history first (so nothing is
-//   lost), then restore;
-// - current run partially answered → unfinished work would be destroyed, so
-//   ask inline before replacing.
+// Restoring replaces the current run with the snapshot. A complete current run
+// is saved to history first so nothing is lost; a partially answered one would
+// be destroyed, so that case asks before replacing.
 export function RestoreRunButton({ entry }: RestoreRunButtonProps) {
   const router = useRouter();
   const [isConfirming, setIsConfirming] = useState(false);
+  const [hasFailed, setHasFailed] = useState(false);
 
   const performRestore = () => {
-    const state = loadAppState();
-    const currentAnswers = filterAnswersToCurrent(state.answers, questions);
-    const isComplete = hasCompleteAnswers({ ...state, answers: currentAnswers }, questions.length);
-
-    if (isComplete && hasWeights(state)) {
-      const currentResult = scoreDecision(currentAnswers, state.weights);
-      const rankedContributions = [...currentResult.contributions].sort(
-        (left, right) => Math.abs(right.weightedGap) - Math.abs(left.weightedGap)
-      );
-      const topContribution = rankedContributions[0];
-
-      recordRunInHistory({
-        answers: currentAnswers,
-        weights: state.weights,
-        direction: currentResult.recommendedScenario,
-        confidence: currentResult.confidence,
-        difference: currentResult.weightedTotals.difference,
-        topDimensionId:
-          topContribution && Math.abs(topContribution.weightedGap) > 0
-            ? topContribution.dimensionId
-            : null
-      });
-    }
-
-    if (restoreRunFromHistory(entry.id)) {
+    if (restoreSnapshotAsCurrentRun(entry.id)) {
       router.push("/results");
+      return;
     }
+
+    setIsConfirming(false);
+    setHasFailed(true);
   };
 
   const handleClick = () => {
-    const state = loadAppState();
-    const currentAnswers = filterAnswersToCurrent(state.answers, questions);
-    const answeredCount = Object.keys(currentAnswers).length;
-    const isComplete = hasCompleteAnswers({ ...state, answers: currentAnswers }, questions.length);
+    const status = readRunStatus();
 
-    if (answeredCount > 0 && !isComplete) {
+    if (status.answeredCount > 0 && !status.isComplete) {
       setIsConfirming(true);
       return;
     }
 
     performRestore();
   };
+
+  if (hasFailed) {
+    return (
+      <span className="inline-flex flex-wrap items-center gap-2">
+        <span aria-live="polite" className="text-sm text-ink/70">
+          This snapshot can&apos;t be restored on this device.
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            setHasFailed(false);
+            handleClick();
+          }}
+          className={quietButtonClassName}
+        >
+          Try again
+        </button>
+      </span>
+    );
+  }
 
   if (isConfirming) {
     return (

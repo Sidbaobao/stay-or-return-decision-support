@@ -25,7 +25,6 @@ export {
   ensureLocalProfile,
   loadLocalProfile,
   NICKNAME_MAX_LENGTH,
-  subscribeToProfileUpdates,
   updateLocalProfile
 } from "@/lib/storage/profile";
 
@@ -37,8 +36,7 @@ export {
   getRunHistoryEntry,
   HISTORY_LIMIT,
   loadRunHistory,
-  recordRunInHistory,
-  restoreRunFromHistory
+  recordRunInHistory
 } from "@/lib/storage/history";
 
 export {

@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { User } from "lucide-react";
-import { loadLocalProfile, subscribeToProfileUpdates } from "@/lib/storage";
+import { useLocalProfile } from "@/lib/use-local-profile";
 import { getMonogram, profileAccentStyles } from "@/components/profile/profile-utils";
-import { LocalProfile } from "@/types";
 
 type ProfileChipProps = {
   variant?: "light" | "default";
@@ -14,18 +12,9 @@ type ProfileChipProps = {
 
 export function ProfileChip({ variant = "default" }: ProfileChipProps) {
   const pathname = usePathname();
-  const [profile, setProfile] = useState<LocalProfile | null>(null);
-
-  // Read-only: a profile record is created when someone deliberately makes
-  // one, never merely by visiting a page (a /shared recipient must stay
-  // untouched).
-  useEffect(() => {
-    setProfile(loadLocalProfile());
-
-    return subscribeToProfileUpdates(() => {
-      setProfile(loadLocalProfile());
-    });
-  }, [pathname]);
+  // Read-only: a record is created when someone deliberately makes one, never
+  // merely by visiting a page (a /shared recipient must stay untouched).
+  const { profile } = useLocalProfile();
 
   const monogram = profile ? getMonogram(profile.nickname) : null;
   const accent = profile ? profileAccentStyles[profile.accentId] : profileAccentStyles.warm;

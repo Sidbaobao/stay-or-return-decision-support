@@ -2,16 +2,12 @@
 // account, no sync, no server copy — it exists so the app can say "your
 // decisions" and mean this browser.
 
-import { isRecord, readJson, removeKey, STORAGE_KEYS, subscribeToStorageKey, writeJson } from "@/lib/storage/local-store";
+import { isRecord, readJson, removeKey, STORAGE_KEYS, writeJson } from "@/lib/storage/local-store";
 import { LocalProfile, ProfileAccentId } from "@/types";
 
 export const NICKNAME_MAX_LENGTH = 24;
 
 const PROFILE_ACCENT_IDS: ProfileAccentId[] = ["stay", "return", "warm"];
-
-export function subscribeToProfileUpdates(listener: () => void) {
-  return subscribeToStorageKey(STORAGE_KEYS.profile, listener);
-}
 
 export function loadLocalProfile(): LocalProfile | null {
   return readJson(STORAGE_KEYS.profile, (value) => {

@@ -1,26 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect } from "react";
 import { ChevronDown, User } from "lucide-react";
-import { questions } from "@/data/questions";
 import { dimensions } from "@/data/dimensions";
-import {
-  buildCompletionSignature,
-  buildRunSignature,
-  claimRunStat,
-  filterAnswersToCurrent,
-  hasReportedRunStat,
-  loadLocalProfile,
-  loadAppState,
-  recordRunInHistory,
-  updateLocalProfile
-} from "@/lib/storage";
+import { buildCompletionSignature, buildRunSignature, claimRunStat, hasReportedRunStat } from "@/lib/storage";
 import { reportCompletionStat } from "@/lib/stats-client";
 import { toStatDirection } from "@/lib/stats-schema";
-import { usePrerequisiteGuard } from "@/lib/guards";
-import { scoreDecision } from "@/lib/scoring";
-import { AppState, LocalProfile } from "@/types";
+import {
+  getTopContribution,
+  snapshotRunToHistory,
+  useRevealOnReady,
+  useScoredRun
+} from "@/lib/run-state";
+import { useLocalProfile } from "@/lib/use-local-profile";
 import { DecisionBalance } from "@/components/results/decision-balance";
 import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
 import { dimensionIcons } from "@/components/results/dimension-icons";
@@ -29,61 +22,25 @@ import { ShareResultButton } from "@/components/share/share-result-button";
 import { PrimaryButtonLink } from "@/components/ui/primary-button";
 
 export default function ResultsPage() {
-  const isReady = usePrerequisiteGuard("weights");
-  const [state, setState] = useState<AppState | null>(null);
-  const [isRevealed, setIsRevealed] = useState(false);
-  const [profile, setProfile] = useState<LocalProfile | null>(null);
+  const { isReady, status, scoringResult } = useScoredRun("weights");
+  const isRevealed = useRevealOnReady(Boolean(scoringResult));
+  const { profile, update: updateProfile } = useLocalProfile();
 
+  // Every completed run is snapshotted into device-local history, and counted
+  // once. Both key on the answers alone, so re-weighting revises the entry
+  // instead of adding one.
   useEffect(() => {
-    setState(loadAppState());
-    setProfile(loadLocalProfile());
-  }, []);
-
-  const scoringResult = useMemo(() => {
-    if (!state) {
-      return null;
-    }
-
-    const currentAnswers = filterAnswersToCurrent(state.answers, questions);
-    return scoreDecision(currentAnswers, state.weights);
-  }, [state]);
-
-  // Every completed run is snapshotted into device-local history (dedupe by
-  // signature makes re-visits update the existing entry instead of stacking).
-  useEffect(() => {
-    if (!scoringResult || !state) {
+    if (!scoringResult || !status?.isComplete) {
       return;
     }
 
-    const currentAnswers = filterAnswersToCurrent(state.answers, questions);
+    snapshotRunToHistory(status, scoringResult);
 
-    if (Object.keys(currentAnswers).length < questions.length) {
-      return;
-    }
-
-    const rankedByWeightedGap = [...scoringResult.contributions].sort(
-      (left, right) => Math.abs(right.weightedGap) - Math.abs(left.weightedGap)
-    );
-    const strongestContribution = rankedByWeightedGap[0];
-
-    recordRunInHistory({
-      answers: currentAnswers,
-      weights: state.weights,
-      direction: scoringResult.recommendedScenario,
-      confidence: scoringResult.confidence,
-      difference: scoringResult.weightedTotals.difference,
-      topDimensionId:
-        strongestContribution && Math.abs(strongestContribution.weightedGap) > 0
-          ? strongestContribution.dimensionId
-          : null
-    });
-
-    // One anonymous stat event per completed set of answers — re-weighting is
-    // a revision, not a new completion. The claim is written before sending so
-    // reloads cannot double-count, and released again if the send fails so the
-    // next visit retries. Only the coarse direction + confidence tier go out.
-    const completionSignature = buildCompletionSignature(currentAnswers);
-    const legacySignature = buildRunSignature(currentAnswers, state.weights);
+    // The claim is written before sending so reloads cannot double-count, and
+    // released again if the send fails so the next visit retries. Only the
+    // coarse direction + confidence tier go out.
+    const completionSignature = buildCompletionSignature(status.answers);
+    const legacySignature = buildRunSignature(status.answers, status.state.weights);
 
     if (!hasReportedRunStat(legacySignature)) {
       const release = claimRunStat(completionSignature);
@@ -98,26 +55,9 @@ export default function ResultsPage() {
         );
       }
     }
-  }, [scoringResult, state]);
+  }, [scoringResult, status]);
 
-  useEffect(() => {
-    if (!scoringResult) {
-      return;
-    }
-
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (prefersReducedMotion) {
-      setIsRevealed(true);
-      return;
-    }
-
-    setIsRevealed(false);
-    const frameId = window.requestAnimationFrame(() => setIsRevealed(true));
-    return () => window.cancelAnimationFrame(frameId);
-  }, [scoringResult]);
-
-  if (!isReady || !scoringResult || !state) {
+  if (!isReady || !scoringResult || !status) {
     return null;
   }
 
@@ -131,10 +71,7 @@ export default function ResultsPage() {
     scoringResult.weightedTotals.difference
   );
 
-  const rankedContributions = [...scoringResult.contributions].sort(
-    (left, right) => Math.abs(right.weightedGap) - Math.abs(left.weightedGap)
-  );
-  const topContribution = rankedContributions[0];
+  const topContribution = getTopContribution(scoringResult);
   const topContributionDimension = dimensions.find(
     (dimension) => dimension.id === topContribution?.dimensionId
   );
@@ -143,10 +80,9 @@ export default function ResultsPage() {
     : dimensionIcons.career;
   const topContributionDirection =
     topContribution && topContribution.weightedGap < 0 ? "returning to China" : "staying in the US";
-  const conclusionHook =
-    topContribution && Math.abs(topContribution.weightedGap) > 0
-      ? `${topContributionDimension?.label ?? topContribution.dimensionId} creates the strongest pull, pointing toward ${topContributionDirection}.`
-      : "No single dimension creates a strong pull yet.";
+  const conclusionHook = topContribution
+    ? `${topContributionDimension?.label ?? topContribution.dimensionId} creates the strongest pull, pointing toward ${topContributionDirection}.`
+    : "No single dimension creates a strong pull yet.";
 
   return (
     <>
@@ -304,10 +240,7 @@ export default function ResultsPage() {
           </p>
         </div>
         <div className="shrink-0">
-          <ShareResultButton
-            answers={filterAnswersToCurrent(state.answers, questions)}
-            weights={state.weights}
-          />
+          <ShareResultButton answers={status.answers} weights={status.state.weights} />
         </div>
       </section>
 
@@ -340,7 +273,7 @@ export default function ResultsPage() {
             </Link>
             <button
               type="button"
-              onClick={() => setProfile(updateLocalProfile({ nudgeDismissed: true }))}
+              onClick={() => updateProfile({ nudgeDismissed: true })}
               className="interaction-quiet rounded-control px-2 py-1.5 text-sm font-medium text-ink/60 hover:text-ink"
             >
               Not now

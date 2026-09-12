@@ -87,21 +87,35 @@ function emitStorageChange(key: StorageKey) {
   window.dispatchEvent(new CustomEvent(STORAGE_EVENT, { detail: { key } }));
 }
 
-// Lets always-mounted UI (the nav profile chip) refresh when a key is written
-// elsewhere on the same page, without waiting for a route change.
+// Lets always-mounted UI refresh when a key changes, without waiting for a
+// route change. Two sources: our own writes on this page, and the browser's
+// native storage event, which fires only in OTHER tabs — so editing a
+// nickname or resetting a run in one tab updates the others.
 export function subscribeToStorageKey(key: StorageKey, listener: () => void) {
   if (typeof window === "undefined") {
     return () => {};
   }
 
-  const handleChange = (event: Event) => {
+  const handleLocalChange = (event: Event) => {
     const detail = (event as CustomEvent<{ key?: string }>).detail;
 
-    if (!detail || detail.key === key) {
+    if (detail?.key === key) {
       listener();
     }
   };
 
-  window.addEventListener(STORAGE_EVENT, handleChange);
-  return () => window.removeEventListener(STORAGE_EVENT, handleChange);
+  const handleOtherTabChange = (event: StorageEvent) => {
+    // A null key means the other tab cleared everything.
+    if (event.key === null || event.key === key) {
+      listener();
+    }
+  };
+
+  window.addEventListener(STORAGE_EVENT, handleLocalChange);
+  window.addEventListener("storage", handleOtherTabChange);
+
+  return () => {
+    window.removeEventListener(STORAGE_EVENT, handleLocalChange);
+    window.removeEventListener("storage", handleOtherTabChange);
+  };
 }

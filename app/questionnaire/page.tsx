@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -15,7 +15,8 @@ import {
 import { questions } from "@/data/questions";
 import { dimensions } from "@/data/dimensions";
 import { usePrerequisiteGuard } from "@/lib/guards";
-import { filterAnswersToCurrent, loadAppState, saveAnswers } from "@/lib/storage";
+import { filterAnswersToCurrent, saveAnswers, STORAGE_KEYS, subscribeToStorageKey } from "@/lib/storage";
+import { readRunStatus } from "@/lib/run-state";
 import { Answers, Dimension, DimensionId } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { PrimaryButton } from "@/components/ui/primary-button";
@@ -181,15 +182,47 @@ export default function QuestionnairePage() {
   const router = useRouter();
   const [answers, setAnswers] = useState<Answers>({});
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  // Mirrors `answers` for the storage listener, which must not re-run when we
+  // are the ones who wrote.
+  const answersRef = useRef<Answers>({});
 
   useEffect(() => {
-    const loadedAnswers = filterAnswersToCurrent(loadAppState().answers, questions);
-    const firstIncompleteIndex = groupedQuestions.findIndex((group) =>
-      group.questions.some((question) => !loadedAnswers[question.id])
-    );
+    const adoptStoredAnswers = () => {
+      const stored = readRunStatus().answers;
+      const current = answersRef.current;
+      const isSameAsLocal =
+        Object.keys(stored).length === Object.keys(current).length &&
+        Object.entries(stored).every(([questionId, optionId]) => current[questionId] === optionId);
 
-    setAnswers(loadedAnswers);
-    setCurrentStepIndex(firstIncompleteIndex === -1 ? 0 : firstIncompleteIndex);
+      if (isSameAsLocal) {
+        return;
+      }
+
+      answersRef.current = stored;
+      setAnswers(stored);
+
+      // Only jump steps when the run was cleared; another tab answering a
+      // question should not move the step this reader is on.
+      if (Object.keys(stored).length === 0) {
+        setCurrentStepIndex(0);
+        return;
+      }
+
+      if (Object.keys(current).length === 0) {
+        const firstIncompleteIndex = groupedQuestions.findIndex((group) =>
+          group.questions.some((question) => !stored[question.id])
+        );
+
+        setCurrentStepIndex(firstIncompleteIndex === -1 ? 0 : firstIncompleteIndex);
+      }
+    };
+
+    adoptStoredAnswers();
+
+    // "Reset current run" used to clear storage while this page kept showing
+    // the old answers. Now the screen follows the store — from the reset
+    // button, from a restore, or from another tab.
+    return subscribeToStorageKey(STORAGE_KEYS.currentRun, adoptStoredAnswers);
   }, []);
 
   const currentAnswers = filterAnswersToCurrent(answers, questions);
@@ -208,6 +241,7 @@ export default function QuestionnairePage() {
   const handleChange = (questionId: string, optionId: string) => {
     const nextAnswers = { ...answers, [questionId]: optionId };
 
+    answersRef.current = nextAnswers;
     setAnswers(nextAnswers);
     saveAnswers(nextAnswers);
   };

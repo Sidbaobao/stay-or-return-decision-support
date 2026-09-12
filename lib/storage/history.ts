@@ -3,7 +3,6 @@
 // is what makes a snapshot re-scorable rather than just a remembered verdict.
 
 import { QUESTIONS_VERSION } from "@/lib/questionnaire-version";
-import { saveAppState } from "@/lib/storage/current-run";
 import { canUseStorage, isRecord, readJson, removeKey, STORAGE_KEYS, writeJson } from "@/lib/storage/local-store";
 import { Answers, ConfidenceLevel, DimensionId, HistoryEntry, ScenarioId, Weights } from "@/types";
 
@@ -205,19 +204,6 @@ export function deleteRunHistoryEntry(id: string): HistoryEntry[] {
 
   saveRunHistory(next);
   return next;
-}
-
-// Replaces the current run with a saved one. Callers are responsible for
-// confirming with the user when the current run holds unfinished work.
-export function restoreRunFromHistory(id: string): boolean {
-  const entry = getRunHistoryEntry(id);
-
-  if (!entry || entry.questionsVersion !== QUESTIONS_VERSION) {
-    return false;
-  }
-
-  saveAppState({ answers: { ...entry.answers }, weights: { ...entry.weights } });
-  return true;
 }
 
 export function clearRunHistory() {

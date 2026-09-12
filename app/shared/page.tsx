@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link2 } from "lucide-react";
 import { scoreDecision } from "@/lib/scoring";
 import { decodeSharePayload, DecodedShare } from "@/lib/share";
+import { useRevealOnReady } from "@/lib/run-state";
 import { DecisionBalance } from "@/components/results/decision-balance";
 import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
 import { getSharedHeadline } from "@/components/results/verdict-copy";
@@ -28,7 +29,6 @@ function ErrorCard({ title, body }: { title: string; body: string }) {
 
 export default function SharedResultPage() {
   const [decoded, setDecoded] = useState<DecodedShare | null>(null);
-  const [isRevealed, setIsRevealed] = useState(false);
 
   useEffect(() => {
     const readFragment = () => {
@@ -52,21 +52,7 @@ export default function SharedResultPage() {
     return scoreDecision(decoded.answers, decoded.weights);
   }, [decoded]);
 
-  useEffect(() => {
-    if (!sharedResult) {
-      return;
-    }
-
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (prefersReducedMotion) {
-      setIsRevealed(true);
-      return;
-    }
-
-    const frameId = window.requestAnimationFrame(() => setIsRevealed(true));
-    return () => window.cancelAnimationFrame(frameId);
-  }, [sharedResult]);
+  const isRevealed = useRevealOnReady(Boolean(sharedResult));
 
   if (!decoded) {
     return null;

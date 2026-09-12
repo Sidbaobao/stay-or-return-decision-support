@@ -12,28 +12,32 @@ import {
 import {
   buildLocalDataExport,
   clearLocalProfileAndHistory,
-  ensureLocalProfile,
   loadRunHistory,
-  NICKNAME_MAX_LENGTH,
-  updateLocalProfile
+  NICKNAME_MAX_LENGTH
 } from "@/lib/storage";
-import { HistoryEntry, LocalProfile, ProfileAccentId } from "@/types";
+import { useLocalProfile } from "@/lib/use-local-profile";
+import { HistoryEntry, ProfileAccentId } from "@/types";
 
 const accentOrder: ProfileAccentId[] = ["warm", "stay", "return"];
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<LocalProfile | null>(null);
+  // The profile page is the one place a record is created on arrival.
+  const { profile, update: updateProfile } = useLocalProfile({ create: true });
   const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>([]);
   const [nicknameDraft, setNicknameDraft] = useState("");
   const [savedNotice, setSavedNotice] = useState(false);
   const [isConfirmingDeleteAll, setIsConfirmingDeleteAll] = useState(false);
 
   useEffect(() => {
-    const loadedProfile = ensureLocalProfile();
-    setProfile(loadedProfile);
-    setNicknameDraft(loadedProfile.nickname);
     setHistoryEntries(loadRunHistory());
   }, []);
+
+  // Follow the stored nickname, which is trimmed — the input used to keep
+  // showing the untrimmed draft after saving. Keyed on the profile object,
+  // which is new on every save, so a draft of only spaces also snaps back.
+  useEffect(() => {
+    setNicknameDraft(profile?.nickname ?? "");
+  }, [profile]);
 
   useEffect(() => {
     if (!savedNotice) {
@@ -54,12 +58,12 @@ export default function ProfilePage() {
 
   const handleNicknameSubmit = (event: FormEvent) => {
     event.preventDefault();
-    setProfile(updateLocalProfile({ nickname: nicknameDraft }));
+    updateProfile({ nickname: nicknameDraft });
     setSavedNotice(true);
   };
 
   const handleAccentChange = (accentId: ProfileAccentId) => {
-    setProfile(updateLocalProfile({ accentId }));
+    updateProfile({ accentId });
     setSavedNotice(true);
   };
 
@@ -76,9 +80,8 @@ export default function ProfilePage() {
 
   const handleDeleteAll = () => {
     clearLocalProfileAndHistory();
-    const freshProfile = ensureLocalProfile();
-    setProfile(freshProfile);
-    setNicknameDraft(freshProfile.nickname);
+    // The hook re-reads on the storage change and recreates the record,
+    // because this page is where having a profile is the point.
     setHistoryEntries([]);
     setIsConfirmingDeleteAll(false);
   };

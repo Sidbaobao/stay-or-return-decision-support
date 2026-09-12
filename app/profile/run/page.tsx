@@ -23,11 +23,10 @@ function RunSnapshotContent() {
   useEffect(() => {
     const loaded = snapshotId ? getRunHistoryEntry(snapshotId) : null;
 
-    if (loaded) {
-      setEntry(loaded);
-    } else {
-      setIsMissing(true);
-    }
+    // Both are set every time: navigating from a missing id to a good one used
+    // to leave the "not on this device" card showing.
+    setEntry(loaded);
+    setIsMissing(!loaded);
   }, [snapshotId]);
 
   const isCurrentVersion = entry?.questionsVersion === QUESTIONS_VERSION;
