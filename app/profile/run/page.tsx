@@ -43,7 +43,7 @@ function RunSnapshotContent() {
 
   if (isMissing) {
     return (
-      <section className="rounded-feature border border-border bg-surface p-8 text-center shadow-subtle">
+      <section className="mx-auto max-w-measure py-16 text-center">
         <p className="text-body text-ink/70">This snapshot isn&apos;t on this device anymore.</p>
         <p className="mt-2 text-body-sm text-ink/60">
           It may have been deleted, or saved in a different browser.
@@ -69,8 +69,8 @@ function RunSnapshotContent() {
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-tile border border-border bg-surface px-4 py-3 shadow-subtle">
-        <p className="inline-flex items-center gap-2 text-body-sm text-ink/70">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-body-sm text-ink/65">
+        <p className="inline-flex items-center gap-2">
           <History aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={1.8} />
           A snapshot saved on this device on {formatFriendlyDate(entry.completedAt)} — viewing it
           doesn&apos;t change your current run.
@@ -124,7 +124,7 @@ function RunSnapshotContent() {
           </>
         )}
 
-        <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-border pt-5">
+        <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-hairline pt-5">
           {isCurrentVersion ? <RestoreRunButton entry={entry} /> : null}
           <p className="text-label text-ink/65">
             Restoring makes this snapshot your current run again.
@@ -133,7 +133,7 @@ function RunSnapshotContent() {
       </section>
 
       {snapshotResult ? (
-        <section className="rounded-feature border border-border bg-surface p-6 shadow-subtle sm:p-8">
+        <section className="border-t border-hairline pt-6 sm:pt-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-eyebrow text-ink-accent">Key drivers</p>

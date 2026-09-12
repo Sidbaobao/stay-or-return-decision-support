@@ -17,7 +17,7 @@ import { PrimaryButtonLink } from "@/components/ui/primary-button";
 
 function ErrorCard({ title, body }: { title: string; body: string }) {
   return (
-    <section className="rounded-feature border border-border bg-surface p-8 text-center shadow-subtle">
+    <section className="mx-auto max-w-measure py-16 text-center">
       <p className="font-serif text-card-title text-ink">{title}</p>
       <p className="mx-auto mt-2 max-w-measure text-body-sm text-ink/65">{body}</p>
       <div className="mt-6 flex justify-center">
@@ -81,13 +81,11 @@ export default function SharedResultPage() {
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-tile border border-border bg-surface px-4 py-3 shadow-subtle">
-        <p className="inline-flex items-center gap-2 text-body-sm text-ink/70">
-          <Link2 aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={1.8} />
-          A read-only result someone chose to share. It lives entirely in the link — nothing about
-          it is stored on our side.
-        </p>
-      </div>
+      <p className="flex max-w-measure items-start gap-2 text-body-sm text-ink/65">
+        <Link2 aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.8} />
+        A read-only result someone chose to share. It lives entirely in the link — nothing about it
+        is stored on our side.
+      </p>
 
       <section className="rounded-feature border border-border bg-surface p-6 shadow-soft sm:p-8">
         <p className="text-eyebrow text-ink-accent">Shared result</p>
@@ -109,7 +107,7 @@ export default function SharedResultPage() {
         </div>
       </section>
 
-      <section className="rounded-feature border border-border bg-surface p-6 shadow-subtle sm:p-8">
+      <section className="border-t border-hairline pt-6 sm:pt-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-eyebrow text-ink-accent">Key drivers</p>
@@ -127,7 +125,7 @@ export default function SharedResultPage() {
         </div>
       </section>
 
-      <footer className="flex flex-col gap-5 rounded-feature border border-border bg-surface-strong p-6 shadow-subtle sm:flex-row sm:items-center sm:justify-between sm:p-8">
+      <footer className="flex flex-col gap-5 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between sm:pt-8">
         <div>
           <h2 className="font-serif text-section-title text-ink">Facing the same decision?</h2>
           <p className="mt-2 max-w-measure text-body-sm text-ink/70">

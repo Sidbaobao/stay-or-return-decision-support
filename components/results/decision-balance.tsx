@@ -81,7 +81,7 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
   const fillWidth = isRevealed ? Math.abs(50 - markerPosition) : 0;
 
   return (
-    <div className="rounded-card border border-surface-strong/80 bg-surface-strong/80 p-4 shadow-subtle">
+    <div>
       <div className="flex items-center justify-between gap-3">
         <p className="text-eyebrow text-ink/65">Decision balance</p>
         <span className="text-label font-medium" style={{ color: isTied ? undefined : accent }}>
@@ -151,7 +151,7 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
         </p>
       </div>
 
-      <p className="mt-3 border-t border-border pt-3 text-center text-label text-ink/65">
+      <p className="mt-3 border-t border-hairline pt-3 text-center text-label text-ink/65">
         Each answer moves this one balance — from strong stay to strong return.
       </p>
     </div>

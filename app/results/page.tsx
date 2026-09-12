@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect } from "react";
 import { ChevronDown, User } from "lucide-react";
 import { dimensions } from "@/data/dimensions";
@@ -137,8 +136,8 @@ export default function ResultsPage() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="rounded-tile border border-surface-strong/80 bg-surface-strong/80 px-4 py-3 shadow-subtle">
+            <div className="space-y-5 lg:border-l lg:border-hairline lg:pl-8">
+              <div className="border-b border-hairline pb-5">
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-body-sm font-medium text-ink/70">Confidence</span>
                   <span className="text-body-sm font-semibold capitalize text-ink">{scoringResult.confidence}</span>
@@ -174,7 +173,7 @@ export default function ResultsPage() {
         </div>
       </section>
 
-      <section className="rounded-feature border border-border bg-surface p-6 shadow-subtle sm:p-8">
+      <section className="border-t border-hairline pt-6 sm:pt-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-eyebrow text-ink-accent">Key drivers</p>
@@ -191,8 +190,8 @@ export default function ResultsPage() {
         </div>
       </section>
 
-      <details className="interaction-disclosure group rounded-feature border border-border bg-surface/70 shadow-subtle">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-6">
+      <details className="interaction-disclosure group border-t border-hairline">
+        <summary className="-mx-3 flex cursor-pointer list-none items-center justify-between gap-4 !rounded-control px-3 py-5">
           <div>
             <h2 className="font-serif text-card-title text-ink">More detail</h2>
             <p className="mt-1 text-body-sm text-ink/70">Whether different weights could flip the result.</p>
@@ -203,23 +202,23 @@ export default function ResultsPage() {
           />
         </summary>
 
-        <div className="border-t border-border p-5 sm:p-6">
+        <div className="pb-5 sm:pb-6">
           <section>
             <h3 className="text-body font-semibold text-ink">Weight sensitivity</h3>
-            <div className="mt-3 flex gap-3">
-              <div className="rounded-tile bg-surface-strong px-4 py-3 shadow-subtle">
-                <p className="text-label text-ink/65">Current gap</p>
-                <p className="mt-1 text-lg font-semibold text-ink">
+            <dl className="mt-3 flex flex-wrap gap-x-10 gap-y-3">
+              <div>
+                <dt className="text-label text-ink/65">Current gap</dt>
+                <dd className="mt-1 text-lg font-semibold text-ink">
                   {scoringResult.weightFlipAnalysis.currentTotalGap}
-                </p>
+                </dd>
               </div>
-              <div className="rounded-tile bg-surface-strong px-4 py-3 shadow-subtle">
-                <p className="text-label text-ink/65">Possible shift</p>
-                <p className="mt-1 text-lg font-semibold text-ink">
+              <div>
+                <dt className="text-label text-ink/65">Possible shift</dt>
+                <dd className="mt-1 text-lg font-semibold text-ink">
                   {scoringResult.weightFlipAnalysis.totalPotentialShift}
-                </p>
+                </dd>
               </div>
-            </div>
+            </dl>
             <p className="mt-3 text-body-sm text-ink/65">
               {scoringResult.weightFlipAnalysis.couldFlip
                 ? "Weight changes could reverse the lead."
@@ -229,37 +228,13 @@ export default function ResultsPage() {
         </div>
       </details>
 
-      <section
-        aria-labelledby="share-heading"
-        className="flex flex-col gap-4 rounded-feature border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
-      >
-        <div className="min-w-0">
-          <h2 id="share-heading" className="font-serif text-card-title text-ink">
-            Share this result
-          </h2>
-          <p className="mt-1 max-w-measure text-body-sm text-ink/65">
-            The link carries your answers and weights inside it — nothing is uploaded, but anyone
-            you send it to can see this result. Share it only with people you trust.
-          </p>
-        </div>
-        <div className="shrink-0">
-          <ShareResultButton answers={status.answers} weights={status.state.weights} />
-        </div>
-      </section>
-
       {!profile || (!profile.nickname && !profile.nudgeDismissed) ? (
         <aside
           aria-label="Local profile suggestion"
-          className="flex flex-col gap-4 rounded-feature border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
+          className="flex flex-col gap-4 rounded-card border-l-4 border-ink-accent/60 bg-surface-warm px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6"
         >
           <div className="flex items-start gap-3">
-            <span
-              aria-hidden="true"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-tile text-ink-accent"
-              style={{ backgroundColor: "rgb(var(--color-accent-warm) / 0.16)" }}
-            >
-              <User className="h-5 w-5" strokeWidth={1.8} />
-            </span>
+            <User aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-ink-accent" strokeWidth={1.8} />
             <div>
               <p className="text-body font-medium text-ink">This result is saved on this device.</p>
               <p className="mt-1 text-body-sm text-ink/70">
@@ -280,21 +255,33 @@ export default function ResultsPage() {
         </aside>
       ) : null}
 
-      <footer className="flex flex-col gap-5 rounded-feature border border-border bg-surface-strong p-6 shadow-subtle sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <div>
-          <h2 className="font-serif text-section-title text-ink">Read the full memo</h2>
-          <p className="mt-2 text-body-sm text-ink/70">Recommendation, tradeoffs, and next steps.</p>
+      <div className="border-t border-hairline">
+        <div className="divide-y divide-hairline">
+          <section aria-labelledby="share-heading" className="py-6 sm:py-8">
+            <h2 id="share-heading" className="font-serif text-card-title text-ink">
+              Share this result
+            </h2>
+            <p className="mt-1 max-w-measure text-body-sm text-ink/65">
+              The link carries your answers and weights inside it — nothing is uploaded, but anyone
+              you send it to can see this result. Share it only with people you trust.
+            </p>
+            <div className="mt-4">
+              <ShareResultButton answers={status.answers} weights={status.state.weights} />
+            </div>
+          </section>
+
+          <footer className="flex flex-col gap-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:py-8">
+            <div>
+              <h2 className="font-serif text-section-title text-ink">Read the full memo</h2>
+              <p className="mt-2 text-body-sm text-ink/70">Recommendation, tradeoffs, and next steps.</p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <SecondaryButtonLink href="/weights">Adjust weights</SecondaryButtonLink>
+              <PrimaryButtonLink href="/report">Open the memo</PrimaryButtonLink>
+            </div>
+          </footer>
         </div>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Link
-            href="/weights"
-            className="interaction-secondary inline-flex min-h-11 items-center justify-center rounded-control px-5 py-3 text-sm font-medium text-ink/70"
-          >
-            Adjust weights
-          </Link>
-          <PrimaryButtonLink href="/report">Open the memo</PrimaryButtonLink>
-        </div>
-      </footer>
+      </div>
     </>
   );
 }
