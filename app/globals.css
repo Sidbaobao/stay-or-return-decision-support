@@ -15,13 +15,12 @@
   --color-ink: 19 34 56;
   --color-text-muted: 98 93 85;
   --color-border: 234 223 206;
-  --color-border-strong: 220 211 199;
+  /* Hairlines divide content inside a surface; --color-border outlines one. */
+  --color-hairline: 230 222 210;
+  --color-hairline-strong: 220 211 199;
   --color-progress-track: 232 225 213;
   --color-result-confidence-track: 231 221 208;
   --color-result-driver-track: 238 229 217;
-  --color-memo-badge-border: 223 212 196;
-  --color-memo-row-border: 230 222 210;
-  --color-memo-row-border-soft: 238 231 222;
   --color-action-primary: 60 92 207;
   --color-action-primary-hover: 48 76 176;
   --color-path-stay: 60 92 207;
@@ -29,13 +28,8 @@
   --color-accent-warm: 217 108 74;
   --color-ink-accent: 178 74 43;
   --color-hero: 7 13 24;
-  --color-hero-raised: 26 34 48;
   --color-home-surface: 15 24 39;
-  --color-home-surface-raised: 22 32 50;
   --color-home-border: 108 130 171;
-
-  /* Exact aliases for the current palette during migration */
-  --color-legacy-teal: 15 139 141;
 
   --gradient-hero-vignette: radial-gradient(
     circle at center,
@@ -59,17 +53,14 @@
 
   /* Layout rhythm */
   --space-page-gutter: 1rem;
-  --space-card: 1.25rem;
   --space-section: 2rem;
   --space-feature: 1.5rem;
-  --space-document: 1.5rem;
 
-  /* Elevation */
-  --shadow-soft: 0 16px 40px rgba(19, 34, 56, 0.08);
-  --shadow-legacy-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-subtle: 0 1px 2px rgba(19, 34, 56, 0.05);
-  --shadow-card: 0 12px 32px rgba(19, 34, 56, 0.07);
-  --shadow-feature: 0 20px 60px rgba(19, 34, 56, 0.1);
+  /* Elevation — two levels: subtle on any surface, soft on a page's lead block. */
+  --shadow-subtle: 0 1px 2px rgb(var(--color-ink) / 0.05);
+  --shadow-soft: 0 16px 40px rgb(var(--color-ink) / 0.08);
+  /* Alias kept only for components/weights/*, which styling tasks may not edit. */
+  --shadow-legacy-sm: var(--shadow-subtle);
   --shadow-home-glow:
     0 0 0 1px rgb(var(--color-home-border) / 0.12),
     0 24px 70px rgb(0 0 0 / 0.3),
@@ -86,6 +77,10 @@
   --motion-duration-standard: 180ms;
   --motion-duration-emphasis: 240ms;
   --motion-ease-interaction: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Result reveal: bars grow and the balance marker settles with a small overshoot. */
+  --motion-duration-reveal: 650ms;
+  --motion-duration-reveal-long: 800ms;
+  --motion-ease-reveal: cubic-bezier(0.3, 1.28, 0.44, 1);
 
   /* Typography — fluid modular scale (~major third at desktop, larger jump to display) */
   --text-display: clamp(2.75rem, 1.9rem + 3.6vw, 4.5rem);
@@ -113,12 +108,15 @@
   --measure-text: 65ch;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   :root {
     --space-page-gutter: 1.5rem;
-    --space-card: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
     --space-feature: 2rem;
-    --space-document: 2.5rem;
   }
 }
 
@@ -126,7 +124,6 @@
   :root {
     --space-page-gutter: 2rem;
     --space-feature: 2.5rem;
-    --space-document: 3.5rem;
   }
 }
 
@@ -135,8 +132,8 @@ body {
   font-size: var(--text-body);
   line-height: var(--leading-body);
   background-image:
-    radial-gradient(circle at top left, rgba(76, 111, 255, 0.12), transparent 24rem),
-    radial-gradient(circle at bottom right, rgba(15, 139, 141, 0.12), transparent 22rem);
+    radial-gradient(circle at top left, rgb(var(--color-path-stay) / 0.1), transparent 24rem),
+    radial-gradient(circle at bottom right, rgb(var(--color-accent-warm) / 0.1), transparent 22rem);
 }
 
 h1,
@@ -245,7 +242,7 @@ input[type="range"] {
   }
 
   .interaction-bubble {
-    box-shadow: var(--shadow-legacy-sm);
+    box-shadow: var(--shadow-subtle);
     transition-duration: var(--motion-duration-standard);
     transition-property: box-shadow, filter, transform;
     transition-timing-function: var(--motion-ease-interaction);
@@ -258,7 +255,7 @@ input[type="range"] {
   }
 
   .interaction-stepper {
-    box-shadow: var(--shadow-legacy-sm);
+    box-shadow: var(--shadow-subtle);
     transition-duration: var(--motion-duration-standard);
     transition-property: background-color, border-color, box-shadow, color, opacity, transform;
     transition-timing-function: var(--motion-ease-interaction);
@@ -328,6 +325,19 @@ input[type="range"] {
     transition-duration: var(--motion-duration-standard);
     transition-property: border-color, box-shadow, transform;
     transition-timing-function: var(--motion-ease-interaction);
+  }
+
+  .interaction-field {
+    transition-duration: var(--motion-duration-standard);
+    transition-property: border-color, box-shadow;
+    transition-timing-function: var(--motion-ease-interaction);
+  }
+
+  .interaction-field:focus-visible {
+    border-color: rgb(var(--color-action-primary) / 0.55);
+    outline: 2px solid rgb(var(--color-surface-strong));
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px rgb(var(--color-action-primary) / 0.46);
   }
 
   .interaction-disclosure {
@@ -571,6 +581,7 @@ input[type="range"] {
   .interaction-bubble,
   .interaction-stepper,
   .interaction-card,
+  .interaction-field,
   .interaction-disclosure::details-content,
   .interaction-disclosure > summary,
   .interaction-disclosure[open] > :not(summary) {
@@ -624,7 +635,7 @@ input[type="range"] {
   }
 
   body:has(.decision-memo) {
-    background: #ffffff !important;
+    background: rgb(var(--color-surface-strong)) !important;
   }
 
   body:has(.decision-memo) > div > header,

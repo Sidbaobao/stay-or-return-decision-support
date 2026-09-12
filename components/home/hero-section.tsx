@@ -10,7 +10,7 @@ export function HeroSection() {
 
       <div className="absolute inset-0" style={{ backgroundImage: "var(--gradient-hero-vignette)" }} />
 
-      <div className="relative z-10 mx-auto flex min-h-[88svh] w-full max-w-6xl flex-col items-center justify-center px-4 pb-20 pt-28 text-center sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto flex min-h-[88svh] w-full max-w-6xl flex-col items-center justify-center px-page-gutter pb-20 pt-28 text-center">
         <h1 className="max-w-4xl text-display text-surface-strong">
           Think clearly about staying in the US or returning to China.
         </h1>

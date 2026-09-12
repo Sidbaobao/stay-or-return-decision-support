@@ -94,7 +94,7 @@ export function TopNav() {
           : "border-b border-surface-strong/60 bg-surface-strong/85 backdrop-blur"
       }
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl px-page-gutter py-4">
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/"

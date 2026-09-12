@@ -20,6 +20,7 @@ import { dimensionIcons } from "@/components/results/dimension-icons";
 import { getConclusionHeadline } from "@/components/results/verdict-copy";
 import { ShareResultButton } from "@/components/share/share-result-button";
 import { PrimaryButtonLink } from "@/components/ui/primary-button";
+import { SecondaryButtonLink } from "@/components/ui/secondary-button";
 
 export default function ResultsPage() {
   const { isReady, status, scoringResult } = useScoredRun("weights");
@@ -62,7 +63,9 @@ export default function ResultsPage() {
   }
 
   const isStayRecommended = scoringResult.recommendedScenario === "stay_us";
-  const accentColor = isStayRecommended ? "#3C5CCF" : "#D72638";
+  const accentToken = isStayRecommended ? "--color-path-stay" : "--color-path-return";
+  const accentColor = `rgb(var(${accentToken}))`;
+  const accentAt = (alpha: number) => `rgb(var(${accentToken}) / ${alpha})`;
   const confidenceSteps =
     scoringResult.confidence === "low" ? 1 : scoringResult.confidence === "medium" ? 2 : 3;
   const conclusionHeadline = getConclusionHeadline(
@@ -89,8 +92,8 @@ export default function ResultsPage() {
       <section
         className="relative overflow-hidden rounded-feature border p-6 shadow-soft sm:p-8 lg:p-10"
         style={{
-          borderColor: `${accentColor}40`,
-          background: `linear-gradient(138deg, rgb(var(--color-surface)) 0%, rgb(var(--color-surface-strong)) 55%, ${accentColor}16 100%)`
+          borderColor: accentAt(0.25),
+          background: `linear-gradient(138deg, rgb(var(--color-surface)) 0%, rgb(var(--color-surface-strong)) 55%, ${accentAt(0.09)} 100%)`
         }}
       >
         <div
@@ -126,7 +129,7 @@ export default function ResultsPage() {
               >
                 <span
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-tile"
-                  style={{ backgroundColor: `${accentColor}12`, color: accentColor }}
+                  style={{ backgroundColor: accentAt(0.07), color: accentColor }}
                 >
                   <TopContributionIcon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                 </span>
@@ -135,7 +138,7 @@ export default function ResultsPage() {
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-tile border border-surface-strong/80 bg-surface-strong/80 px-4 py-3 shadow-legacy-sm">
+              <div className="rounded-tile border border-surface-strong/80 bg-surface-strong/80 px-4 py-3 shadow-subtle">
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-body-sm font-medium text-ink/70">Confidence</span>
                   <span className="text-body-sm font-semibold capitalize text-ink">{scoringResult.confidence}</span>
@@ -171,7 +174,7 @@ export default function ResultsPage() {
         </div>
       </section>
 
-      <section className="rounded-feature border border-border bg-surface p-6 shadow-legacy-sm sm:p-8">
+      <section className="rounded-feature border border-border bg-surface p-6 shadow-subtle sm:p-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-eyebrow text-ink-accent">Key drivers</p>
@@ -188,7 +191,7 @@ export default function ResultsPage() {
         </div>
       </section>
 
-      <details className="interaction-disclosure group rounded-feature border border-border bg-surface/70 shadow-legacy-sm">
+      <details className="interaction-disclosure group rounded-feature border border-border bg-surface/70 shadow-subtle">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:p-6">
           <div>
             <h2 className="font-serif text-card-title text-ink">More detail</h2>
@@ -204,13 +207,13 @@ export default function ResultsPage() {
           <section>
             <h3 className="text-body font-semibold text-ink">Weight sensitivity</h3>
             <div className="mt-3 flex gap-3">
-              <div className="rounded-tile bg-surface-strong px-4 py-3 shadow-legacy-sm">
+              <div className="rounded-tile bg-surface-strong px-4 py-3 shadow-subtle">
                 <p className="text-label text-ink/65">Current gap</p>
                 <p className="mt-1 text-lg font-semibold text-ink">
                   {scoringResult.weightFlipAnalysis.currentTotalGap}
                 </p>
               </div>
-              <div className="rounded-tile bg-surface-strong px-4 py-3 shadow-legacy-sm">
+              <div className="rounded-tile bg-surface-strong px-4 py-3 shadow-subtle">
                 <p className="text-label text-ink/65">Possible shift</p>
                 <p className="mt-1 text-lg font-semibold text-ink">
                   {scoringResult.weightFlipAnalysis.totalPotentialShift}
@@ -265,12 +268,7 @@ export default function ResultsPage() {
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <Link
-              href="/profile"
-              className="interaction-secondary rounded-control border border-ink/15 px-4 py-2 text-sm font-medium text-ink/75"
-            >
-              Add a nickname
-            </Link>
+            <SecondaryButtonLink href="/profile">Add a nickname</SecondaryButtonLink>
             <button
               type="button"
               onClick={() => updateProfile({ nudgeDismissed: true })}
@@ -282,7 +280,7 @@ export default function ResultsPage() {
         </aside>
       ) : null}
 
-      <footer className="flex flex-col gap-5 rounded-feature border border-border bg-surface-strong p-6 shadow-legacy-sm sm:flex-row sm:items-center sm:justify-between sm:p-8">
+      <footer className="flex flex-col gap-5 rounded-feature border border-border bg-surface-strong p-6 shadow-subtle sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <div>
           <h2 className="font-serif text-section-title text-ink">Read the full memo</h2>
           <p className="mt-2 text-body-sm text-ink/70">Recommendation, tradeoffs, and next steps.</p>

@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { ShieldCheck, User } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 import { HistoryList } from "@/components/profile/history-list";
 import {
   formatFriendlyDate,
@@ -96,7 +97,7 @@ export default function ProfilePage() {
 
       <section
         aria-labelledby="identity-heading"
-        className="rounded-feature border border-border bg-surface p-6 shadow-legacy-sm sm:p-8"
+        className="rounded-feature border border-border bg-surface p-6 shadow-subtle sm:p-8"
       >
         <h2 id="identity-heading" className="sr-only">
           Profile identity
@@ -124,14 +125,11 @@ export default function ProfilePage() {
                   maxLength={NICKNAME_MAX_LENGTH}
                   onChange={(event) => setNicknameDraft(event.target.value)}
                   placeholder="How should we greet you?"
-                  className="min-h-11 w-full rounded-control border border-border bg-surface-strong px-3.5 py-2 text-body text-ink placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-action-primary/40"
+                  className="min-h-11 w-full rounded-control border border-border bg-surface-strong px-3.5 py-2 text-body text-ink placeholder:text-ink/40 interaction-field"
                 />
-                <button
-                  type="submit"
-                  className="interaction-secondary min-h-11 shrink-0 rounded-control border border-ink/15 px-4 py-2 text-sm font-medium text-ink/75"
-                >
+                <SecondaryButton type="submit" className="shrink-0">
                   Save
-                </button>
+                </SecondaryButton>
               </div>
               <p aria-live="polite" className="mt-2 min-h-5 text-label text-ink/65">
                 {savedNotice ? "Saved on this device." : ""}
@@ -184,7 +182,7 @@ export default function ProfilePage() {
 
       <section
         aria-labelledby="privacy-heading"
-        className="rounded-feature border border-border bg-surface-warm/60 p-6 shadow-legacy-sm sm:p-8"
+        className="rounded-feature border border-border bg-surface-warm/60 p-6 shadow-subtle sm:p-8"
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
           <span
@@ -207,13 +205,7 @@ export default function ProfilePage() {
             </p>
 
             <div className="flex flex-wrap items-center gap-3 pt-1">
-              <button
-                type="button"
-                onClick={handleExport}
-                className="interaction-secondary rounded-control border border-ink/15 px-4 py-2 text-sm font-medium text-ink/75"
-              >
-                Export my data (JSON)
-              </button>
+              <SecondaryButton onClick={handleExport}>Export my data (JSON)</SecondaryButton>
 
               {isConfirmingDeleteAll ? (
                 <span className="inline-flex flex-wrap items-center gap-2">
@@ -249,7 +241,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      <section aria-labelledby="history-heading" className="rounded-feature border border-border bg-surface p-6 shadow-legacy-sm sm:p-8">
+      <section aria-labelledby="history-heading" className="rounded-feature border border-border bg-surface p-6 shadow-subtle sm:p-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-eyebrow text-ink-accent">History</p>

@@ -22,7 +22,7 @@ export function HistoryList({ entries, onEntriesChange }: HistoryListProps) {
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-tile border border-dashed border-border-strong bg-surface-strong/50 p-6 text-center">
+      <div className="rounded-tile border border-dashed border-hairline-strong bg-surface-strong/50 p-6 text-center">
         <p className="text-body text-ink/70">No decisions saved on this device yet.</p>
         <p className="mt-1 text-body-sm text-ink/60">
           Finish the questionnaire and your result will appear here automatically.

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { buildShareUrl } from "@/lib/share";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 import { Answers, Weights } from "@/types";
 
 type ShareResultButtonProps = {
@@ -53,13 +54,7 @@ export function ShareResultButton({ answers, weights }: ShareResultButtonProps) 
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={handleShare}
-          className="interaction-secondary rounded-control border border-ink/15 px-4 py-2 text-sm font-medium text-ink/75"
-        >
-          Copy share link
-        </button>
+        <SecondaryButton onClick={handleShare}>Copy share link</SecondaryButton>
         <span aria-live="polite" className="text-sm font-medium text-ink/70">
           {copyState === "copied" ? "Link copied." : ""}
         </span>
@@ -77,7 +72,7 @@ export function ShareResultButton({ answers, weights }: ShareResultButtonProps) 
             readOnly
             value={shareUrl}
             onFocus={(event) => event.target.select()}
-            className="mt-1.5 w-full rounded-control border border-border bg-surface-strong px-3 py-2 text-body-sm text-ink/80 focus:outline-none focus:ring-2 focus:ring-action-primary/40"
+            className="mt-1.5 w-full rounded-control border border-border bg-surface-strong px-3 py-2 text-body-sm text-ink/80 interaction-field"
           />
         </div>
       ) : null}

@@ -20,6 +20,7 @@ import { readRunStatus } from "@/lib/run-state";
 import { Answers, Dimension, DimensionId } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 import { QuestionCard } from "@/components/questionnaire/question-card";
 
 const groupedQuestions = dimensions.map((dimension) => ({
@@ -85,7 +86,7 @@ function DimensionProgressRing({
     <div
       className={`relative shrink-0 rounded-pill ${
         isCurrent
-          ? "bg-action-primary/10 p-1 shadow-legacy-sm"
+          ? "bg-action-primary/10 p-1 shadow-subtle"
           : "bg-surface-strong/70 p-0.5"
       }`}
       role="img"
@@ -153,7 +154,7 @@ function DimensionIntroHeader({ dimension }: DimensionIntroHeaderProps) {
 
   return (
     <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-tile bg-accent-warm/10 text-accent-warm shadow-legacy-sm">
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-tile bg-accent-warm/10 text-accent-warm shadow-subtle">
         <Icon aria-hidden="true" strokeWidth={1.8} className="h-7 w-7" />
       </div>
 
@@ -273,7 +274,7 @@ export default function QuestionnairePage() {
         description="Answer based on your current situation."
       />
 
-      <div className="sticky top-3 z-20 rounded-pill border border-border bg-surface/95 px-4 py-3 shadow-legacy-sm backdrop-blur">
+      <div className="sticky top-3 z-20 rounded-pill border border-border bg-surface/95 px-4 py-3 shadow-subtle backdrop-blur">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-label font-medium text-ink/70">
           <span>
             {completedCount} of {questions.length} answered
@@ -377,13 +378,9 @@ export default function QuestionnairePage() {
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           {!isFirstStep ? (
-            <button
-              type="button"
-              onClick={goToPreviousStep}
-              className="interaction-secondary inline-flex min-h-11 items-center justify-center rounded-pill border border-ink/10 px-5 text-sm font-medium text-ink"
-            >
+            <SecondaryButton onClick={goToPreviousStep} className="px-5">
               Previous
-            </button>
+            </SecondaryButton>
           ) : null}
 
           {isLastStep ? (

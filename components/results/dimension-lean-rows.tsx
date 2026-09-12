@@ -138,7 +138,7 @@ export function DimensionLeanRows({
                 <div aria-hidden="true" className="relative mt-3 h-2.5 rounded-pill bg-result-driver-track">
                   {!isBalanced ? (
                     <div
-                      className={`absolute inset-y-0 transition-transform duration-[650ms] ease-out motion-reduce:scale-x-100 motion-reduce:transition-none ${
+                      className={`absolute inset-y-0 transition-transform duration-motion-reveal ease-out motion-reduce:scale-x-100 motion-reduce:transition-none ${
                         supportsStay
                           ? "right-1/2 origin-right rounded-l-pill bg-path-stay"
                           : "left-1/2 origin-left rounded-r-pill bg-path-return"
