@@ -1,25 +1,71 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { resetAppState } from "@/lib/storage";
-import { SecondaryButton } from "@/components/ui/secondary-button";
+import { resetCurrentRun, useRunStatus } from "@/lib/run-state";
+import { InlineConfirm, useConfirmFocus } from "@/components/ui/inline-confirm";
+import { QuietButton } from "@/components/ui/quiet-button";
 
 type ResetProgressButtonProps = {
-  variant?: "light" | "default";
+  // Runs before the run is read for its snapshot. The weights page uses it
+  // to flush a debounced autosave, so the snapshot carries what is on screen.
+  onBeforeReset?: () => void;
 };
 
-export function ResetProgressButton({ variant = "default" }: ResetProgressButtonProps) {
+// Lives in the header of the pages that hold the run (questionnaire, weights)
+// rather than in the global nav: a destructive action next to the thing it
+// destroys, and absent for a shared-link recipient who has no run at all.
+//
+// Empty run: nothing to reset, so nothing to show. Complete run: saved to
+// history first, so it can be restored. Partial run: unfinished answers would
+// be lost, so it asks in place.
+export function ResetProgressButton({ onBeforeReset }: ResetProgressButtonProps) {
   const router = useRouter();
+  const status = useRunStatus();
+  const [isConfirming, setIsConfirming] = useState(false);
+  const triggerRef = useConfirmFocus(isConfirming);
+  const hasRun = status !== null && status.answeredCount > 0;
 
-  const handleReset = () => {
-    resetAppState();
+  // If the run empties underneath an open question (a reset in another tab),
+  // the question is moot. Drop it so it cannot reappear with the next answer.
+  useEffect(() => {
+    if (!hasRun) {
+      setIsConfirming(false);
+    }
+  }, [hasRun]);
+
+  if (!status || !hasRun) {
+    return null;
+  }
+
+  const performReset = () => {
+    setIsConfirming(false);
+    onBeforeReset?.();
+    resetCurrentRun();
+    // This button unmounts with the run, so focus is parked on the page
+    // title before it goes; on the questionnaire that is where the
+    // navigation lands anyway.
+    document.querySelector<HTMLElement>("main h1")?.focus();
     router.push("/questionnaire");
-    router.refresh();
   };
 
+  if (isConfirming) {
+    return (
+      <InlineConfirm
+        prompt="Discard your in-progress answers?"
+        confirmLabel="Discard"
+        onConfirm={performReset}
+        onCancel={() => setIsConfirming(false)}
+      />
+    );
+  }
+
   return (
-    <SecondaryButton variant={variant} onClick={handleReset}>
+    <QuietButton
+      ref={triggerRef}
+      onClick={() => (status.isComplete ? performReset() : setIsConfirming(true))}
+    >
       Reset current run
-    </SecondaryButton>
+    </QuietButton>
   );
 }

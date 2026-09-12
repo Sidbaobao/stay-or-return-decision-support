@@ -559,6 +559,40 @@ input[type="range"] {
   }
 }
 
+.inline-confirm {
+  animation: inline-confirm-in var(--motion-duration-standard) var(--motion-ease-interaction) both;
+}
+
+/* List rows ease in on mount, staggered by an inline animation-delay. Pure
+   CSS so it needs no state and never leaves a row invisible if JS is late. */
+.reveal-row {
+  animation: reveal-row-in var(--motion-duration-reveal) var(--motion-ease-reveal) both;
+}
+
+@keyframes reveal-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes inline-confirm-in {
+  from {
+    opacity: 0;
+    transform: translateX(-0.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes interaction-disclosure-reveal {
   from {
     opacity: 0;
@@ -582,10 +616,13 @@ input[type="range"] {
   .interaction-stepper,
   .interaction-card,
   .interaction-field,
+  .inline-confirm,
+  .reveal-row,
   .interaction-disclosure::details-content,
   .interaction-disclosure > summary,
   .interaction-disclosure[open] > :not(summary) {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
   }
 

@@ -4,6 +4,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { ShieldCheck, User } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { SecondaryButton } from "@/components/ui/secondary-button";
+import { QuietButton } from "@/components/ui/quiet-button";
+import { InlineConfirm, useConfirmFocus } from "@/components/ui/inline-confirm";
 import { HistoryList } from "@/components/profile/history-list";
 import {
   formatFriendlyDate,
@@ -28,14 +30,14 @@ export default function ProfilePage() {
   const [nicknameDraft, setNicknameDraft] = useState("");
   const [savedNotice, setSavedNotice] = useState(false);
   const [isConfirmingDeleteAll, setIsConfirmingDeleteAll] = useState(false);
+  const deleteAllTriggerRef = useConfirmFocus(isConfirmingDeleteAll);
 
   useEffect(() => {
     setHistoryEntries(loadRunHistory());
   }, []);
 
-  // Follow the stored nickname, which is trimmed — the input used to keep
-  // showing the untrimmed draft after saving. Keyed on the profile object,
-  // which is new on every save, so a draft of only spaces also snaps back.
+  // Follow the stored nickname, which is trimmed — keyed on the profile
+  // object, which is new on every save, so a draft of only spaces snaps back.
   useEffect(() => {
     setNicknameDraft(profile?.nickname ?? "");
   }, [profile]);
@@ -80,11 +82,11 @@ export default function ProfilePage() {
   };
 
   const handleDeleteAll = () => {
+    setIsConfirmingDeleteAll(false);
     clearLocalProfileAndHistory();
     // The hook re-reads on the storage change and recreates the record,
     // because this page is where having a profile is the point.
     setHistoryEntries([]);
-    setIsConfirmingDeleteAll(false);
   };
 
   return (
@@ -92,164 +94,140 @@ export default function ProfilePage() {
       <PageHeader
         eyebrow="Your space"
         title={profile.nickname ? `Hi, ${profile.nickname}.` : "Your profile"}
-        description="Your profile and decision history live only in this browser — private to you, we can't see them."
+        description="Set a nickname, pick an accent, and look back at past decisions."
       />
 
       <section
         aria-labelledby="identity-heading"
-        className="rounded-feature border border-border bg-surface p-6 shadow-subtle sm:p-8"
+        className="grid gap-6 sm:grid-cols-[4rem_minmax(0,1fr)] sm:gap-8"
       >
         <h2 id="identity-heading" className="sr-only">
           Profile identity
         </h2>
 
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-          <span
-            aria-hidden="true"
-            className="flex h-16 w-16 shrink-0 items-center justify-center rounded-card text-2xl font-semibold"
-            style={{ backgroundColor: accent.background, color: accent.color }}
-          >
-            {monogram ?? <User className="h-7 w-7" strokeWidth={1.6} />}
-          </span>
+        <span
+          aria-hidden="true"
+          className="flex h-16 w-16 items-center justify-center rounded-pill text-2xl font-semibold"
+          style={{ backgroundColor: accent.background, color: accent.color }}
+        >
+          {monogram ?? <User className="h-7 w-7" strokeWidth={1.6} />}
+        </span>
 
-          <div className="min-w-0 flex-1 space-y-5">
-            <form onSubmit={handleNicknameSubmit} className="max-w-md">
-              <label htmlFor="profile-nickname" className="text-body-sm font-medium text-ink/70">
-                Nickname <span className="font-normal text-ink/50">(optional)</span>
-              </label>
-              <div className="mt-2 flex gap-2">
-                <input
-                  id="profile-nickname"
-                  type="text"
-                  value={nicknameDraft}
-                  maxLength={NICKNAME_MAX_LENGTH}
-                  onChange={(event) => setNicknameDraft(event.target.value)}
-                  placeholder="How should we greet you?"
-                  className="min-h-11 w-full rounded-control border border-border bg-surface-strong px-3.5 py-2 text-body text-ink placeholder:text-ink/40 interaction-field"
-                />
-                <SecondaryButton type="submit" className="shrink-0">
-                  Save
-                </SecondaryButton>
-              </div>
-              <p aria-live="polite" className="mt-2 min-h-5 text-label text-ink/65">
-                {savedNotice ? "Saved on this device." : ""}
-              </p>
-            </form>
-
-            <fieldset>
-              <legend className="text-body-sm font-medium text-ink/70">Accent</legend>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {accentOrder.map((accentId) => {
-                  const option = profileAccentStyles[accentId];
-                  const isSelected = profile.accentId === accentId;
-
-                  return (
-                    <label
-                      key={accentId}
-                      className={`interaction-quiet inline-flex cursor-pointer items-center gap-2 rounded-pill border px-3 py-1.5 text-sm ${
-                        isSelected
-                          ? "border-ink/30 bg-surface-strong font-medium text-ink"
-                          : "border-border text-ink/65 hover:text-ink"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="profile-accent"
-                        value={accentId}
-                        checked={isSelected}
-                        onChange={() => handleAccentChange(accentId)}
-                        className="sr-only"
-                      />
-                      <span
-                        aria-hidden="true"
-                        className="h-3.5 w-3.5 rounded-pill"
-                        style={{ backgroundColor: option.color }}
-                      />
-                      {option.label}
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
-
-            <p className="text-body-sm text-ink/65">
-              On this device since {formatFriendlyDate(profile.createdAt)} ·{" "}
-              {decisionsCount === 1 ? "1 decision saved" : `${decisionsCount} decisions saved`}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section
-        aria-labelledby="privacy-heading"
-        className="rounded-feature border border-border bg-surface-warm/60 p-6 shadow-subtle sm:p-8"
-      >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
-          <span
-            aria-hidden="true"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-tile bg-surface text-ink-accent"
-          >
-            <ShieldCheck className="h-5 w-5" strokeWidth={1.8} />
-          </span>
-          <div className="min-w-0 space-y-3">
-            <h2 id="privacy-heading" className="font-serif text-card-title text-ink">
-              Private to this device
-            </h2>
-            <p className="max-w-measure text-body text-ink/75">
-              Your nickname and history are saved only in this browser, on this device. Nothing is
-              sent anywhere — no account, no cloud, no sync. We couldn&apos;t see it if we wanted to.
-            </p>
-            <p className="max-w-measure text-body-sm text-ink/65">
-              The honest flip side: it won&apos;t follow you to other devices, and clearing this
-              browser&apos;s data erases it. Export a copy below if you want to keep one.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3 pt-1">
-              <SecondaryButton onClick={handleExport}>Export my data (JSON)</SecondaryButton>
-
-              {isConfirmingDeleteAll ? (
-                <span className="inline-flex flex-wrap items-center gap-2">
-                  <span className="text-sm text-ink/70">
-                    Erase your profile and all saved decisions from this browser?
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleDeleteAll}
-                    className="interaction-quiet rounded-control px-1.5 py-1 text-sm font-semibold text-path-return"
-                  >
-                    Erase everything
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsConfirmingDeleteAll(false)}
-                    className="interaction-quiet rounded-control px-1.5 py-1 text-sm font-medium text-ink/60 hover:text-ink"
-                  >
-                    Keep
-                  </button>
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setIsConfirmingDeleteAll(true)}
-                  className="interaction-quiet rounded-control px-1.5 py-1 text-sm font-medium text-ink/60 hover:text-path-return"
-                >
-                  Delete profile &amp; history
-                </button>
-              )}
+        <div className="min-w-0 space-y-6">
+          <form onSubmit={handleNicknameSubmit} className="max-w-md">
+            <label htmlFor="profile-nickname" className="text-body-sm font-medium text-ink/70">
+              Nickname <span className="font-normal text-ink/50">(optional)</span>
+            </label>
+            <div className="mt-2 flex gap-2">
+              <input
+                id="profile-nickname"
+                type="text"
+                value={nicknameDraft}
+                maxLength={NICKNAME_MAX_LENGTH}
+                onChange={(event) => setNicknameDraft(event.target.value)}
+                placeholder="How should we greet you?"
+                className="interaction-field min-h-11 w-full rounded-control border border-border bg-surface-strong px-3.5 py-2 text-body text-ink placeholder:text-ink/40"
+              />
+              <SecondaryButton type="submit" className="shrink-0">
+                Save
+              </SecondaryButton>
             </div>
-          </div>
+            <p aria-live="polite" className="mt-2 min-h-5 text-label text-ink/65">
+              {savedNotice ? "Saved." : ""}
+            </p>
+          </form>
+
+          <fieldset>
+            <legend className="text-body-sm font-medium text-ink/70">Accent</legend>
+            <div className="mt-3 flex flex-wrap gap-x-6 gap-y-3">
+              {accentOrder.map((accentId) => {
+                const option = profileAccentStyles[accentId];
+
+                return (
+                  <label
+                    key={accentId}
+                    className="inline-flex cursor-pointer items-center gap-2.5 text-sm text-ink/65 transition-colors duration-motion-standard ease-interaction has-[:checked]:font-medium has-[:checked]:text-ink motion-reduce:transition-none"
+                  >
+                    <input
+                      type="radio"
+                      name="profile-accent"
+                      value={accentId}
+                      checked={profile.accentId === accentId}
+                      onChange={() => handleAccentChange(accentId)}
+                      className="peer sr-only"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="h-6 w-6 rounded-pill ring-offset-2 ring-offset-canvas transition-shadow duration-motion-standard ease-interaction peer-checked:ring-2 peer-checked:ring-ink/40 peer-focus-visible:ring-2 peer-focus-visible:ring-action-primary/70 motion-reduce:transition-none"
+                      style={{ backgroundColor: option.color }}
+                    />
+                    {option.label}
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <p className="text-body-sm text-ink/65">
+            Profile created {formatFriendlyDate(profile.createdAt)} ·{" "}
+            {decisionsCount === 1 ? "1 decision saved" : `${decisionsCount} decisions saved`}
+          </p>
         </div>
       </section>
 
-      <section aria-labelledby="history-heading" className="rounded-feature border border-border bg-surface p-6 shadow-subtle sm:p-8">
+      <aside
+        aria-labelledby="privacy-heading"
+        className="rounded-card border-l-4 border-ink-accent/60 bg-surface-warm px-5 py-5 sm:px-7 sm:py-6"
+      >
+        <h2 id="privacy-heading" className="flex items-center gap-2 font-serif text-card-title text-ink">
+          <ShieldCheck aria-hidden="true" className="h-5 w-5 shrink-0 text-ink-accent" strokeWidth={1.8} />
+          Private to this device
+        </h2>
+        <p className="mt-3 max-w-measure text-body text-ink/75">
+          Your nickname and history are saved only in this browser, on this device. Nothing is sent
+          anywhere — no account, no cloud, no sync. We couldn&apos;t see it if we wanted to.
+        </p>
+        <p className="mt-2 max-w-measure text-body-sm text-ink/65">
+          The honest flip side: it won&apos;t follow you to other devices, and clearing this
+          browser&apos;s data erases it. Export a copy if you want to keep one.
+        </p>
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <SecondaryButton onClick={handleExport}>Export my data (JSON)</SecondaryButton>
+
+          {isConfirmingDeleteAll ? (
+            <InlineConfirm
+              prompt="Erase your profile and all saved decisions from this device?"
+              confirmLabel="Erase everything"
+              onConfirm={handleDeleteAll}
+              onCancel={() => setIsConfirmingDeleteAll(false)}
+            />
+          ) : (
+            <QuietButton
+              ref={deleteAllTriggerRef}
+              tone="caution"
+              onClick={() => setIsConfirmingDeleteAll(true)}
+            >
+              Delete profile &amp; history
+            </QuietButton>
+          )}
+        </div>
+      </aside>
+
+      <section aria-labelledby="history-heading" className="border-t border-hairline pt-6 sm:pt-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-eyebrow text-ink-accent">History</p>
-            <h2 id="history-heading" className="mt-2 font-serif text-section-title text-ink">
+            {/* Focus target after the last history row is deleted. */}
+            <h2
+              id="history-heading"
+              tabIndex={-1}
+              className="mt-2 font-serif text-section-title text-ink outline-none"
+            >
               Your decisions
             </h2>
           </div>
-          <p className="text-body-sm text-ink/70">Saved only in this browser · newest first.</p>
+          <p className="text-body-sm text-ink/70">Newest first.</p>
         </div>
 
         <div className="mt-6">

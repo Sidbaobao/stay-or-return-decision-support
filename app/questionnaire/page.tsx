@@ -21,6 +21,7 @@ import { Answers, Dimension, DimensionId } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
+import { ResetProgressButton } from "@/components/ui/reset-progress-button";
 import { QuestionCard } from "@/components/questionnaire/question-card";
 
 const groupedQuestions = dimensions.map((dimension) => ({
@@ -272,6 +273,7 @@ export default function QuestionnairePage() {
         eyebrow="Step 1"
         title="Questionnaire"
         description="Answer based on your current situation."
+        actions={<ResetProgressButton />}
       />
 
       <div className="sticky top-3 z-20 rounded-pill border border-border bg-surface/95 px-4 py-3 shadow-subtle backdrop-blur">

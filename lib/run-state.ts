@@ -12,6 +12,7 @@ import {
   loadAppState,
   QUESTIONS_VERSION,
   recordRunInHistory,
+  resetAppState,
   saveAppState,
   STORAGE_KEYS,
   subscribeToStorageKey
@@ -115,6 +116,19 @@ export function restoreSnapshotAsCurrentRun(id: string): boolean {
 
   saveAppState({ answers: { ...target.answers }, weights: { ...target.weights } });
   return true;
+}
+
+// "Reset current run" and the home page's "Start over". A complete run is
+// saved to history first so it can be restored; callers ask before discarding
+// a partially answered one, since that work has nowhere else to go.
+export function resetCurrentRun() {
+  const status = readRunStatus();
+
+  if (status.canScore) {
+    snapshotRunToHistory(status, scoreDecision(status.answers, status.state.weights));
+  }
+
+  resetAppState();
 }
 
 // The load → guard → score pipeline shared by the results page and the memo.

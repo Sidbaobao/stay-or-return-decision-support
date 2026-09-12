@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { WeightBubbleCluster } from "@/components/weights/weight-bubble-cluster";
 import { getWeightTotal } from "@/components/weights/weight-bubble-utils";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { ResetProgressButton } from "@/components/ui/reset-progress-button";
 
 export default function WeightsPage() {
   const isReady = usePrerequisiteGuard("answers");
@@ -82,6 +83,14 @@ export default function WeightsPage() {
     router.push("/results");
   };
 
+  // The header's reset snapshots the run from storage. Flush the debounced
+  // autosave first so a bubble dragged a moment ago is what gets saved.
+  const flushPendingWeights = () => {
+    if (hasUserEditedRef.current) {
+      saveWeights(weightsRef.current);
+    }
+  };
+
   if (!isReady) {
     return null;
   }
@@ -92,6 +101,7 @@ export default function WeightsPage() {
         eyebrow="Step 2"
         title="Set your priorities"
         description="Choose how much each dimension should influence the final result."
+        actions={<ResetProgressButton onBeforeReset={flushPendingWeights} />}
       />
 
       <WeightBubbleCluster
