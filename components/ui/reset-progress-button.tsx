@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { resetAppState } from "@/lib/storage";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 
 type ResetProgressButtonProps = {
   variant?: "light" | "default";
@@ -9,10 +10,6 @@ type ResetProgressButtonProps = {
 
 export function ResetProgressButton({ variant = "default" }: ResetProgressButtonProps) {
   const router = useRouter();
-  const className =
-    variant === "light"
-      ? "interaction-secondary interaction-secondary-dark rounded-control border border-surface-strong/25 px-4 py-2 text-sm font-medium text-surface-strong/75"
-      : "interaction-secondary rounded-pill border border-ink/15 px-4 py-2 text-sm font-medium text-ink/75";
 
   const handleReset = () => {
     resetAppState();
@@ -21,12 +18,8 @@ export function ResetProgressButton({ variant = "default" }: ResetProgressButton
   };
 
   return (
-    <button
-      type="button"
-      onClick={handleReset}
-      className={className}
-    >
+    <SecondaryButton variant={variant} onClick={handleReset}>
       Reset current run
-    </button>
+    </SecondaryButton>
   );
 }

@@ -19,7 +19,7 @@ export function AppShell({ children }: AppShellProps) {
         className={
           isHome
             ? "flex min-h-screen w-full flex-col"
-            : "mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8"
+            : "mx-auto flex w-full max-w-6xl flex-col gap-section px-page-gutter py-8"
         }
       >
         {children}

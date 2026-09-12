@@ -90,7 +90,15 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
 - Stay / US path: blue `#3C5CCF`
 - Return / China path: red `#D72638`
 - Warm accent: coral `#D96C4A`
-- Home dark hero exception: `#070D18` / `#1A2230`
+- Home dark hero exception: `#070D18`. Two files draw colors directly
+  because a 2D canvas cannot read CSS custom properties, and both are
+  off-limits to styling tasks: `components/home/decision-map-canvas.tsx`
+  (the two path colors + hero background) and `components/weights/*`
+  (three per-dimension bubble hues).
+- Hairlines vs borders: `border-hairline` / `divide-hairline` (and
+  `-strong`) divide content inside or between blocks; `border-border`
+  outlines a surface. Elevation has two levels: `shadow-subtle` on a
+  surface, `shadow-soft` on a page's lead block only.
 The whole site shares one warm, cohesive palette. Do not reintroduce
 retired colors (orange `#F97316`, teal `#0F8B8D`, the old competing
 blues).

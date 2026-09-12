@@ -54,7 +54,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
   const displayedSummary = normalizeDisplayedSummary(report.summary);
 
   return (
-    <article className="decision-memo overflow-hidden rounded-panel border border-border bg-surface shadow-legacy-sm">
+    <article className="decision-memo overflow-hidden rounded-panel border border-border bg-surface shadow-subtle">
       <header className="memo-block px-memo-x py-memo-header-y sm:px-memo-x-sm sm:py-memo-header-y-sm lg:px-memo-x-lg">
         <div className="flex flex-col gap-2 border-b border-ink/15 pb-4 sm:flex-row sm:items-end sm:justify-between">
           <p className="font-serif text-section-title text-ink">Decision Memo</p>
@@ -71,7 +71,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           <h1 id="recommendation-heading" className="mt-2 font-serif text-page-title text-ink">
             {recommendationLabel}.
           </h1>
-          <span className="text-eyebrow mt-4 inline-flex rounded-pill border border-memo-badge-border bg-surface-strong/55 px-3 py-1.5 text-ink/65">
+          <span className="text-eyebrow mt-4 inline-flex rounded-pill border border-hairline-strong bg-surface-strong/55 px-3 py-1.5 text-ink/65">
             {confidenceLabels[report.confidence]}
           </span>
         </div>
@@ -102,8 +102,8 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           ))}
         </div>
 
-        <div className="mt-7 border-y border-border-strong">
-          <div className="grid grid-cols-1 border-b border-border-strong text-label sm:grid-cols-[1.35fr_1fr]">
+        <div className="mt-7 border-y border-hairline-strong">
+          <div className="grid grid-cols-1 border-b border-hairline-strong text-label sm:grid-cols-[1.35fr_1fr]">
             <div className="hidden px-memo-row-x-sm py-memo-row-y font-semibold text-ink/65 sm:block">Dimension</div>
             <div className="flex items-baseline justify-between px-memo-row-x py-memo-row-y sm:px-memo-row-x-sm">
               <span className="font-semibold text-path-stay">Stay</span>
@@ -112,7 +112,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
             </div>
           </div>
 
-          <div className="divide-y divide-memo-row-border">
+          <div className="divide-y divide-hairline">
             {(() => {
               const sharedScale = Math.max(
                 MIN_SHARED_SCALE,

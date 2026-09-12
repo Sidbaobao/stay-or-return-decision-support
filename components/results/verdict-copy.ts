@@ -36,8 +36,18 @@ export function getSharedHeadline(direction: ScenarioId, confidence: ConfidenceL
   return `It's close. This result leans slightly toward ${pathLabel}.`;
 }
 
-// Past-tense register for history rows and snapshots.
-export function getPastRunStatement(direction: ScenarioId, confidence: ConfidenceLevel) {
+// Past-tense register for history rows and snapshots. A zero gap is reported
+// as balanced: the engine's tie-break defaults to stay_us, which would
+// otherwise be shown to the user as a lean they never expressed.
+export function getPastRunStatement(
+  direction: ScenarioId,
+  confidence: ConfidenceLevel,
+  difference?: number
+) {
+  if (difference === 0) {
+    return "Came out evenly balanced";
+  }
+
   const pathLabel = direction === "stay_us" ? "staying" : "returning";
 
   if (confidence === "high") {

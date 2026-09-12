@@ -45,7 +45,7 @@ export default function HomePage() {
 
       <section
         id="how-it-works"
-        className="relative isolate overflow-hidden bg-hero px-4 pb-20 pt-24 text-surface-strong sm:px-6 lg:px-8"
+        className="relative isolate overflow-hidden bg-hero px-page-gutter pb-20 pt-24 text-surface-strong"
       >
         <div
           aria-hidden="true"

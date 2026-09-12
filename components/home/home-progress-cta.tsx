@@ -3,15 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { questions } from "@/data/questions";
-import {
-  filterAnswersToCurrent,
-  hasCompleteAnswers,
-  hasWeights,
-  loadAppState,
-  loadRunHistory,
-  resetAppState
-} from "@/lib/storage";
+import { loadRunHistory, resetAppState } from "@/lib/storage";
+import { useRunStatus } from "@/lib/run-state";
 
 type ProgressState = "fresh" | "partial" | "completed";
 
@@ -24,26 +17,20 @@ const buttonClassName =
 
 export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
   const router = useRouter();
-  const [progressState, setProgressState] = useState<ProgressState>("fresh");
-  const [canReviewResults, setCanReviewResults] = useState(false);
+  const status = useRunStatus();
   const [hasHistory, setHasHistory] = useState(false);
   const alignmentClassName = align === "end" ? "items-center lg:items-end" : "items-center";
 
+  const progressState: ProgressState = !status
+    ? "fresh"
+    : status.isComplete
+      ? "completed"
+      : status.answeredCount > 0
+        ? "partial"
+        : "fresh";
+  const canReviewResults = status?.canScore ?? false;
+
   useEffect(() => {
-    const state = loadAppState();
-    const currentAnswers = filterAnswersToCurrent(state.answers, questions);
-    const completedCount = Object.keys(currentAnswers).length;
-    const answersComplete = hasCompleteAnswers({ ...state, answers: currentAnswers }, questions.length);
-
-    if (completedCount === 0) {
-      setProgressState("fresh");
-    } else if (answersComplete) {
-      setProgressState("completed");
-    } else {
-      setProgressState("partial");
-    }
-
-    setCanReviewResults(answersComplete && hasWeights(state));
     setHasHistory(loadRunHistory().length > 0);
   }, []);
 

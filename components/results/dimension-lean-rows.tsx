@@ -63,7 +63,7 @@ export function DimensionLeanRows({
 
   return (
     <div>
-      <ul ref={listRef} className="space-y-4">
+      <ul ref={listRef} className="divide-y divide-hairline">
         {rankedContributions.map((contribution, index) => {
           const dimension = dimensions.find((item) => item.id === contribution.dimensionId);
           const Icon = dimensionIcons[contribution.dimensionId];
@@ -79,23 +79,14 @@ export function DimensionLeanRows({
           return (
             <li
               key={contribution.dimensionId}
-              className={`grid gap-3 rounded-tile border border-surface-strong/80 bg-surface-strong/75 p-4 transition-all duration-500 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center ${
+              className={`grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 py-4 transition-all duration-500 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center ${
                 isInView ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
               }`}
               style={{ transitionDelay: `${index * 80}ms` }}
             >
               <span
-                className="flex h-11 w-11 items-center justify-center rounded-tile"
-                style={
-                  isBalanced
-                    ? { backgroundColor: "rgb(var(--color-ink) / 0.05)", color: "rgb(var(--color-ink) / 0.45)" }
-                    : {
-                        backgroundColor: supportsStay
-                          ? "rgb(var(--color-path-stay) / 0.08)"
-                          : "rgb(var(--color-path-return) / 0.08)",
-                        color: accent
-                      }
-                }
+                className="flex h-9 w-9 items-center justify-center"
+                style={{ color: isBalanced ? "rgb(var(--color-ink) / 0.45)" : accent }}
               >
                 <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
               </span>
@@ -128,7 +119,7 @@ export function DimensionLeanRows({
                       </span>
                     ) : null}
                     {isStillClose ? (
-                      <span className="rounded-pill border border-border bg-surface px-2.5 py-1 text-label text-ink/65">
+                      <span className="rounded-pill border border-hairline-strong bg-surface-strong px-2.5 py-1 text-label text-ink/65">
                         Still close
                       </span>
                     ) : null}
@@ -138,7 +129,7 @@ export function DimensionLeanRows({
                 <div aria-hidden="true" className="relative mt-3 h-2.5 rounded-pill bg-result-driver-track">
                   {!isBalanced ? (
                     <div
-                      className={`absolute inset-y-0 transition-transform duration-[650ms] ease-out motion-reduce:scale-x-100 motion-reduce:transition-none ${
+                      className={`absolute inset-y-0 transition-transform duration-motion-reveal ease-out motion-reduce:scale-x-100 motion-reduce:transition-none ${
                         supportsStay
                           ? "right-1/2 origin-right rounded-l-pill bg-path-stay"
                           : "left-1/2 origin-left rounded-r-pill bg-path-return"
@@ -150,7 +141,7 @@ export function DimensionLeanRows({
                 </div>
               </div>
 
-              <div className="flex items-baseline gap-1.5 sm:flex-col sm:items-end sm:gap-0">
+              <div className="col-start-2 flex items-baseline gap-1.5 sm:col-start-auto sm:flex-col sm:items-end sm:gap-0">
                 <span className="text-body-sm font-semibold text-ink">{Math.abs(contribution.weightedGap)}</span>
                 <span className="text-label text-ink/65">weighted pull</span>
               </div>

@@ -1,8 +1,6 @@
-"use client";
-
 import { dimensions } from "@/data/dimensions";
 import { questions } from "@/data/questions";
-import { QUESTIONS_VERSION } from "@/lib/storage";
+import { QUESTIONS_VERSION } from "@/lib/questionnaire-version";
 import { Answers, Weights } from "@/types";
 
 // Share links encode the run entirely inside the URL *fragment* (#…), which
@@ -10,17 +8,22 @@ import { Answers, Weights } from "@/types";
 // recipient without our server (or its logs) ever seeing it. Nothing is
 // stored anywhere.
 //
-// Layout (18 bytes, base64url, ~24 chars + version prefix):
-//   bytes 0–5   24 answers × 2 bits, in canonical question order
-//   bytes 6–17  6 weights × 16 bits big-endian, in canonical dimension
-//               order, stored as per-ten-thousand shares of the total —
-//               scoring normalizes by total, so proportions carry the exact
-//               same information at ~0.005% precision.
+// Layout, derived from the question and dimension sets (18 bytes today,
+// base64url, ~24 chars + version prefix):
+//   answer bytes    one answer per 2 bits, in canonical question order
+//   weight bytes    one weight per 16 bits big-endian, in canonical dimension
+//                   order, stored as per-ten-thousand shares of the total —
+//                   scoring normalizes by total, so proportions carry the
+//                   exact same information at ~0.005% precision.
 // The questionnaire version prefixes the payload; a mismatched link renders
 // an honest "made with an earlier version" state instead of misdecoding.
 
-const ANSWER_BYTES = 6;
-const WEIGHT_BYTES = 12;
+const BITS_PER_ANSWER = 2;
+const ANSWERS_PER_BYTE = 8 / BITS_PER_ANSWER;
+const OPTION_MASK = (1 << BITS_PER_ANSWER) - 1;
+const MAX_OPTION_INDEX = OPTION_MASK;
+const ANSWER_BYTES = Math.ceil(questions.length / ANSWERS_PER_BYTE);
+const WEIGHT_BYTES = dimensions.length * 2;
 const TOTAL_BYTES = ANSWER_BYTES + WEIGHT_BYTES;
 const WEIGHT_SHARE_SCALE = 10_000;
 
@@ -59,11 +62,14 @@ export function encodeSharePayload(answers: Answers, weights: Weights): string |
     const question = questions[questionIndex];
     const optionIndex = question.options.findIndex((option) => option.id === answers[question.id]);
 
-    if (optionIndex < 0 || optionIndex > 2) {
+    // Two bits per answer: a question with more than four options would need a
+    // wider layout and a new version prefix.
+    if (optionIndex < 0 || optionIndex > MAX_OPTION_INDEX) {
       return null;
     }
 
-    bytes[questionIndex >> 2] |= optionIndex << ((questionIndex % 4) * 2);
+    bytes[Math.floor(questionIndex / ANSWERS_PER_BYTE)] |=
+      optionIndex << ((questionIndex % ANSWERS_PER_BYTE) * BITS_PER_ANSWER);
   }
 
   const totalWeight = dimensions.reduce((sum, dimension) => sum + (weights[dimension.id] ?? 0), 0);
@@ -112,7 +118,10 @@ export function decodeSharePayload(payload: string): DecodedShare {
 
   for (let questionIndex = 0; questionIndex < questions.length; questionIndex += 1) {
     const question = questions[questionIndex];
-    const optionIndex = (bytes[questionIndex >> 2] >> ((questionIndex % 4) * 2)) & 0b11;
+    const optionIndex =
+      (bytes[Math.floor(questionIndex / ANSWERS_PER_BYTE)] >>
+        ((questionIndex % ANSWERS_PER_BYTE) * BITS_PER_ANSWER)) &
+      OPTION_MASK;
     const option = question.options[optionIndex];
 
     if (!option) {

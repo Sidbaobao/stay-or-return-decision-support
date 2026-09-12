@@ -22,7 +22,7 @@ export function HistoryList({ entries, onEntriesChange }: HistoryListProps) {
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-tile border border-dashed border-border-strong bg-surface-strong/50 p-6 text-center">
+      <div className="rounded-tile border border-dashed border-hairline-strong bg-surface-strong/50 p-6 text-center">
         <p className="text-body text-ink/70">No decisions saved on this device yet.</p>
         <p className="mt-1 text-body-sm text-ink/60">
           Finish the questionnaire and your result will appear here automatically.
@@ -39,7 +39,7 @@ export function HistoryList({ entries, onEntriesChange }: HistoryListProps) {
       {entries.map((entry) => {
         const isStay = entry.direction === "stay_us";
         const accent = isStay ? "rgb(var(--color-path-stay))" : "rgb(var(--color-path-return))";
-        const statement = getPastRunStatement(entry.direction, entry.confidence);
+        const statement = getPastRunStatement(entry.direction, entry.confidence, entry.difference);
         const topDimension = entry.topDimensionId
           ? dimensions.find((dimension) => dimension.id === entry.topDimensionId)
           : null;

@@ -1,49 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Lock } from "lucide-react";
-import { questions } from "@/data/questions";
-import {
-  filterAnswersToCurrent,
-  hasCompleteAnswers,
-  hasWeights,
-  loadAppState
-} from "@/lib/storage";
+import { useRunStatus } from "@/lib/run-state";
 import { ResetProgressButton } from "@/components/ui/reset-progress-button";
 import { ProfileChip } from "@/components/layout/profile-chip";
 
+// Weights always exist (they default), so finishing the questionnaire is the
+// only real gate. The "Set your weights first" lock could never engage.
 const navItems = [
   { href: "/", label: "Home", requirement: "none" },
   { href: "/questionnaire", label: "Questionnaire", requirement: "none" },
   { href: "/weights", label: "Weights", requirement: "answers" },
-  { href: "/results", label: "Results", requirement: "weights" },
-  { href: "/report", label: "Memo", requirement: "weights" }
+  { href: "/results", label: "Results", requirement: "answers" },
+  { href: "/report", label: "Memo", requirement: "answers" }
 ] as const;
-
-type UnlockState = {
-  answers: boolean;
-  weights: boolean;
-};
 
 type NavLinksProps = {
   pathname: string;
   isHome: boolean;
-  unlockState: UnlockState;
+  isUnlocked: boolean;
 };
 
-const lockedReasons = {
-  answers: "Complete the questionnaire first.",
-  weights: "Set your weights first."
-} as const;
+const LOCKED_REASON = "Complete the questionnaire first.";
 
-function NavLinks({ pathname, isHome, unlockState }: NavLinksProps) {
+function NavLinks({ pathname, isHome, isUnlocked: hasCompletedQuestionnaire }: NavLinksProps) {
   return navItems.map((item) => {
     const isActive = pathname === item.href;
-    const isUnlocked =
-      item.requirement === "none" ||
-      (item.requirement === "answers" ? unlockState.answers : unlockState.weights);
+    const isUnlocked = item.requirement === "none" || hasCompletedQuestionnaire;
     const baseClassName = "inline-flex items-center gap-1.5 whitespace-nowrap text-sm";
     const unlockedClassName = isHome
       ? isActive
@@ -76,16 +61,14 @@ function NavLinks({ pathname, isHome, unlockState }: NavLinksProps) {
       );
     }
 
-    const lockedReason = lockedReasons[item.requirement];
-
     return (
       <span
         key={item.href}
         role="link"
         aria-disabled="true"
         aria-current={isActive ? "page" : undefined}
-        aria-label={`${item.label}. ${lockedReason}`}
-        title={lockedReason}
+        aria-label={`${item.label}. ${LOCKED_REASON}`}
+        title={LOCKED_REASON}
         className={`${baseClassName} cursor-not-allowed select-none ${
           isHome ? "text-surface-strong/35" : "text-ink/35"
         }`}
@@ -100,24 +83,8 @@ function NavLinks({ pathname, isHome, unlockState }: NavLinksProps) {
 export function TopNav() {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const [unlockState, setUnlockState] = useState<UnlockState>({
-    answers: false,
-    weights: false
-  });
-
-  useEffect(() => {
-    const state = loadAppState();
-    const currentAnswers = filterAnswersToCurrent(state.answers, questions);
-    const answersReady = hasCompleteAnswers(
-      { ...state, answers: currentAnswers },
-      questions.length
-    );
-
-    setUnlockState({
-      answers: answersReady,
-      weights: answersReady && hasWeights(state)
-    });
-  }, [pathname]);
+  const status = useRunStatus();
+  const isUnlocked = status?.isComplete ?? false;
 
   return (
     <header
@@ -127,7 +94,7 @@ export function TopNav() {
           : "border-b border-surface-strong/60 bg-surface-strong/85 backdrop-blur"
       }
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl px-page-gutter py-4">
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/"
@@ -139,7 +106,7 @@ export function TopNav() {
           </Link>
 
           <nav aria-label="Primary navigation" className="hidden items-center gap-5 md:flex">
-            <NavLinks pathname={pathname} isHome={isHome} unlockState={unlockState} />
+            <NavLinks pathname={pathname} isHome={isHome} isUnlocked={isUnlocked} />
           </nav>
 
           <div className="flex items-center gap-3">
@@ -154,7 +121,7 @@ export function TopNav() {
             isHome ? "border-t border-surface-strong/10" : "border-t border-ink/10"
           }`}
         >
-          <NavLinks pathname={pathname} isHome={isHome} unlockState={unlockState} />
+          <NavLinks pathname={pathname} isHome={isHome} isUnlocked={isUnlocked} />
         </nav>
       </div>
     </header>

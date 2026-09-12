@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -15,10 +15,12 @@ import {
 import { questions } from "@/data/questions";
 import { dimensions } from "@/data/dimensions";
 import { usePrerequisiteGuard } from "@/lib/guards";
-import { filterAnswersToCurrent, loadAppState, saveAnswers } from "@/lib/storage";
+import { filterAnswersToCurrent, saveAnswers, STORAGE_KEYS, subscribeToStorageKey } from "@/lib/storage";
+import { readRunStatus } from "@/lib/run-state";
 import { Answers, Dimension, DimensionId } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { SecondaryButton } from "@/components/ui/secondary-button";
 import { QuestionCard } from "@/components/questionnaire/question-card";
 
 const groupedQuestions = dimensions.map((dimension) => ({
@@ -84,7 +86,7 @@ function DimensionProgressRing({
     <div
       className={`relative shrink-0 rounded-pill ${
         isCurrent
-          ? "bg-action-primary/10 p-1 shadow-legacy-sm"
+          ? "bg-action-primary/10 p-1 shadow-subtle"
           : "bg-surface-strong/70 p-0.5"
       }`}
       role="img"
@@ -152,7 +154,7 @@ function DimensionIntroHeader({ dimension }: DimensionIntroHeaderProps) {
 
   return (
     <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-tile bg-accent-warm/10 text-accent-warm shadow-legacy-sm">
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-tile bg-accent-warm/10 text-accent-warm shadow-subtle">
         <Icon aria-hidden="true" strokeWidth={1.8} className="h-7 w-7" />
       </div>
 
@@ -181,15 +183,47 @@ export default function QuestionnairePage() {
   const router = useRouter();
   const [answers, setAnswers] = useState<Answers>({});
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  // Mirrors `answers` for the storage listener, which must not re-run when we
+  // are the ones who wrote.
+  const answersRef = useRef<Answers>({});
 
   useEffect(() => {
-    const loadedAnswers = filterAnswersToCurrent(loadAppState().answers, questions);
-    const firstIncompleteIndex = groupedQuestions.findIndex((group) =>
-      group.questions.some((question) => !loadedAnswers[question.id])
-    );
+    const adoptStoredAnswers = () => {
+      const stored = readRunStatus().answers;
+      const current = answersRef.current;
+      const isSameAsLocal =
+        Object.keys(stored).length === Object.keys(current).length &&
+        Object.entries(stored).every(([questionId, optionId]) => current[questionId] === optionId);
 
-    setAnswers(loadedAnswers);
-    setCurrentStepIndex(firstIncompleteIndex === -1 ? 0 : firstIncompleteIndex);
+      if (isSameAsLocal) {
+        return;
+      }
+
+      answersRef.current = stored;
+      setAnswers(stored);
+
+      // Only jump steps when the run was cleared; another tab answering a
+      // question should not move the step this reader is on.
+      if (Object.keys(stored).length === 0) {
+        setCurrentStepIndex(0);
+        return;
+      }
+
+      if (Object.keys(current).length === 0) {
+        const firstIncompleteIndex = groupedQuestions.findIndex((group) =>
+          group.questions.some((question) => !stored[question.id])
+        );
+
+        setCurrentStepIndex(firstIncompleteIndex === -1 ? 0 : firstIncompleteIndex);
+      }
+    };
+
+    adoptStoredAnswers();
+
+    // "Reset current run" used to clear storage while this page kept showing
+    // the old answers. Now the screen follows the store — from the reset
+    // button, from a restore, or from another tab.
+    return subscribeToStorageKey(STORAGE_KEYS.currentRun, adoptStoredAnswers);
   }, []);
 
   const currentAnswers = filterAnswersToCurrent(answers, questions);
@@ -202,11 +236,15 @@ export default function QuestionnairePage() {
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === groupedQuestions.length - 1;
 
+  // Persist on every choice: previously only "Save and continue" wrote to
+  // storage, and that button stays disabled until all 24 are answered, so a
+  // refresh or a nav click mid-questionnaire lost every answer.
   const handleChange = (questionId: string, optionId: string) => {
-    setAnswers((currentAnswers) => ({
-      ...currentAnswers,
-      [questionId]: optionId
-    }));
+    const nextAnswers = { ...answers, [questionId]: optionId };
+
+    answersRef.current = nextAnswers;
+    setAnswers(nextAnswers);
+    saveAnswers(nextAnswers);
   };
 
   const handleSave = () => {
@@ -236,7 +274,7 @@ export default function QuestionnairePage() {
         description="Answer based on your current situation."
       />
 
-      <div className="sticky top-3 z-20 rounded-pill border border-border bg-surface/95 px-4 py-3 shadow-legacy-sm backdrop-blur">
+      <div className="sticky top-3 z-20 rounded-pill border border-border bg-surface/95 px-4 py-3 shadow-subtle backdrop-blur">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-label font-medium text-ink/70">
           <span>
             {completedCount} of {questions.length} answered
@@ -340,13 +378,9 @@ export default function QuestionnairePage() {
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           {!isFirstStep ? (
-            <button
-              type="button"
-              onClick={goToPreviousStep}
-              className="interaction-secondary inline-flex min-h-11 items-center justify-center rounded-pill border border-ink/10 px-5 text-sm font-medium text-ink"
-            >
+            <SecondaryButton onClick={goToPreviousStep} className="px-5">
               Previous
-            </button>
+            </SecondaryButton>
           ) : null}
 
           {isLastStep ? (

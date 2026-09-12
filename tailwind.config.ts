@@ -23,13 +23,11 @@ const config: Config = {
         ink: "rgb(var(--color-ink) / <alpha-value>)",
         "text-muted": "rgb(var(--color-text-muted) / <alpha-value>)",
         border: "rgb(var(--color-border) / <alpha-value>)",
-        "border-strong": "rgb(var(--color-border-strong) / <alpha-value>)",
+        hairline: "rgb(var(--color-hairline) / <alpha-value>)",
+        "hairline-strong": "rgb(var(--color-hairline-strong) / <alpha-value>)",
         "progress-track": "rgb(var(--color-progress-track) / <alpha-value>)",
         "result-confidence-track": "rgb(var(--color-result-confidence-track) / <alpha-value>)",
         "result-driver-track": "rgb(var(--color-result-driver-track) / <alpha-value>)",
-        "memo-badge-border": "rgb(var(--color-memo-badge-border) / <alpha-value>)",
-        "memo-row-border": "rgb(var(--color-memo-row-border) / <alpha-value>)",
-        "memo-row-border-soft": "rgb(var(--color-memo-row-border-soft) / <alpha-value>)",
         "action-primary": "rgb(var(--color-action-primary) / <alpha-value>)",
         "action-primary-hover": "rgb(var(--color-action-primary-hover) / <alpha-value>)",
         "path-stay": "rgb(var(--color-path-stay) / <alpha-value>)",
@@ -37,13 +35,8 @@ const config: Config = {
         "accent-warm": "rgb(var(--color-accent-warm) / <alpha-value>)",
         "ink-accent": "rgb(var(--color-ink-accent) / <alpha-value>)",
         hero: "rgb(var(--color-hero) / <alpha-value>)",
-        "hero-raised": "rgb(var(--color-hero-raised) / <alpha-value>)",
         "home-surface": "rgb(var(--color-home-surface) / <alpha-value>)",
-        "home-surface-raised": "rgb(var(--color-home-surface-raised) / <alpha-value>)",
-        "home-border": "rgb(var(--color-home-border) / <alpha-value>)",
-
-        // Legacy names retain their exact rendered values until each page migrates.
-        "legacy-teal": "rgb(var(--color-legacy-teal) / <alpha-value>)"
+        "home-border": "rgb(var(--color-home-border) / <alpha-value>)"
       },
       borderRadius: {
         control: "var(--radius-control)",
@@ -56,10 +49,8 @@ const config: Config = {
       },
       spacing: {
         "page-gutter": "var(--space-page-gutter)",
-        card: "var(--space-card)",
         section: "var(--space-section)",
         feature: "var(--space-feature)",
-        document: "var(--space-document)",
         "memo-x": "1.25rem",
         "memo-x-sm": "2rem",
         "memo-x-lg": "3rem",
@@ -78,20 +69,22 @@ const config: Config = {
         "memo-footer-y": "1.5rem"
       },
       boxShadow: {
-        soft: "var(--shadow-soft)",
-        "legacy-sm": "var(--shadow-legacy-sm)",
         subtle: "var(--shadow-subtle)",
-        card: "var(--shadow-card)",
-        feature: "var(--shadow-feature)",
+        soft: "var(--shadow-soft)",
+        // Only components/weights/* still uses this; it resolves to `subtle`.
+        "legacy-sm": "var(--shadow-legacy-sm)",
         "home-glow": "var(--shadow-home-glow)"
       },
       transitionDuration: {
         "motion-fast": "var(--motion-duration-fast)",
         "motion-standard": "var(--motion-duration-standard)",
-        "motion-emphasis": "var(--motion-duration-emphasis)"
+        "motion-emphasis": "var(--motion-duration-emphasis)",
+        "motion-reveal": "var(--motion-duration-reveal)",
+        "motion-reveal-long": "var(--motion-duration-reveal-long)"
       },
       transitionTimingFunction: {
-        interaction: "var(--motion-ease-interaction)"
+        interaction: "var(--motion-ease-interaction)",
+        reveal: "var(--motion-ease-reveal)"
       },
       fontSize: {
         display: [

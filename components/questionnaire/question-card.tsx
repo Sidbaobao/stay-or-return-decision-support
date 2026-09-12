@@ -8,7 +8,7 @@ type QuestionCardProps = {
 
 export function QuestionCard({ question, value, onChange }: QuestionCardProps) {
   return (
-    <div className="rounded-card border border-ink/10 bg-surface-strong p-5 shadow-legacy-sm">
+    <div className="rounded-card border border-ink/10 bg-surface-strong p-5 shadow-subtle">
       <div className="space-y-2">
         <h3 id={`${question.id}-prompt`} className="text-card-title text-ink">
           {question.prompt}

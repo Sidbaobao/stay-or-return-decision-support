@@ -1,32 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { questions } from "@/data/questions";
-import { filterAnswersToCurrent, loadAppState } from "@/lib/storage";
-import { usePrerequisiteGuard } from "@/lib/guards";
-import { scoreDecision } from "@/lib/scoring";
+import { useMemo } from "react";
 import { buildRecommendationReport } from "@/lib/report";
-import { AppState } from "@/types";
+import { useScoredRun } from "@/lib/run-state";
 import { ReportSummary } from "@/components/report/report-summary";
 import { ShareResultButton } from "@/components/share/share-result-button";
 
 export default function ReportPage() {
-  const isReady = usePrerequisiteGuard("weights");
-  const [state, setState] = useState<AppState | null>(null);
-
-  useEffect(() => {
-    setState(loadAppState());
-  }, []);
-
-  const scoringResult = useMemo(() => {
-    if (!state) {
-      return null;
-    }
-
-    const currentAnswers = filterAnswersToCurrent(state.answers, questions);
-    return scoreDecision(currentAnswers, state.weights);
-  }, [state]);
+  const { isReady, status, scoringResult } = useScoredRun("weights");
 
   const report = useMemo(() => {
     if (!scoringResult) {
@@ -36,7 +18,7 @@ export default function ReportPage() {
     return buildRecommendationReport(scoringResult);
   }, [scoringResult]);
 
-  if (!isReady || !scoringResult || !report || !state) {
+  if (!isReady || !scoringResult || !report || !status) {
     return null;
   }
 
@@ -75,10 +57,7 @@ export default function ReportPage() {
           only to people you trust to see them.
         </p>
         <div className="shrink-0">
-          <ShareResultButton
-            answers={filterAnswersToCurrent(state.answers, questions)}
-            weights={state.weights}
-          />
+          <ShareResultButton answers={status.answers} weights={status.state.weights} />
         </div>
       </div>
     </>

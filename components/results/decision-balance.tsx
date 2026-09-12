@@ -81,7 +81,7 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
   const fillWidth = isRevealed ? Math.abs(50 - markerPosition) : 0;
 
   return (
-    <div className="rounded-card border border-surface-strong/80 bg-surface-strong/80 p-4 shadow-legacy-sm">
+    <div>
       <div className="flex items-center justify-between gap-3">
         <p className="text-eyebrow text-ink/65">Decision balance</p>
         <span className="text-label font-medium" style={{ color: isTied ? undefined : accent }}>
@@ -110,7 +110,7 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
 
             {!isTied ? (
               <div
-                className={`absolute inset-y-0 transition-[width] duration-[650ms] ease-out delay-[350ms] motion-reduce:transition-none ${
+                className={`absolute inset-y-0 transition-[width] duration-motion-reveal ease-out delay-[350ms] motion-reduce:transition-none ${
                   isStayLeading ? "right-1/2 rounded-l-pill" : "left-1/2 rounded-r-pill"
                 }`}
                 style={{ width: `${fillWidth}%`, backgroundImage: fillGradient }}
@@ -120,7 +120,7 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
             <div className="absolute left-1/2 top-1/2 h-5 w-px -translate-x-1/2 -translate-y-1/2 bg-ink/25" />
 
             <div
-              className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-pill border-2 bg-surface transition-[left] duration-[800ms] ease-[cubic-bezier(0.3,1.28,0.44,1)] delay-[250ms] motion-reduce:transition-none"
+              className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-pill border-2 bg-surface transition-[left] duration-motion-reveal-long ease-reveal delay-[250ms] motion-reduce:transition-none"
               style={{
                 left: `${revealedPosition}%`,
                 borderColor: isTied ? "rgb(var(--color-ink) / 0.35)" : accent,
@@ -151,7 +151,7 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
         </p>
       </div>
 
-      <p className="mt-3 border-t border-border pt-3 text-center text-label text-ink/65">
+      <p className="mt-3 border-t border-hairline pt-3 text-center text-label text-ink/65">
         Each answer moves this one balance — from strong stay to strong return.
       </p>
     </div>
