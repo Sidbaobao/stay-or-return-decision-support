@@ -98,7 +98,13 @@ export type LocalProfile = {
 export type HistoryEntry = {
   id: string;
   completedAt: string;
+  lastOpenedAt: string;
   questionsVersion: string;
+  // Identifies the run by its answers alone: re-weighting the same answers is
+  // the same decision, not a new one.
+  completionSignature: string;
+  // Legacy answers+weights hash, still written so a device that downgrades
+  // keeps working.
   signature: string;
   direction: ScenarioId;
   confidence: ConfidenceLevel;

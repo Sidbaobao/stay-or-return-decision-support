@@ -6,12 +6,13 @@ import { ChevronDown, User } from "lucide-react";
 import { questions } from "@/data/questions";
 import { dimensions } from "@/data/dimensions";
 import {
+  buildCompletionSignature,
   buildRunSignature,
+  claimRunStat,
   filterAnswersToCurrent,
   hasReportedRunStat,
   loadLocalProfile,
   loadAppState,
-  markRunStatReported,
   recordRunInHistory,
   updateLocalProfile
 } from "@/lib/storage";
@@ -77,14 +78,25 @@ export default function ResultsPage() {
           : null
     });
 
-    // One anonymous stat event per unique completed run: the signature is
-    // marked locally before sending, so reloads and re-visits never
-    // double-count. Only the coarse direction + confidence tier are sent.
-    const signature = buildRunSignature(currentAnswers, state.weights);
+    // One anonymous stat event per completed set of answers — re-weighting is
+    // a revision, not a new completion. The claim is written before sending so
+    // reloads cannot double-count, and released again if the send fails so the
+    // next visit retries. Only the coarse direction + confidence tier go out.
+    const completionSignature = buildCompletionSignature(currentAnswers);
+    const legacySignature = buildRunSignature(currentAnswers, state.weights);
 
-    if (!hasReportedRunStat(signature)) {
-      markRunStatReported(signature);
-      reportCompletionStat(toStatDirection(scoringResult), scoringResult.confidence);
+    if (!hasReportedRunStat(legacySignature)) {
+      const release = claimRunStat(completionSignature);
+
+      if (release) {
+        void reportCompletionStat(toStatDirection(scoringResult), scoringResult.confidence).then(
+          (sent) => {
+            if (!sent) {
+              release();
+            }
+          }
+        );
+      }
     }
   }, [scoringResult, state]);
 

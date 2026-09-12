@@ -29,9 +29,23 @@ function hashString(input: string) {
   return (hash >>> 0).toString(36);
 }
 
-// Identifies one (questionnaire version, answers, weights) combination so a
-// re-visited results page updates its existing history entry instead of
-// appending a duplicate.
+function serializeAnswers(answers: Answers) {
+  return Object.entries(answers)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([questionId, optionId]) => `${questionId}=${optionId}`)
+    .join(";");
+}
+
+// What makes two runs "the same decision": the answers. Re-weighting is a
+// revision of one decision, not a second one — keying on weights too meant a
+// user who nudged priorities ten times evicted every earlier decision from a
+// ten-entry history, and reported ten completions to the stats endpoint.
+export function buildCompletionSignature(answers: Answers) {
+  return hashString(`${QUESTIONS_VERSION}|${serializeAnswers(answers)}`);
+}
+
+// Legacy (answers + weights) signature. Still written on every entry, and
+// still used once to recognise stat markers left by the previous version.
 export function buildRunSignature(answers: Answers, weights: Weights) {
   const answerPart = Object.entries(answers)
     .sort(([left], [right]) => left.localeCompare(right))
@@ -63,7 +77,52 @@ function parseHistoryEntry(value: unknown): HistoryEntry | null {
     isRecord(value.answers) &&
     isRecord(value.weights);
 
-  return isValid ? (value as unknown as HistoryEntry) : null;
+  if (!isValid) {
+    return null;
+  }
+
+  const entry = value as unknown as HistoryEntry;
+
+  // Entries written before completionSignature/lastOpenedAt existed are
+  // normalised here from data they already carry, so nothing duplicates.
+  return {
+    ...entry,
+    completionSignature:
+      typeof value.completionSignature === "string"
+        ? value.completionSignature
+        : buildCompletionSignature(entry.answers),
+    lastOpenedAt: typeof value.lastOpenedAt === "string" ? value.lastOpenedAt : entry.completedAt
+  };
+}
+
+// Collapses entries that are the same decision. A device upgraded from the
+// version that keyed on answers+weights can hold several rows for one set of
+// answers; the newest carries the current summary, the oldest carries the date
+// it was first made. The result is read-side truth, persisted on the next
+// write.
+function collapseToOnePerDecision(entries: HistoryEntry[]): HistoryEntry[] {
+  const collapsed: HistoryEntry[] = [];
+  const indexBySignature = new Map<string, number>();
+
+  for (const entry of entries) {
+    const existingIndex = indexBySignature.get(entry.completionSignature);
+
+    if (existingIndex === undefined) {
+      indexBySignature.set(entry.completionSignature, collapsed.length);
+      collapsed.push(entry);
+      continue;
+    }
+
+    const kept = collapsed[existingIndex];
+
+    collapsed[existingIndex] = {
+      ...kept,
+      completedAt: entry.completedAt < kept.completedAt ? entry.completedAt : kept.completedAt,
+      lastOpenedAt: entry.lastOpenedAt > kept.lastOpenedAt ? entry.lastOpenedAt : kept.lastOpenedAt
+    };
+  }
+
+  return collapsed;
 }
 
 export function loadRunHistory(): HistoryEntry[] {
@@ -72,10 +131,11 @@ export function loadRunHistory(): HistoryEntry[] {
       return null;
     }
 
-    return value
+    const parsed = value
       .map(parseHistoryEntry)
-      .filter((entry): entry is HistoryEntry => entry !== null)
-      .slice(0, HISTORY_LIMIT);
+      .filter((entry): entry is HistoryEntry => entry !== null);
+
+    return collapseToOnePerDecision(parsed).slice(0, HISTORY_LIMIT);
   });
 
   return entries ?? [];
@@ -98,30 +158,39 @@ export function recordRunInHistory(input: {
     return [];
   }
 
-  const signature = buildRunSignature(input.answers, input.weights);
+  const completionSignature = buildCompletionSignature(input.answers);
   const history = loadRunHistory();
-  const existing = history.find((entry) => entry.signature === signature);
-  const completedAt = new Date().toISOString();
+  const now = new Date().toISOString();
+  const summary = {
+    signature: buildRunSignature(input.answers, input.weights),
+    direction: input.direction,
+    confidence: input.confidence,
+    difference: input.difference,
+    topDimensionId: input.topDimensionId,
+    weights: { ...input.weights },
+    lastOpenedAt: now
+  };
 
-  const nextEntry: HistoryEntry = existing
-    ? { ...existing, completedAt }
-    : {
-        id: createRandomId(),
-        completedAt,
-        questionsVersion: QUESTIONS_VERSION,
-        signature,
-        direction: input.direction,
-        confidence: input.confidence,
-        difference: input.difference,
-        topDimensionId: input.topDimensionId,
-        answers: { ...input.answers },
-        weights: { ...input.weights }
-      };
-
-  const next = [nextEntry, ...history.filter((entry) => entry.signature !== signature)].slice(
-    0,
-    HISTORY_LIMIT
+  const existingIndex = history.findIndex(
+    (entry) => entry.completionSignature === completionSignature
   );
+
+  // Revisiting or re-weighting refreshes the entry where it stands: the row
+  // keeps the date the decision was first made, and does not jump the list.
+  const next: HistoryEntry[] =
+    existingIndex >= 0
+      ? history.map((entry, index) => (index === existingIndex ? { ...entry, ...summary } : entry))
+      : [
+          {
+            id: createRandomId(),
+            completedAt: now,
+            questionsVersion: QUESTIONS_VERSION,
+            completionSignature,
+            answers: { ...input.answers },
+            ...summary
+          },
+          ...history
+        ].slice(0, HISTORY_LIMIT);
 
   saveRunHistory(next);
   return next;

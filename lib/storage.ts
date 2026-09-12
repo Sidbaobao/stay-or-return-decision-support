@@ -30,6 +30,7 @@ export {
 } from "@/lib/storage/profile";
 
 export {
+  buildCompletionSignature,
   buildRunSignature,
   clearRunHistory,
   deleteRunHistoryEntry,
@@ -41,9 +42,10 @@ export {
 } from "@/lib/storage/history";
 
 export {
+  claimRunStat,
   clearReportedRunStats,
   hasReportedRunStat,
-  markRunStatReported
+  loadReportedRunStats
 } from "@/lib/storage/stats-marker";
 
 export { buildLocalDataExport, clearLocalProfileAndHistory } from "@/lib/storage/data-export";

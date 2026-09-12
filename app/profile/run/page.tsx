@@ -108,7 +108,7 @@ function RunSnapshotContent() {
         ) : (
           <>
             <h1 className="mt-4 max-w-3xl font-serif text-display" style={{ color: accentColor }}>
-              {getPastRunStatement(entry.direction, entry.confidence)}.
+              {getPastRunStatement(entry.direction, entry.confidence, entry.difference)}.
             </h1>
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <span className="rounded-pill border border-memo-badge-border bg-surface-strong/55 px-3 py-1.5 text-eyebrow text-ink/65 capitalize">

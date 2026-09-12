@@ -5,6 +5,7 @@
 import { loadAppState } from "@/lib/storage/current-run";
 import { clearRunHistory, loadRunHistory } from "@/lib/storage/history";
 import { clearLocalProfile, loadLocalProfile } from "@/lib/storage/profile";
+import { clearReportedRunStats, loadReportedRunStats } from "@/lib/storage/stats-marker";
 
 export function buildLocalDataExport() {
   return {
@@ -12,13 +13,15 @@ export function buildLocalDataExport() {
     note: "This data lived only in your browser's local storage. It was never sent anywhere.",
     profile: loadLocalProfile(),
     history: loadRunHistory(),
-    currentRun: loadAppState()
+    currentRun: loadAppState(),
+    reportedRunSignatures: loadReportedRunStats()
   };
 }
 
 export function clearLocalProfileAndHistory() {
-  // History first: clearing the profile notifies subscribers, and they must
-  // not observe a device that still has the old decisions in it.
+  // Profile last: clearing it notifies subscribers, and they must not observe
+  // a device that still holds the old decisions.
   clearRunHistory();
+  clearReportedRunStats();
   clearLocalProfile();
 }

@@ -23,13 +23,28 @@ export function hasReportedRunStat(signature: string) {
   return loadReportedSignatures().includes(signature);
 }
 
-export function markRunStatReported(signature: string) {
-  const next = [signature, ...loadReportedSignatures().filter((item) => item !== signature)].slice(
-    0,
-    REPORTED_STATS_LIMIT
-  );
+// Marks the run as reported and hands back a release function, or null when it
+// was already claimed. Calling release puts it back, so the next visit retries
+// — that is how a dropped or rate-limited beacon stops being lost for good.
+export function claimRunStat(signature: string): (() => void) | null {
+  const reported = loadReportedSignatures();
 
-  writeJson(STORAGE_KEYS.reportedStats, next);
+  if (reported.includes(signature)) {
+    return null;
+  }
+
+  writeJson(STORAGE_KEYS.reportedStats, [signature, ...reported].slice(0, REPORTED_STATS_LIMIT));
+
+  return () => {
+    writeJson(
+      STORAGE_KEYS.reportedStats,
+      loadReportedSignatures().filter((item) => item !== signature)
+    );
+  };
+}
+
+export function loadReportedRunStats(): string[] {
+  return loadReportedSignatures();
 }
 
 export function clearReportedRunStats() {

@@ -39,7 +39,7 @@ export function HistoryList({ entries, onEntriesChange }: HistoryListProps) {
       {entries.map((entry) => {
         const isStay = entry.direction === "stay_us";
         const accent = isStay ? "rgb(var(--color-path-stay))" : "rgb(var(--color-path-return))";
-        const statement = getPastRunStatement(entry.direction, entry.confidence);
+        const statement = getPastRunStatement(entry.direction, entry.confidence, entry.difference);
         const topDimension = entry.topDimensionId
           ? dimensions.find((dimension) => dimension.id === entry.topDimensionId)
           : null;
