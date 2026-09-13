@@ -142,3 +142,11 @@ blues).
   user-facing string. The preference is a localStorage key like the rest
   of the app's state (`stay-or-return-locale-v1`); the switch lives on the
   home page.
+- Punctuation in user-facing text: no semicolons, no ellipses, no
+  dashes (en or zh). Split into sentences instead; commas and colons
+  are fine. Applies to composed sentences in the memo generator too.
+- A question is a prompt plus its options. No helper line under the
+  prompt, no per-option notes.
+- Body text runs the full width of its column. There is no reading
+  measure token; do not cap paragraphs with a character width. A line
+  breaks where the layout ends, never earlier.

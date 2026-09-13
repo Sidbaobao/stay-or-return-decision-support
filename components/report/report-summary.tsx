@@ -69,7 +69,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
         <span className="text-eyebrow mt-4 inline-flex rounded-pill border border-hairline-strong bg-surface-strong/55 px-3 py-1.5 text-ink/65">
           {memo.confidence[report.confidence]}
         </span>
-        <p className="mt-5 max-w-measure text-body-lg text-ink/80">{report.lead}</p>
+        <p className="mt-5 text-body-lg text-ink/80">{report.lead}</p>
       </section>
 
       <section
@@ -189,7 +189,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
       </div>
 
       <footer className="memo-block border-t border-ink/10 px-memo-x py-memo-footer-y sm:px-memo-x-sm lg:px-memo-x-lg">
-        <p className="max-w-measure text-label text-ink/65">{report.disclaimer}</p>
+        <p className="text-label text-ink/65">{report.disclaimer}</p>
       </footer>
     </article>
   );

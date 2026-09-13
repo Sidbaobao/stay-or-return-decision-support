@@ -116,6 +116,10 @@ export const zh: Dictionary = {
     backHome: "返回首页",
     previous: "上一步",
     next: "下一步",
+    nextStep: (label) => `下一步：${label}`,
+    questionOf: (index, total) => `第 ${index} 题，共 ${total} 题`,
+    stepOf: (index, total) => `第 ${index} 步，共 ${total} 步`,
+    remaining: (count) => `还有 ${count} 题未回答`,
     saveContinue: "保存并前往设定权重",
     guiding: {
       career: "你想要的职业，在哪里更有可能实现？",
@@ -243,8 +247,8 @@ export const zh: Dictionary = {
     leadBy: (direction, gap) => `你的答案倾向${pathWord[direction]}，领先 ${gap} 分。`,
     carries: (leadLabels, strongestAgainst) =>
       strongestAgainst
-        ? `这份领先主要来自${joinLabels(leadLabels)}；往另一边拉得最强的是${strongestAgainst}。`
-        : `这份领先主要来自${joinLabels(leadLabels)}；没有维度往另一边拉。`,
+        ? `这份领先主要来自${joinLabels(leadLabels)}。往另一边拉得最强的是${strongestAgainst}。`
+        : `这份领先主要来自${joinLabels(leadLabels)}。没有维度往另一边拉。`,
     margin: {
       low: "差距很小：几个答案不同，结果就会改变。",
       medium: "差距明显，但还不算决定性。",

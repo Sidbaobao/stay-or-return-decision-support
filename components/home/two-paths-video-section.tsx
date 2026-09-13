@@ -126,7 +126,7 @@ export function TwoPathsVideoSection() {
 
   return (
     <section ref={sectionRef} className="py-16 lg:py-24" aria-labelledby="two-paths-heading">
-      <div className="mx-auto max-w-3xl text-center">
+      <div className="mx-auto text-center">
         <p className="text-eyebrow text-accent-warm">{t.home.twoPaths}</p>
         <h2 id="two-paths-heading" className="mt-3 text-page-title text-surface-strong">
           {t.home.seeBoth}

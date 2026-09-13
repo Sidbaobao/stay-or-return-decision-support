@@ -16,7 +16,7 @@ function localizeQuestions(): Question[] {
 
     if (!translation) {
       if (process.env.NODE_ENV !== "production") {
-        console.warn(`No Chinese copy for question ${question.id}; showing English.`);
+        console.warn(`No Chinese copy for question ${question.id}, showing English.`);
       }
 
       return question;
@@ -25,7 +25,6 @@ function localizeQuestions(): Question[] {
     return {
       ...question,
       prompt: translation.prompt,
-      helpText: question.helpText ? (translation.helpText ?? question.helpText) : undefined,
       options: question.options.map((option) => ({
         ...option,
         label: translation.options[option.id] ?? option.label

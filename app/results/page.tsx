@@ -119,14 +119,14 @@ export default function ResultsPage() {
           <div className="mt-7 grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-end">
             <div>
               <h1
-                className="max-w-3xl font-serif text-display"
+                className="font-serif text-display"
                 style={{ color: accentColor }}
               >
                 {conclusionHeadline}
               </h1>
 
               <div
-                className={`mt-6 flex max-w-2xl items-start gap-3 transition-all delay-150 duration-500 motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+                className={`mt-6 flex items-start gap-3 transition-all delay-150 duration-500 motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
                   isRevealed ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
                 }`}
               >
@@ -194,7 +194,7 @@ export default function ResultsPage() {
           />
         </div>
 
-        <p className="mt-4 max-w-measure text-body-sm text-ink/70">{weightSensitivitySentence}</p>
+        <p className="mt-4 text-body-sm text-ink/70">{weightSensitivitySentence}</p>
       </section>
 
       {!profile || (!profile.nickname && !profile.nudgeDismissed) ? (
@@ -222,7 +222,7 @@ export default function ResultsPage() {
             <h2 id="share-heading" className="font-serif text-card-title text-ink">
               {t.results.shareHeading}
             </h2>
-            <p className="mt-1 max-w-measure text-body-sm text-ink/65">{t.results.shareBody}</p>
+            <p className="mt-1 text-body-sm text-ink/65">{t.results.shareBody}</p>
             <div className="mt-4">
               <ShareResultButton answers={status.answers} weights={status.state.weights} />
             </div>

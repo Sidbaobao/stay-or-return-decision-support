@@ -4,23 +4,45 @@ type QuestionCardProps = {
   question: Question;
   value?: string;
   onChange: (questionId: string, optionId: string) => void;
+  // "Question 3 of 24": the reader's place in the whole questionnaire.
+  numberLabel: string;
+  // The first open question in the step, the one the reader is on.
+  isActive: boolean;
 };
 
+export function questionElementId(questionId: string) {
+  return `question-${questionId}`;
+}
+
 // One question in the dimension's list: a hairline-divided block. The
-// options keep their outlines, because they are the controls.
-export function QuestionCard({ question, value, onChange }: QuestionCardProps) {
+// options keep their outlines, because they are the controls. Once a
+// question is answered, the options it passed over step back so the eye
+// moves on to the next open one.
+export function QuestionCard({ question, value, onChange, numberLabel, isActive }: QuestionCardProps) {
+  const isAnswered = value !== undefined;
+
   return (
-    <section className="py-7">
-      <div className="space-y-2">
-        <h3 id={`${question.id}-prompt`} className="text-card-title text-ink">
-          {question.prompt}
-        </h3>
-        {question.helpText ? <p className="max-w-measure text-body-sm text-ink/65">{question.helpText}</p> : null}
-      </div>
+    <section id={questionElementId(question.id)} className="scroll-mt-24 py-7">
+      <p
+        className={`text-eyebrow transition-colors duration-motion-standard ease-interaction motion-reduce:transition-none ${
+          isActive ? "text-accent-warm" : "text-ink/50"
+        }`}
+      >
+        {numberLabel}
+      </p>
+      <h3
+        id={`${question.id}-prompt`}
+        className={`mt-2 text-card-title transition-colors duration-motion-standard ease-interaction motion-reduce:transition-none ${
+          isAnswered ? "text-ink/80" : "text-ink"
+        }`}
+      >
+        {question.prompt}
+      </h3>
 
       <div className="mt-5 space-y-3" role="radiogroup" aria-labelledby={`${question.id}-prompt`}>
         {question.options.map((option) => {
           const isSelected = value === option.id;
+          const isPassedOver = isAnswered && !isSelected;
 
           return (
             <label
@@ -29,7 +51,9 @@ export function QuestionCard({ question, value, onChange }: QuestionCardProps) {
               className={`interaction-option group block cursor-pointer rounded-option border px-5 py-4 ${
                 isSelected
                   ? "border-accent-warm/70 bg-surface-selected"
-                  : "border-ink/10 bg-surface-raised"
+                  : isPassedOver
+                    ? "border-ink/5 bg-surface-raised"
+                    : "border-ink/10 bg-surface-raised"
               }`}
             >
               <input
@@ -54,7 +78,13 @@ export function QuestionCard({ question, value, onChange }: QuestionCardProps) {
                     }`}
                   />
                 </span>
-                <span className="min-w-0 text-body font-medium text-ink">{option.label}</span>
+                <span
+                  className={`min-w-0 text-body font-medium transition-colors duration-motion-standard ease-interaction motion-reduce:transition-none ${
+                    isPassedOver ? "text-ink/60 group-hover:text-ink" : "text-ink"
+                  }`}
+                >
+                  {option.label}
+                </span>
               </div>
             </label>
           );

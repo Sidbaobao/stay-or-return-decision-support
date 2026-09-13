@@ -98,8 +98,6 @@
   --leading-label: 1.35;
   --tracking-eyebrow: 0.14em;
 
-  /* Reading measure */
-  --measure-text: 65ch;
 }
 
 @media (min-width: 640px) {

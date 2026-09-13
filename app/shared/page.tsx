@@ -16,9 +16,9 @@ import { PrimaryButtonLink } from "@/components/ui/primary-button";
 
 function ErrorCard({ title, body, cta }: { title: string; body: string; cta: string }) {
   return (
-    <section className="mx-auto max-w-measure py-16 text-center">
+    <section className="mx-auto py-16 text-center">
       <p className="font-serif text-card-title text-ink">{title}</p>
-      <p className="mx-auto mt-2 max-w-measure text-body-sm text-ink/65">{body}</p>
+      <p className="mx-auto mt-2 text-body-sm text-ink/65">{body}</p>
       <div className="mt-6 flex justify-center">
         <PrimaryButtonLink href="/">{cta}</PrimaryButtonLink>
       </div>
@@ -72,7 +72,7 @@ export default function SharedResultPage() {
 
   return (
     <>
-      <p className="flex max-w-measure items-start gap-2 text-body-sm text-ink/65">
+      <p className="flex items-start gap-2 text-body-sm text-ink/65">
         <Link2 aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.8} />
         {t.shared.intro}
       </p>
@@ -80,7 +80,7 @@ export default function SharedResultPage() {
       <section className="rounded-feature border border-border bg-surface p-6 shadow-soft sm:p-8">
         <p className="text-eyebrow text-ink-accent">{t.shared.eyebrow}</p>
 
-        <h1 className="mt-4 max-w-3xl font-serif text-display" style={{ color: accentColor }}>
+        <h1 className="mt-4 font-serif text-display" style={{ color: accentColor }}>
           {t.shared.headline(
             sharedResult.recommendedScenario,
             sharedResult.confidence,
@@ -113,7 +113,7 @@ export default function SharedResultPage() {
       <footer className="flex flex-col gap-5 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between sm:pt-8">
         <div>
           <h2 className="font-serif text-section-title text-ink">{t.shared.cta}</h2>
-          <p className="mt-2 max-w-measure text-body-sm text-ink/70">{t.shared.ctaBody}</p>
+          <p className="mt-2 text-body-sm text-ink/70">{t.shared.ctaBody}</p>
         </div>
         <div className="shrink-0">
           <PrimaryButtonLink href="/questionnaire">{t.shared.tryIt}</PrimaryButtonLink>

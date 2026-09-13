@@ -3,14 +3,12 @@
 
 type QuestionTranslation = {
   prompt: string;
-  helpText?: string;
   options: Record<string, string>;
 };
 
 export const questionsZh: Record<string, QuestionTranslation> = {
   career_job_access: {
     prompt: "看未来 12 到 24 个月，你觉得哪边有更现实的、适合你目标岗位的机会？",
-    helpText: "想想你真正有竞争力的工作，而不是理论上的理想情况。",
     options: {
       career_job_access_us: "主要在美国",
       career_job_access_balanced: "两边似乎都有可行的选择",
@@ -131,7 +129,6 @@ export const questionsZh: Record<string, QuestionTranslation> = {
   },
   family_expectation_constraint: {
     prompt: "家人的期望在多大程度上影响了你现实中能做的选择？",
-    helpText: "说的是现实约束，不只是情绪。",
     options: {
       family_expectation_constraint_low: "这个选择我基本可以独立做",
       family_expectation_constraint_balanced: "有影响，但不决定结果",
@@ -196,7 +193,6 @@ export const questionsZh: Record<string, QuestionTranslation> = {
   },
   long_term_growth_platform: {
     prompt: "现在看来，哪条路是你长期发展更好的平台？",
-    helpText: "看现实的成长条件，而不是理想情况下的上限。",
     options: {
       long_term_growth_platform_us: "美国看起来是更好的平台",
       long_term_growth_platform_balanced: "两边都能支持扎实的长期发展",
