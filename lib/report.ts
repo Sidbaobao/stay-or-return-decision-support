@@ -1,127 +1,153 @@
 import { dimensions } from "@/data/dimensions";
-import { reportDisclaimer } from "@/data/report-templates";
-import { RecommendationReport, ScoringResult } from "@/types";
+import { DimensionContribution, RecommendationReport, ScenarioId, ScoringResult } from "@/types";
 
-const scenarioLabelMap = {
-  stay_us: "staying in the US",
-  return_china: "returning to China"
+// The memo says only what this run's numbers support: how far the answers
+// lean, which dimensions made the lead, what pulls the other way, and what
+// would change the result. No sentence here is a template that reads the
+// same for every run.
+
+const pathWord: Record<ScenarioId, string> = {
+  stay_us: "staying",
+  return_china: "returning"
+};
+
+const otherPathName: Record<ScenarioId, string> = {
+  stay_us: "Returning to China",
+  return_china: "Staying in the US"
+};
+
+const reportDisclaimer = "A structured reflection, not legal, immigration or financial advice.";
+
+const marginNote = {
+  low: "The margin is small: a few different answers would change it.",
+  medium: "The margin is clear but not decisive.",
+  high: "The margin is wide."
 } as const;
 
-const dimensionNarratives = {
-  career: {
-    stay_us: "your answers suggest a stronger practical career case for staying, especially around realistic access and fit.",
-    return_china: "your answers suggest the more realistic career path may currently be in China."
-  },
-  salary_cost: {
-    stay_us: "your current inputs suggest the US offers the stronger near-term financial case after considering costs.",
-    return_china: "your current inputs suggest China may offer the more workable financial position for your situation."
-  },
-  immigration: {
-    stay_us: "immigration constraints appear manageable enough that they do not outweigh the benefits of staying.",
-    return_china: "immigration burden and uncertainty are materially weakening the case for staying."
-  },
-  family_emotion: {
-    stay_us: "family factors do not currently pull strongly enough toward returning to outweigh other priorities.",
-    return_china: "family proximity, obligations, or support appear to materially strengthen the case for returning."
-  },
-  lifestyle: {
-    stay_us: "your current lifestyle preferences appear more compatible with remaining in the US.",
-    return_china: "your current lifestyle preferences appear more compatible with returning to China."
-  },
-  long_term: {
-    stay_us: "your longer-range plans currently align more with building from the US.",
-    return_china: "your longer-range plans currently align more with building from China."
-  }
-} as const;
-
-function getDimensionLabel(dimensionId: keyof typeof dimensionNarratives) {
+function labelOf(dimensionId: string) {
   return dimensions.find((dimension) => dimension.id === dimensionId)?.label ?? dimensionId;
 }
 
+function joinLabels(labels: string[]) {
+  if (labels.length <= 1) {
+    return labels[0] ?? "";
+  }
+
+  return `${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}`;
+}
+
+function byPull(left: DimensionContribution, right: DimensionContribution) {
+  return Math.abs(right.weightedGap) - Math.abs(left.weightedGap);
+}
+
 export function buildRecommendationReport(scoringResult: ScoringResult): RecommendationReport {
-  const otherScenario = scoringResult.recommendedScenario === "stay_us" ? "return_china" : "stay_us";
-  const topSupportingFactors = scoringResult.contributions
-    .filter((contribution) => contribution.favoredScenario === scoringResult.recommendedScenario)
-    .sort((left, right) => Math.abs(right.weightedGap) - Math.abs(left.weightedGap))
-    .slice(0, 3)
-    .map((contribution) => {
-      const dimensionId = contribution.dimensionId as keyof typeof dimensionNarratives;
-      return `${getDimensionLabel(dimensionId)} currently supports ${scenarioLabelMap[scoringResult.recommendedScenario]} because ${dimensionNarratives[dimensionId][scoringResult.recommendedScenario]}`;
-    });
+  const { recommendedScenario, confidence, contributions, uncertainDimensions, weightFlipAnalysis } = scoringResult;
+  const otherScenario: ScenarioId = recommendedScenario === "stay_us" ? "return_china" : "stay_us";
+  const gap = weightFlipAnalysis.currentTotalGap;
+  const shift = weightFlipAnalysis.totalPotentialShift;
+  const isBalanced = gap === 0;
 
-  const otherPathStrengths = scoringResult.contributions
+  const leadLabels = contributions
+    .filter((contribution) => contribution.favoredScenario === recommendedScenario)
+    .sort(byPull)
+    .slice(0, 2)
+    .map((contribution) => labelOf(contribution.dimensionId));
+  const againstLabels = contributions
     .filter((contribution) => contribution.favoredScenario === otherScenario)
-    .sort((left, right) => Math.abs(right.weightedGap) - Math.abs(left.weightedGap))
+    .sort(byPull)
     .slice(0, 2)
-    .map((contribution) => getDimensionLabel(contribution.dimensionId as keyof typeof dimensionNarratives));
+    .map((contribution) => labelOf(contribution.dimensionId));
+  const closeLabels = uncertainDimensions.map(labelOf);
+  const closeAre = closeLabels.length === 1 ? "is" : "are";
+  const closeThem = closeLabels.length === 1 ? "it" : "them";
 
-  const topRecommendedDimensions = scoringResult.contributions
-    .filter((contribution) => contribution.favoredScenario === scoringResult.recommendedScenario)
-    .sort((left, right) => Math.abs(right.weightedGap) - Math.abs(left.weightedGap))
-    .slice(0, 2)
-    .map((contribution) => getDimensionLabel(contribution.dimensionId as keyof typeof dimensionNarratives));
+  // ---- the lead, in one paragraph
+  const lead: string[] = [];
 
-  const closeDimensionLabels = scoringResult.uncertainDimensions.map((dimensionId) =>
-    getDimensionLabel(dimensionId as keyof typeof dimensionNarratives)
-  );
+  if (isBalanced) {
+    lead.push("Your answers come out evenly balanced between the two paths.");
+  } else {
+    lead.push(`Your answers lean toward ${pathWord[recommendedScenario]} by ${gap.toFixed(1)} points.`);
 
-  const leadStrength =
-    scoringResult.confidence === "low"
-      ? "leans slightly"
-      : scoringResult.confidence === "medium"
-        ? "points more clearly"
-        : "points clearly";
+    if (leadLabels.length > 0) {
+      const carries =
+        leadLabels.length === 1
+          ? `${leadLabels[0]} carries most of that lead`
+          : `${joinLabels(leadLabels)} carry most of that lead`;
 
-  const summary = `Your current responses ${leadStrength} toward ${scenarioLabelMap[scoringResult.recommendedScenario]}.`;
+      lead.push(
+        againstLabels.length > 0
+          ? `${carries}; ${againstLabels[0]} is the strongest pull the other way.`
+          : `${carries}; nothing pulls the other way.`
+      );
+    }
 
-  const confidenceNote =
-    scoringResult.confidence === "low"
-      ? `The overall result is close. ${closeDimensionLabels.length > 0 ? `${closeDimensionLabels.join(", ")} remain relatively close, so new information or different priorities could still change the picture.` : "That makes this better read as a directional lean than a settled recommendation."}`
-      : scoringResult.confidence === "medium"
-        ? `The result shows a meaningful lead, but not a final verdict. ${closeDimensionLabels.length > 0 ? `Dimensions such as ${closeDimensionLabels.join(", ")} are still close enough that they deserve a second look.` : "It still reflects your current inputs rather than a guaranteed outcome."}`
-        : `The result is more clearly directional under your current inputs. ${closeDimensionLabels.length > 0 ? `Even so, ${closeDimensionLabels.join(", ")} are still not fully settled.` : "It should still be treated as structured reflection rather than certainty."}`;
+    lead.push(marginNote[confidence]);
+  }
 
-  const whyNotOtherPath = [
-    otherPathStrengths.length > 0
-      ? `${scenarioLabelMap[otherScenario].charAt(0).toUpperCase() + scenarioLabelMap[otherScenario].slice(1)} is not without strengths. In your current results, it performs relatively well on ${otherPathStrengths.join(" and ")}.`
-      : `${scenarioLabelMap[otherScenario].charAt(0).toUpperCase() + scenarioLabelMap[otherScenario].slice(1)} still has some strengths, even if they are not currently large enough to lead.`,
-    topRecommendedDimensions.length > 0
-      ? `It is not leading because those strengths are currently outweighed by stronger results in ${topRecommendedDimensions.join(" and ")} under your present weighting.`
-      : "It is not leading because the current weighted balance still favors the recommended path.",
-    scoringResult.weightFlipAnalysis.couldFlip
-      ? "For the non-leading path to move ahead, close dimensions would need to matter more to you or the current leading dimensions would need to weaken."
-      : "For the non-leading path to move ahead, either your priorities would need to shift materially or the practical case behind the leading path would need to change."
-  ];
+  // ---- what would change it
+  const whatWouldChange: string[] = [];
 
-  const tradeoffs = [
-    closeDimensionLabels.length > 0
-      ? `Even with the current recommendation, ${closeDimensionLabels.join(" and ")} remain live tradeoffs rather than minor details.`
-      : "Even with the current recommendation, there are still real tradeoffs that the score does not erase.",
-    scoringResult.weightFlipAnalysis.couldFlip
-      ? "Changing weights could realistically change the result, so this decision may still be sensitive to how you rank close dimensions."
-      : "Changing weights alone looks less likely to reverse the result, which suggests the current lead is not only a weighting artifact."
-  ];
+  if (isBalanced) {
+    whatWouldChange.push("The two paths are level. Any change to your answers or weights would tip the result.");
+  } else {
+    if (againstLabels.length > 0) {
+      whatWouldChange.push(
+        `${otherPathName[recommendedScenario]} is stronger on ${joinLabels(againstLabels)}. For it to lead, ${
+          againstLabels.length === 1 ? "that" : "those"
+        } would have to matter more to you than ${joinLabels(leadLabels)} ${leadLabels.length === 1 ? "does" : "do"} now.`
+      );
+    } else {
+      whatWouldChange.push(
+        `${otherPathName[recommendedScenario]} is not stronger on any dimension.`
+      );
+    }
 
-  const nextSteps = [
-    `Compare one specific plan for ${scenarioLabelMap.stay_us} and one specific plan for ${scenarioLabelMap.return_china} side by side.`,
-    "Recheck the two assumptions most likely to be wrong, such as job access, actual savings outlook, or family constraints.",
-    closeDimensionLabels.length > 0
-      ? `Revisit your weights after clarifying the close dimensions: ${closeDimensionLabels.join(", ")}.`
-      : "If you still feel uncertain, revisit your weights after gathering more concrete information."
-  ];
+    if (closeLabels.length === 0) {
+      whatWouldChange.push("No dimension is close. Re-weighting would not flip this result; only different answers would.");
+    } else if (shift === 0) {
+      whatWouldChange.push(
+        `${joinLabels(closeLabels)} ${closeAre} balanced, so re-weighting ${closeThem} would not move the result; only different answers would.`
+      );
+    } else {
+      whatWouldChange.push(
+        `${joinLabels(closeLabels)} ${closeAre} still close. Re-weighting ${closeThem} could move the result by up to ${shift.toFixed(
+          1
+        )} points against a lead of ${gap.toFixed(1)}, so weights ${
+          weightFlipAnalysis.couldFlip ? "could flip it" : "alone would not flip it"
+        }.`
+      );
+    }
+  }
+
+  // ---- before deciding
+  const beforeDeciding: string[] = [];
+
+  if (!isBalanced && leadLabels.length > 0) {
+    beforeDeciding.push(
+      `Write down one concrete plan for each path and compare them on ${
+        leadLabels.length === 1 ? "the dimension that decided this" : "the two dimensions that decided this"
+      }: ${joinLabels(leadLabels)}.`
+    );
+  } else {
+    beforeDeciding.push("Write down one concrete plan for each path and compare them side by side.");
+  }
+
+  if (!isBalanced && againstLabels.length > 0) {
+    beforeDeciding.push(`Check the assumption behind your strongest pull the other way: ${againstLabels[0]}.`);
+  }
+
+  if (closeLabels.length > 0 && shift > 0) {
+    beforeDeciding.push(`Revisit your weights once ${joinLabels(closeLabels)} ${closeAre} clearer.`);
+  }
 
   return {
-    recommendedScenario: scoringResult.recommendedScenario,
-    confidence: scoringResult.confidence,
-    summary,
-    confidenceNote,
-    supportingFactors:
-      topSupportingFactors.length > 0
-        ? topSupportingFactors
-        : [`No single dimension is strongly dominating. The current lead comes from several smaller differences adding up.`],
-    whyNotOtherPath,
-    tradeoffs,
-    nextSteps,
+    recommendedScenario,
+    confidence,
+    isBalanced,
+    lead: lead.join(" "),
+    whatWouldChange,
+    beforeDeciding,
     disclaimer: reportDisclaimer
   };
 }

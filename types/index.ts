@@ -56,25 +56,13 @@ export type WeightedTotals = {
 
 export type ConfidenceLevel = "low" | "medium" | "high";
 
-export type RecommendationTemplate = {
-  id: string;
-  scenario: ScenarioId;
-  minDifference: number;
-  summary: string;
-  strengths: string[];
-  risks: string[];
-  nextSteps: string[];
-};
-
 export type RecommendationReport = {
   recommendedScenario: ScenarioId;
   confidence: ConfidenceLevel;
-  summary: string;
-  confidenceNote: string;
-  supportingFactors: string[];
-  whyNotOtherPath: string[];
-  tradeoffs: string[];
-  nextSteps: string[];
+  isBalanced: boolean;
+  lead: string;
+  whatWouldChange: string[];
+  beforeDeciding: string[];
   disclaimer: string;
 };
 

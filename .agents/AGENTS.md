@@ -38,7 +38,7 @@ Tone across the product: calm, warm, trustworthy, Qatchup-like.
   Bearer-gated GET).
 - `components/` — home/, questionnaire/, weights/, results/,
   report/, profile/, share/, layout/, ui/.
-- `data/` — questions.ts, dimensions.ts, report-templates.ts.
+- `data/` — questions.ts, dimensions.ts.
 - `lib/` — scoring.ts, storage.ts (all localStorage), guards.ts,
   report.ts, share.ts (link codec), stats-client.ts, utils.ts,
   server/ (Redis REST wrapper — server only).
