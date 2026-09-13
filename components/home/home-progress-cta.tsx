@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { loadRunHistory } from "@/lib/storage";
 import { resetCurrentRun, useRunStatus } from "@/lib/run-state";
+import { useLocale } from "@/lib/i18n/provider";
 import { InlineConfirm, useConfirmFocus } from "@/components/ui/inline-confirm";
 import { PrimaryButton, PrimaryButtonLink } from "@/components/ui/primary-button";
 import { QuietButton, QuietLink } from "@/components/ui/quiet-button";
@@ -17,6 +18,7 @@ type HomeProgressCtaProps = {
 export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
   const router = useRouter();
   const status = useRunStatus();
+  const { t } = useLocale();
   const [hasHistory, setHasHistory] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const startOverTriggerRef = useConfirmFocus(isConfirming);
@@ -55,11 +57,11 @@ export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
     return (
       <div className={`flex flex-col gap-2 ${alignmentClassName}`}>
         <PrimaryButton type="button" onClick={startOver}>
-          Start a new questionnaire
+          {t.cta.startNew}
         </PrimaryButton>
         {canReviewResults ? (
           <QuietLink href="/results" tone="inherit" size="xs">
-            Or review your last results
+            {t.cta.reviewLast}
           </QuietLink>
         ) : null}
       </div>
@@ -69,13 +71,13 @@ export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
   return (
     <div className={`flex flex-col gap-2 ${alignmentClassName}`}>
       <PrimaryButtonLink href="/questionnaire">
-        {progressState === "partial" ? "Continue questionnaire" : "Start questionnaire"}
+        {progressState === "partial" ? t.cta.continue : t.cta.start}
       </PrimaryButtonLink>
       {progressState === "partial" ? (
         isConfirming ? (
           <InlineConfirm
-            prompt="Discard your in-progress answers?"
-            confirmLabel="Discard"
+            prompt={t.confirm.discardPrompt}
+            confirmLabel={t.confirm.discard}
             tone="inherit"
             size="xs"
             onConfirm={startOver}
@@ -88,13 +90,13 @@ export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
             size="xs"
             onClick={() => setIsConfirming(true)}
           >
-            Or start over
+            {t.cta.startOver}
           </QuietButton>
         )
       ) : null}
       {progressState === "fresh" && hasHistory ? (
         <QuietLink href="/profile" tone="inherit" size="xs">
-          Or revisit a past decision
+          {t.cta.revisit}
         </QuietLink>
       ) : null}
     </div>

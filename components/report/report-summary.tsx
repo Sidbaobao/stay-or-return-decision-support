@@ -1,5 +1,9 @@
-import { dimensions } from "@/data/dimensions";
+"use client";
+
 import { dimensionIcons } from "@/components/results/dimension-icons";
+import { useContent } from "@/lib/i18n/content";
+import { useLocale } from "@/lib/i18n/provider";
+import { Dictionary } from "@/lib/i18n";
 import { RecommendationReport, ScoringResult, ScenarioId } from "@/types";
 
 type ReportSummaryProps = {
@@ -8,43 +12,38 @@ type ReportSummaryProps = {
   generatedDate: string;
 };
 
-const scenarioLabels: Record<ScenarioId, string> = {
-  stay_us: "Stay in the US",
-  return_china: "Return to China"
-};
-
-const confidenceLabels = {
-  low: "Low confidence",
-  medium: "Moderate confidence",
-  high: "High confidence"
-} as const;
-
 // Shared floor with the Results lean rows so tiny leans don't overfill the bar.
 const MIN_SHARED_SCALE = 20;
 
 // "Still close" comes from uncertainDimensions membership (|rawGap| ≤ 10 in
 // lib/scoring.ts); the ≤25 wording boundary echoes the engine's
 // moderate-confidence band but is presentation copy.
-function getLeanStatement(favoredScenario: ScenarioId | "tie", rawGap: number, isStillClose: boolean) {
+function getLeanStatement(
+  t: Dictionary["memo"],
+  favoredScenario: ScenarioId | "tie",
+  rawGap: number,
+  isStillClose: boolean
+) {
   if (favoredScenario === "tie") {
-    return "Balanced";
+    return t.leanBalanced;
   }
 
-  const pathLabel = favoredScenario === "stay_us" ? "staying" : "returning";
-
   if (isStillClose) {
-    return `Leans toward ${pathLabel}, still close`;
+    return t.leanStillClose(favoredScenario);
   }
 
   if (Math.abs(rawGap) <= 25) {
-    return `Leans toward ${pathLabel}`;
+    return t.lean(favoredScenario);
   }
 
-  return `Clearly favors ${pathLabel}`;
+  return t.leanClearly(favoredScenario);
 }
 
 export function ReportSummary({ report, scoringResult, generatedDate }: ReportSummaryProps) {
-  const recommendationLabel = report.isBalanced ? "Evenly balanced." : `${scenarioLabels[report.recommendedScenario]}.`;
+  const { t } = useLocale();
+  const { dimensionLabel } = useContent();
+  const memo = t.memo;
+  const recommendationLabel = report.isBalanced ? memo.balanced : memo.verdict[report.recommendedScenario];
   const sharedScale = Math.max(
     MIN_SHARED_SCALE,
     ...scoringResult.contributions.map((contribution) => Math.abs(contribution.rawGap))
@@ -54,7 +53,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
     <article className="decision-memo overflow-hidden rounded-panel border border-border bg-surface shadow-subtle">
       <header className="memo-block px-memo-x py-memo-header-y sm:px-memo-x-sm sm:py-memo-header-y-sm lg:px-memo-x-lg">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
-          <p className="font-serif text-section-title text-ink">Decision Memo</p>
+          <p className="font-serif text-section-title text-ink">{memo.title}</p>
           <p className="text-eyebrow text-ink/65">{generatedDate}</p>
         </div>
       </header>
@@ -63,12 +62,12 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
         className="memo-block border-t border-border px-memo-x py-memo-section-y sm:px-memo-x-sm sm:py-memo-section-y-sm lg:px-memo-x-lg lg:py-memo-section-y-lg"
         aria-labelledby="recommendation-heading"
       >
-        <p className="text-eyebrow text-ink/65">Recommendation</p>
+        <p className="text-eyebrow text-ink/65">{memo.recommendation}</p>
         <h1 id="recommendation-heading" className="mt-2 font-serif text-page-title text-ink">
           {recommendationLabel}
         </h1>
         <span className="text-eyebrow mt-4 inline-flex rounded-pill border border-hairline-strong bg-surface-strong/55 px-3 py-1.5 text-ink/65">
-          {confidenceLabels[report.confidence]}
+          {memo.confidence[report.confidence]}
         </span>
         <p className="mt-5 max-w-measure text-body-lg text-ink/80">{report.lead}</p>
       </section>
@@ -79,28 +78,27 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
       >
         <div>
           <h2 id="comparison-heading" className="font-serif text-section-title text-ink">
-            Where each dimension leans
+            {memo.whereLeans}
           </h2>
         </div>
 
         <div className="mt-5 border-y border-hairline-strong">
           <div className="grid grid-cols-1 border-b border-hairline-strong text-label sm:grid-cols-[1.35fr_1fr]">
-            <div className="hidden px-memo-row-x-sm py-memo-row-y font-semibold text-ink/65 sm:block">Dimension</div>
+            <div className="hidden px-memo-row-x-sm py-memo-row-y font-semibold text-ink/65 sm:block">{memo.dimension}</div>
             <div className="flex items-baseline justify-between px-memo-row-x py-memo-row-y sm:px-memo-row-x-sm">
-              <span className="font-semibold text-path-stay">Stay</span>
-              <span className="font-semibold text-ink/65">Balanced</span>
-              <span className="font-semibold text-path-return">Return</span>
+              <span className="font-semibold text-path-stay">{memo.columnStay}</span>
+              <span className="font-semibold text-ink/65">{memo.columnBalanced}</span>
+              <span className="font-semibold text-path-return">{memo.columnReturn}</span>
             </div>
           </div>
 
           <div className="divide-y divide-hairline">
             {scoringResult.contributions.map((contribution) => {
-              const dimension = dimensions.find((item) => item.id === contribution.dimensionId);
               const Icon = dimensionIcons[contribution.dimensionId];
               const isBalanced = contribution.favoredScenario === "tie";
               const supportsStay = contribution.favoredScenario === "stay_us";
               const isStillClose = scoringResult.uncertainDimensions.includes(contribution.dimensionId);
-              const statement = getLeanStatement(contribution.favoredScenario, contribution.rawGap, isStillClose);
+              const statement = getLeanStatement(memo, contribution.favoredScenario, contribution.rawGap, isStillClose);
               const barWidth = (Math.abs(contribution.rawGap) / sharedScale) * 50;
 
               return (
@@ -112,9 +110,9 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
                     <span className="flex items-center gap-3">
                       <Icon aria-hidden="true" className="h-4 w-4 shrink-0 self-center text-ink/45" strokeWidth={1.6} />
                       <span className="text-body-sm font-medium text-ink">
-                        {dimension?.label ?? contribution.dimensionId}
+                        {dimensionLabel(contribution.dimensionId)}
                         <span className="sr-only">
-                          {isBalanced ? "" : `, leans by ${Math.abs(contribution.rawGap)} points`}
+                          {isBalanced ? "" : memo.srLeansBy(Math.abs(contribution.rawGap))}
                         </span>
                       </span>
                     </span>
@@ -153,7 +151,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           </div>
         </div>
 
-        <p className="mt-3 text-label text-ink/65">Bars share one scale.</p>
+        <p className="mt-3 text-label text-ink/65">{memo.barsNote}</p>
       </section>
 
       <div className="grid border-t border-border lg:grid-cols-2">
@@ -162,7 +160,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           aria-labelledby="change-heading"
         >
           <h2 id="change-heading" className="font-serif text-card-title text-ink">
-            What would change this
+            {memo.whatWouldChange}
           </h2>
           <ul className="mt-4 space-y-3">
             {report.whatWouldChange.map((item) => (
@@ -178,7 +176,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           aria-labelledby="before-heading"
         >
           <h2 id="before-heading" className="font-serif text-card-title text-ink">
-            Before deciding
+            {memo.beforeDeciding}
           </h2>
           <ol className="mt-4 list-decimal space-y-3 pl-5 text-body-sm text-ink/75 marker:text-ink/45">
             {report.beforeDeciding.map((item) => (

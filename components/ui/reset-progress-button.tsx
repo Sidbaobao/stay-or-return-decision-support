@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { resetCurrentRun, useRunStatus } from "@/lib/run-state";
+import { useLocale } from "@/lib/i18n/provider";
 import { InlineConfirm, useConfirmFocus } from "@/components/ui/inline-confirm";
 import { QuietButton } from "@/components/ui/quiet-button";
 
@@ -22,6 +23,7 @@ type ResetProgressButtonProps = {
 export function ResetProgressButton({ onBeforeReset }: ResetProgressButtonProps) {
   const router = useRouter();
   const status = useRunStatus();
+  const { t } = useLocale();
   const [isConfirming, setIsConfirming] = useState(false);
   const triggerRef = useConfirmFocus(isConfirming);
   const hasRun = status !== null && status.answeredCount > 0;
@@ -52,8 +54,8 @@ export function ResetProgressButton({ onBeforeReset }: ResetProgressButtonProps)
   if (isConfirming) {
     return (
       <InlineConfirm
-        prompt="Discard your in-progress answers?"
-        confirmLabel="Discard"
+        prompt={t.confirm.discardPrompt}
+        confirmLabel={t.confirm.discard}
         onConfirm={performReset}
         onCancel={() => setIsConfirming(false)}
       />
@@ -65,7 +67,7 @@ export function ResetProgressButton({ onBeforeReset }: ResetProgressButtonProps)
       ref={triggerRef}
       onClick={() => (status.isComplete ? performReset() : setIsConfirming(true))}
     >
-      Reset current run
+      {t.reset}
     </QuietButton>
   );
 }

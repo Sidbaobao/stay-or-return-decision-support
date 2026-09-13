@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { User } from "lucide-react";
-import { dimensions } from "@/data/dimensions";
 import { buildCompletionSignature, buildRunSignature, claimRunStat, hasReportedRunStat } from "@/lib/storage";
 import { reportCompletionStat } from "@/lib/stats-client";
 import { toStatDirection } from "@/lib/stats-schema";
@@ -16,7 +15,8 @@ import { useLocalProfile } from "@/lib/use-local-profile";
 import { DecisionBalance } from "@/components/results/decision-balance";
 import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
 import { dimensionIcons } from "@/components/results/dimension-icons";
-import { getConclusionHeadline } from "@/components/results/verdict-copy";
+import { useContent } from "@/lib/i18n/content";
+import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { ShareResultButton } from "@/components/share/share-result-button";
 import { PrimaryButtonLink } from "@/components/ui/primary-button";
 import { SecondaryButtonLink } from "@/components/ui/secondary-button";
@@ -24,6 +24,9 @@ import { QuietButton } from "@/components/ui/quiet-button";
 
 export default function ResultsPage() {
   const { isReady, status, scoringResult } = useScoredRun("weights");
+  const { t } = useLocale();
+  const { dimensionLabel } = useContent();
+  useLocalizedTitle(t.titles.results);
   const isRevealed = useRevealOnReady(Boolean(scoringResult));
   const { profile, update: updateProfile } = useLocalProfile();
 
@@ -70,28 +73,23 @@ export default function ResultsPage() {
     scoringResult.confidence === "low" ? 1 : scoringResult.confidence === "medium" ? 2 : 3;
   const { currentTotalGap, totalPotentialShift, couldFlip } = scoringResult.weightFlipAnalysis;
   const weightSensitivitySentence = couldFlip
-    ? `Re-weighting could flip this result: the lead is ${currentTotalGap.toFixed(1)} points, and changing weights could move it by up to ${totalPotentialShift.toFixed(1)}.`
+    ? t.results.sensitivityCouldFlip(currentTotalGap.toFixed(1), totalPotentialShift.toFixed(1))
     : totalPotentialShift === 0
-      ? `Re-weighting alone would not flip this result: the lead is ${currentTotalGap.toFixed(1)} points, and re-weighting the dimensions that are still close would not move it.`
-      : `Re-weighting alone would not flip this result: the lead is ${currentTotalGap.toFixed(1)} points, and changing weights could move it by at most ${totalPotentialShift.toFixed(1)}.`;
-  const conclusionHeadline = getConclusionHeadline(
+      ? t.results.sensitivityNoShift(currentTotalGap.toFixed(1))
+      : t.results.sensitivityCannotFlip(currentTotalGap.toFixed(1), totalPotentialShift.toFixed(1));
+  const conclusionHeadline = t.results.headline(
     scoringResult.recommendedScenario,
     scoringResult.confidence,
     scoringResult.weightedTotals.difference
   );
 
   const topContribution = getTopContribution(scoringResult);
-  const topContributionDimension = dimensions.find(
-    (dimension) => dimension.id === topContribution?.dimensionId
-  );
   const TopContributionIcon = topContribution
     ? dimensionIcons[topContribution.dimensionId]
     : dimensionIcons.career;
-  const topContributionDirection =
-    topContribution && topContribution.weightedGap < 0 ? "returning to China" : "staying in the US";
   const conclusionHook = topContribution
-    ? `${topContributionDimension?.label ?? topContribution.dimensionId} creates the strongest pull, pointing toward ${topContributionDirection}.`
-    : "No single dimension creates a strong pull yet.";
+    ? t.results.hook(dimensionLabel(topContribution.dimensionId), topContribution.weightedGap < 0 ? "return_china" : "stay_us")
+    : t.results.hookNone;
 
   return (
     <>
@@ -116,7 +114,7 @@ export default function ResultsPage() {
             isRevealed ? "translate-y-0 scale-100 opacity-100" : "translate-y-3 scale-[0.985] opacity-0"
           }`}
         >
-          <p className="text-eyebrow text-ink-accent">Step 3 / Results</p>
+          <p className="text-eyebrow text-ink-accent">{t.results.eyebrow}</p>
 
           <div className="mt-7 grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-end">
             <div>
@@ -145,10 +143,16 @@ export default function ResultsPage() {
             <div className="space-y-5 lg:border-l lg:border-hairline lg:pl-8">
               <div className="border-b border-hairline pb-5">
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-body-sm font-medium text-ink/70">Confidence</span>
-                  <span className="text-body-sm font-semibold capitalize text-ink">{scoringResult.confidence}</span>
+                  <span className="text-body-sm font-medium text-ink/70">{t.results.confidence}</span>
+                  <span className="text-body-sm font-semibold text-ink">
+                    {t.results.confidenceLevel[scoringResult.confidence]}
+                  </span>
                 </div>
-                <div className="mt-3 flex gap-2" role="img" aria-label={`${scoringResult.confidence} confidence`}>
+                <div
+                  className="mt-3 flex gap-2"
+                  role="img"
+                  aria-label={t.results.confidenceAria(t.results.confidenceLevel[scoringResult.confidence])}
+                >
                   {[1, 2, 3].map((step) => {
                     const isFilled = step <= confidenceSteps;
 
@@ -180,8 +184,8 @@ export default function ResultsPage() {
       </section>
 
       <section className="border-t border-hairline pt-6 sm:pt-8">
-        <p className="text-eyebrow text-ink-accent">Key drivers</p>
-        <h2 className="mt-2 font-serif text-section-title text-ink">Where each dimension pulls</h2>
+        <p className="text-eyebrow text-ink-accent">{t.results.keyDrivers}</p>
+        <h2 className="mt-2 font-serif text-section-title text-ink">{t.results.wherePulls}</h2>
 
         <div className="mt-6">
           <DimensionLeanRows
@@ -195,21 +199,19 @@ export default function ResultsPage() {
 
       {!profile || (!profile.nickname && !profile.nudgeDismissed) ? (
         <aside
-          aria-label="Local profile suggestion"
+          aria-label={t.results.nudgeAria}
           className="flex flex-col gap-4 rounded-card border-l-4 border-ink-accent/60 bg-surface-warm px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6"
         >
           <div className="flex items-start gap-3">
             <User aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-ink-accent" strokeWidth={1.8} />
             <div>
-              <p className="text-body font-medium text-ink">This result is saved on this device.</p>
-              <p className="mt-1 text-body-sm text-ink/70">
-                Add a nickname to make it yours — everything stays in this browser, private to you.
-              </p>
+              <p className="text-body font-medium text-ink">{t.results.nudgeTitle}</p>
+              <p className="mt-1 text-body-sm text-ink/70">{t.results.nudgeBody}</p>
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <SecondaryButtonLink href="/profile">Add a nickname</SecondaryButtonLink>
-            <QuietButton onClick={() => updateProfile({ nudgeDismissed: true })}>Not now</QuietButton>
+            <SecondaryButtonLink href="/profile">{t.results.addNickname}</SecondaryButtonLink>
+            <QuietButton onClick={() => updateProfile({ nudgeDismissed: true })}>{t.results.notNow}</QuietButton>
           </div>
         </aside>
       ) : null}
@@ -218,22 +220,19 @@ export default function ResultsPage() {
         <div className="divide-y divide-hairline">
           <section aria-labelledby="share-heading" className="py-6 sm:py-8">
             <h2 id="share-heading" className="font-serif text-card-title text-ink">
-              Share this result
+              {t.results.shareHeading}
             </h2>
-            <p className="mt-1 max-w-measure text-body-sm text-ink/65">
-              The link itself carries your answers and weights. Nothing is uploaded, and anyone with
-              the link can see this result.
-            </p>
+            <p className="mt-1 max-w-measure text-body-sm text-ink/65">{t.results.shareBody}</p>
             <div className="mt-4">
               <ShareResultButton answers={status.answers} weights={status.state.weights} />
             </div>
           </section>
 
           <footer className="flex flex-col gap-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:py-8">
-            <h2 className="font-serif text-section-title text-ink">Read the full memo</h2>
+            <h2 className="font-serif text-section-title text-ink">{t.results.readMemo}</h2>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <SecondaryButtonLink href="/weights">Adjust weights</SecondaryButtonLink>
-              <PrimaryButtonLink href="/report">Open the memo</PrimaryButtonLink>
+              <SecondaryButtonLink href="/weights">{t.results.adjustWeights}</SecondaryButtonLink>
+              <PrimaryButtonLink href="/report">{t.results.openMemo}</PrimaryButtonLink>
             </div>
           </footer>
         </div>

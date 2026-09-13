@@ -2,10 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { defaultWeights, dimensions } from "@/data/dimensions";
+import { defaultWeights } from "@/data/dimensions";
 import { usePrerequisiteGuard } from "@/lib/guards";
 import { saveWeights, STORAGE_KEYS, subscribeToStorageKey } from "@/lib/storage";
 import { readRunStatus } from "@/lib/run-state";
+import { useContent } from "@/lib/i18n/content";
+import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { Weights } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { WeightBubbleCluster } from "@/components/weights/weight-bubble-cluster";
@@ -17,6 +19,9 @@ import { QuietLink } from "@/components/ui/quiet-button";
 export default function WeightsPage() {
   const isReady = usePrerequisiteGuard("answers");
   const router = useRouter();
+  const { t } = useLocale();
+  const { dimensions } = useContent();
+  useLocalizedTitle(t.titles.weights);
   const [weights, setWeights] = useState<Weights>(defaultWeights);
   const [totalBudget, setTotalBudget] = useState(getWeightTotal(defaultWeights, dimensions.map((dimension) => dimension.id)));
   const [isHydrated, setIsHydrated] = useState(false);
@@ -57,6 +62,8 @@ export default function WeightsPage() {
     // cluster back to its defaults instead of leaving stale priorities on
     // screen.
     return subscribeToStorageKey(STORAGE_KEYS.currentRun, adoptStoredWeights);
+    // The dimension ids never change; only their labels do with the locale.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Autosave once the user stops adjusting, so leaving the page keeps their
@@ -98,9 +105,9 @@ export default function WeightsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Step 2"
-        title="Set your priorities"
-        description="Your answers stay as they are. Weights set how much each dimension counts, and making one larger makes the others smaller."
+        eyebrow={t.weights.eyebrow}
+        title={t.weights.title}
+        description={t.weights.description}
         actions={<ResetProgressButton onBeforeReset={flushPendingWeights} />}
       />
 
@@ -113,10 +120,10 @@ export default function WeightsPage() {
 
       <div className="flex flex-col gap-3 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between">
         <QuietLink href="/questionnaire" className="-mx-2 self-center sm:self-auto">
-          Back to questionnaire
+          {t.weights.backQuestionnaire}
         </QuietLink>
         <PrimaryButton onClick={handleSave} className="w-full sm:w-auto">
-          Save and continue to results
+          {t.weights.saveContinue}
         </PrimaryButton>
       </div>
     </>

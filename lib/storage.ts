@@ -47,3 +47,5 @@ export {
 } from "@/lib/storage/stats-marker";
 
 export { buildLocalDataExport, clearLocalProfileAndHistory } from "@/lib/storage/data-export";
+
+export { loadLocale, saveLocale } from "@/lib/storage/locale";

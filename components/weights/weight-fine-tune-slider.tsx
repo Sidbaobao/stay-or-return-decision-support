@@ -1,3 +1,6 @@
+"use client";
+
+import { useLocale } from "@/lib/i18n/provider";
 import { Dimension, DimensionId } from "@/types";
 import { getWeightPercentage, MIN_WEIGHT } from "@/components/weights/weight-bubble-utils";
 
@@ -18,13 +21,14 @@ export function WeightFineTuneSlider({
   helperMessage,
   onChange
 }: WeightFineTuneSliderProps) {
+  const { t } = useLocale();
   const percentage = getWeightPercentage(value, totalBudget);
 
   return (
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-eyebrow text-ink-accent">Fine tune</p>
+          <p className="text-eyebrow text-ink-accent">{t.weights.fineTune}</p>
           <h3 className="mt-2 font-serif text-card-title text-ink">
             {dimension.label}
           </h3>
@@ -41,13 +45,13 @@ export function WeightFineTuneSlider({
         step={0.1}
         value={value}
         onChange={(event) => onChange(dimension.id, Number(event.target.value))}
-        aria-label={`Fine tune ${dimension.label} priority`}
+        aria-label={t.weights.fineTuneAria(dimension.label)}
         className="interaction-range mt-5 w-full"
       />
 
       <div className="mt-2 flex justify-between gap-4 text-label text-ink/65">
-        <span>Minimum priority</span>
-        <span>Maximum possible share</span>
+        <span>{t.weights.minimum}</span>
+        <span>{t.weights.maximum}</span>
       </div>
 
       {helperMessage ? <p className="mt-3 text-body-sm text-ink/70">{helperMessage}</p> : null}

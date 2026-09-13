@@ -2,6 +2,7 @@
 
 import { KeyboardEvent, useEffect, useRef } from "react";
 import { QuietButton, QuietSize, QuietTone } from "@/components/ui/quiet-button";
+import { useLocale } from "@/lib/i18n/provider";
 
 // A destructive or replacing action asks in place: no modal, no library.
 // The question replaces the trigger, keyboard focus lands on the SAFE choice
@@ -22,12 +23,13 @@ type InlineConfirmProps = {
 export function InlineConfirm({
   prompt,
   confirmLabel,
-  cancelLabel = "Keep",
+  cancelLabel,
   tone = "danger",
   size = "sm",
   onConfirm,
   onCancel
 }: InlineConfirmProps) {
+  const { t } = useLocale();
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -66,7 +68,7 @@ export function InlineConfirm({
         size={size}
         onClick={onCancel}
       >
-        {cancelLabel}
+        {cancelLabel ?? t.confirm.keep}
       </QuietButton>
     </span>
   );

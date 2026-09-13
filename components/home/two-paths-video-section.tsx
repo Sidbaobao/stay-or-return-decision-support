@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PrimaryButtonLink } from "@/components/ui/primary-button";
+import { useLocale } from "@/lib/i18n/provider";
 
 type VideoPanelProps = {
   accentClassName: string;
@@ -72,6 +73,7 @@ function VideoPanel({ accentClassName, label, posterSrc, shouldLoadVideo, src }:
 }
 
 export function TwoPathsVideoSection() {
+  const { t } = useLocale();
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isNearView, setIsNearView] = useState(false);
   const [allowsMotion, setAllowsMotion] = useState(false);
@@ -125,26 +127,24 @@ export function TwoPathsVideoSection() {
   return (
     <section ref={sectionRef} className="py-16 lg:py-24" aria-labelledby="two-paths-heading">
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-eyebrow text-accent-warm">Two paths</p>
+        <p className="text-eyebrow text-accent-warm">{t.home.twoPaths}</p>
         <h2 id="two-paths-heading" className="mt-3 text-page-title text-surface-strong">
-          See both paths clearly.
+          {t.home.seeBoth}
         </h2>
-        <p className="mt-4 text-body text-surface-strong/70">
-          Picture each future before you weigh the tradeoffs.
-        </p>
+        <p className="mt-4 text-body text-surface-strong/70">{t.home.picture}</p>
       </div>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-2">
         <VideoPanel
           accentClassName="bg-path-stay"
-          label="Stay in the US"
+          label={t.home.stay}
           posterSrc="/manhattan-poster.jpg"
           shouldLoadVideo={shouldLoadVideo}
           src="/manhattan.mp4"
         />
         <VideoPanel
           accentClassName="bg-path-return"
-          label="Return to China"
+          label={t.home.return}
           posterSrc="/shanghai-poster.jpg"
           shouldLoadVideo={shouldLoadVideo}
           src="/shanghai.mp4"
@@ -152,7 +152,7 @@ export function TwoPathsVideoSection() {
       </div>
 
       <div className="mt-8 flex justify-center">
-        <PrimaryButtonLink href="/questionnaire">Start questionnaire</PrimaryButtonLink>
+        <PrimaryButtonLink href="/questionnaire">{t.cta.start}</PrimaryButtonLink>
       </div>
     </section>
   );
