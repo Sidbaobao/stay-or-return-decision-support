@@ -25,7 +25,6 @@ export type Question = {
   id: string;
   dimensionId: DimensionId;
   prompt: string;
-  helpText?: string;
   options: QuestionOption[];
 };
 

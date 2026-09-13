@@ -182,8 +182,8 @@ export default function ProfilePage() {
           <ShieldCheck aria-hidden="true" className="h-5 w-5 shrink-0 text-ink-accent" strokeWidth={1.8} />
           {t.profile.privacyTitle}
         </h2>
-        <p className="mt-3 max-w-measure text-body text-ink/75">{t.profile.privacyBody}</p>
-        <p className="mt-2 max-w-measure text-body-sm text-ink/65">{t.profile.privacyFlip}</p>
+        <p className="mt-3 text-body text-ink/75">{t.profile.privacyBody}</p>
+        <p className="mt-2 text-body-sm text-ink/65">{t.profile.privacyFlip}</p>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
           <SecondaryButton onClick={handleExport}>{t.profile.exportData}</SecondaryButton>

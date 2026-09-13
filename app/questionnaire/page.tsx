@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  ArrowRight,
   Briefcase,
   HeartHandshake,
   Scale,
@@ -22,7 +23,7 @@ import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { ResetProgressButton } from "@/components/ui/reset-progress-button";
 import { QuietLink } from "@/components/ui/quiet-button";
-import { QuestionCard } from "@/components/questionnaire/question-card";
+import { QuestionCard, questionElementId } from "@/components/questionnaire/question-card";
 
 const dimensionIcons: Record<DimensionId, LucideIcon> = {
   career: Briefcase,
@@ -32,6 +33,17 @@ const dimensionIcons: Record<DimensionId, LucideIcon> = {
   lifestyle: Sun,
   long_term: Sprout
 };
+
+// Lets the selection paint before the page moves on to the next question.
+const SCROLL_AFTER_ANSWER_MS = 220;
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function scrollToElement(element: HTMLElement | null, block: ScrollLogicalPosition) {
+  element?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block });
+}
 
 type DimensionProgressRingProps = {
   answeredCount: number;
@@ -107,9 +119,10 @@ type DimensionIntroHeaderProps = {
   dimension: Dimension;
   guidingQuestion: string;
   eyebrow: string;
+  headingRef: RefObject<HTMLHeadingElement | null>;
 };
 
-function DimensionIntroHeader({ dimension, guidingQuestion, eyebrow }: DimensionIntroHeaderProps) {
+function DimensionIntroHeader({ dimension, guidingQuestion, eyebrow, headingRef }: DimensionIntroHeaderProps) {
   const Icon = dimensionIcons[dimension.id];
 
   return (
@@ -119,9 +132,13 @@ function DimensionIntroHeader({ dimension, guidingQuestion, eyebrow }: Dimension
           <Icon aria-hidden="true" strokeWidth={1.8} className="h-5 w-5 text-accent-warm" />
           {eyebrow}
         </p>
-        <h2 className="mt-2 font-serif text-section-title text-ink">{dimension.label}</h2>
+        {/* Focus lands here after a step change, so keyboard and screen
+            reader users arrive with the new questions. */}
+        <h2 ref={headingRef} tabIndex={-1} className="mt-2 font-serif text-section-title text-ink outline-none">
+          {dimension.label}
+        </h2>
       </div>
-      <p className="max-w-measure border-l-2 border-accent-warm/40 pl-4 text-body font-medium text-ink">
+      <p className="border-l-2 border-accent-warm/40 pl-4 text-body font-medium text-ink">
         {guidingQuestion}
       </p>
     </div>
@@ -144,6 +161,7 @@ export default function QuestionnairePage() {
     dimension,
     questions: questions.filter((question) => question.dimensionId === dimension.id)
   }));
+  const questionNumbers = new Map(questions.map((question, index) => [question.id, index + 1]));
 
   const [answers, setAnswers] = useState<Answers>({});
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -152,6 +170,14 @@ export default function QuestionnairePage() {
   const answersRef = useRef<Answers>({});
   const groupedRef = useRef(groupedQuestions);
   groupedRef.current = groupedQuestions;
+
+  const stepSectionRef = useRef<HTMLElement>(null);
+  const introHeadingRef = useRef<HTMLHeadingElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const scrollTimerRef = useRef<number | null>(null);
+  // Set by the reader's own step changes only; a run cleared or restored in
+  // another tab must not scroll this one.
+  const shouldScrollToStepRef = useRef(false);
 
   useEffect(() => {
     const adoptStoredAnswers = () => {
@@ -187,43 +213,98 @@ export default function QuestionnairePage() {
     adoptStoredAnswers();
 
     // "Reset current run" used to clear storage while this page kept showing
-    // the old answers. Now the screen follows the store — from the reset
+    // the old answers. Now the screen follows the store: from the reset
     // button, from a restore, or from another tab.
     return subscribeToStorageKey(STORAGE_KEYS.currentRun, adoptStoredAnswers);
   }, []);
+
+  useEffect(
+    () => () => {
+      if (scrollTimerRef.current !== null) {
+        window.clearTimeout(scrollTimerRef.current);
+      }
+    },
+    []
+  );
+
+  // After a step change the reader asked for, the new dimension's questions
+  // come up to the top and focus travels with them. Without this the page
+  // stayed scrolled to the footer and the new questions sat out of view.
+  useEffect(() => {
+    if (!shouldScrollToStepRef.current) {
+      return;
+    }
+
+    shouldScrollToStepRef.current = false;
+    scrollToElement(stepSectionRef.current, "start");
+    introHeadingRef.current?.focus({ preventScroll: true });
+  }, [currentStepIndex]);
 
   const currentAnswers = filterAnswersToCurrent(answers, questions);
   const completedCount = Object.keys(currentAnswers).length;
   const canContinue = completedCount === questions.length;
   const progressPercent = Math.round((completedCount / questions.length) * 100);
   const currentGroup = groupedQuestions[currentStepIndex] ?? groupedQuestions[0];
+  const nextGroup = groupedQuestions[currentStepIndex + 1];
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === groupedQuestions.length - 1;
+  const activeQuestionId = currentGroup?.questions.find((question) => !currentAnswers[question.id])?.id;
+
+  const changeStep = (index: number) => {
+    const nextIndex = Math.min(Math.max(index, 0), groupedQuestions.length - 1);
+
+    if (nextIndex === currentStepIndex) {
+      scrollToElement(stepSectionRef.current, "start");
+      introHeadingRef.current?.focus({ preventScroll: true });
+      return;
+    }
+
+    shouldScrollToStepRef.current = true;
+    setCurrentStepIndex(nextIndex);
+  };
 
   // Persist on every choice: previously only "Save and continue" wrote to
   // storage, and that button stays disabled until all 24 are answered, so a
   // refresh or a nav click mid-questionnaire lost every answer.
   const handleChange = (questionId: string, optionId: string) => {
+    const isNewAnswer = !currentAnswers[questionId];
     const nextAnswers = { ...answers, [questionId]: optionId };
 
     answersRef.current = nextAnswers;
     setAnswers(nextAnswers);
     saveAnswers(nextAnswers);
+
+    // A fresh answer carries the reader to the next open question in the
+    // step, or to the step's button once the step is done. Changing an
+    // earlier answer leaves the page where it is.
+    if (!isNewAnswer || !currentGroup) {
+      return;
+    }
+
+    const stepQuestions = currentGroup.questions;
+    const answeredIndex = stepQuestions.findIndex((question) => question.id === questionId);
+    const nextOpen =
+      stepQuestions.slice(answeredIndex + 1).find((question) => !nextAnswers[question.id]) ??
+      stepQuestions.find((question) => !nextAnswers[question.id]);
+
+    if (scrollTimerRef.current !== null) {
+      window.clearTimeout(scrollTimerRef.current);
+    }
+
+    scrollTimerRef.current = window.setTimeout(() => {
+      scrollTimerRef.current = null;
+
+      if (nextOpen) {
+        scrollToElement(document.getElementById(questionElementId(nextOpen.id)), "start");
+      } else {
+        scrollToElement(footerRef.current, "end");
+      }
+    }, SCROLL_AFTER_ANSWER_MS);
   };
 
   const handleSave = () => {
     saveAnswers(currentAnswers);
     router.push("/weights");
-  };
-
-  const goToPreviousStep = () => {
-    setCurrentStepIndex((currentIndex) => Math.max(currentIndex - 1, 0));
-  };
-
-  const goToNextStep = () => {
-    setCurrentStepIndex((currentIndex) =>
-      Math.min(currentIndex + 1, groupedQuestions.length - 1)
-    );
   };
 
   if (!isReady) {
@@ -235,9 +316,16 @@ export default function QuestionnairePage() {
       <PageHeader eyebrow={t.questionnaire.eyebrow} title={t.questionnaire.title} actions={<ResetProgressButton />} />
 
       <div className="sticky top-0 z-20 border-b border-hairline bg-canvas/95 py-3 backdrop-blur">
-        <p className="mb-2 text-label font-medium text-ink/70">
-          {t.questionnaire.answered(completedCount, questions.length)}
-        </p>
+        <div className="mb-2 flex items-baseline justify-between gap-4 text-label">
+          <p className="shrink-0 font-medium text-ink/70">
+            {t.questionnaire.answered(completedCount, questions.length)}
+          </p>
+          {currentGroup ? (
+            <p className="min-w-0 truncate text-ink/60">
+              {t.questionnaire.stepOf(currentStepIndex + 1, groupedQuestions.length)} · {currentGroup.dimension.label}
+            </p>
+          ) : null}
+        </div>
         <div className="h-1 rounded-pill bg-action-primary/10">
           <div
             className="h-1 rounded-pill bg-action-primary transition-[width] duration-motion-emphasis ease-interaction motion-reduce:transition-none"
@@ -262,7 +350,7 @@ export default function QuestionnairePage() {
               <li key={group.dimension.id} className="border-t border-hairline">
                 <button
                   type="button"
-                  onClick={() => setCurrentStepIndex(index)}
+                  onClick={() => changeStep(index)}
                   aria-current={isCurrent ? "step" : undefined}
                   className={`interaction-step -mt-px flex w-full items-center gap-3 border-t-2 py-4 text-left transition-colors duration-motion-standard ease-interaction motion-reduce:transition-none ${
                     isCurrent
@@ -299,11 +387,12 @@ export default function QuestionnairePage() {
       </section>
 
       {currentGroup ? (
-        <section className="border-t border-hairline pt-6 sm:pt-8">
+        <section ref={stepSectionRef} className="scroll-mt-24 border-t border-hairline pt-6 sm:pt-8">
           <DimensionIntroHeader
             dimension={currentGroup.dimension}
             guidingQuestion={t.questionnaire.guiding[currentGroup.dimension.id]}
             eyebrow={t.questionnaire.currentDimension}
+            headingRef={introHeadingRef}
           />
 
           <div className="mt-8 divide-y divide-hairline border-t border-hairline">
@@ -313,20 +402,31 @@ export default function QuestionnairePage() {
                 question={question}
                 value={currentAnswers[question.id]}
                 onChange={handleChange}
+                numberLabel={t.questionnaire.questionOf(questionNumbers.get(question.id) ?? 0, questions.length)}
+                isActive={question.id === activeQuestionId}
               />
             ))}
           </div>
         </section>
       ) : null}
 
-      <div className="flex flex-col gap-3 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between">
+      <div
+        ref={footerRef}
+        className="flex flex-col gap-3 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between"
+      >
         <QuietLink href="/" className="-mx-2 self-center sm:self-auto">
           {t.questionnaire.backHome}
         </QuietLink>
 
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
+          {isLastStep && !canContinue ? (
+            <p className="text-center text-label text-ink/60 sm:mr-2 sm:text-right">
+              {t.questionnaire.remaining(questions.length - completedCount)}
+            </p>
+          ) : null}
+
           {/* Always present, so the pair does not jump between steps. */}
-          <SecondaryButton onClick={goToPreviousStep} disabled={isFirstStep} className="px-5">
+          <SecondaryButton onClick={() => changeStep(currentStepIndex - 1)} disabled={isFirstStep} className="px-5">
             {t.questionnaire.previous}
           </SecondaryButton>
 
@@ -335,8 +435,9 @@ export default function QuestionnairePage() {
               {t.questionnaire.saveContinue}
             </PrimaryButton>
           ) : (
-            <PrimaryButton type="button" onClick={goToNextStep} className="w-full sm:w-auto">
-              {t.questionnaire.next}
+            <PrimaryButton type="button" onClick={() => changeStep(currentStepIndex + 1)} className="w-full sm:w-auto">
+              {nextGroup ? t.questionnaire.nextStep(nextGroup.dimension.label) : t.questionnaire.next}
+              <ArrowRight aria-hidden="true" className="ml-2 h-4 w-4 shrink-0" strokeWidth={2} />
             </PrimaryButton>
           )}
         </div>

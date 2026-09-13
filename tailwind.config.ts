@@ -104,9 +104,6 @@ const config: Config = {
       },
       letterSpacing: {
         eyebrow: "var(--tracking-eyebrow)"
-      },
-      maxWidth: {
-        measure: "var(--measure-text)"
       }
     }
   },

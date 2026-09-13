@@ -45,7 +45,7 @@ function RunSnapshotContent() {
 
   if (isMissing) {
     return (
-      <section className="mx-auto max-w-measure py-16 text-center">
+      <section className="mx-auto py-16 text-center">
         <p className="text-body text-ink/70">{t.snapshot.missingTitle}</p>
         <p className="mt-2 text-body-sm text-ink/60">{t.snapshot.missingBody}</p>
         <div className="mt-5">
@@ -82,7 +82,7 @@ function RunSnapshotContent() {
 
         {snapshotResult ? (
           <>
-            <h1 className="mt-4 max-w-3xl font-serif text-display" style={{ color: accentColor }}>
+            <h1 className="mt-4 font-serif text-display" style={{ color: accentColor }}>
               {t.results.headline(
                 snapshotResult.recommendedScenario,
                 snapshotResult.confidence,
@@ -100,7 +100,7 @@ function RunSnapshotContent() {
           </>
         ) : (
           <>
-            <h1 className="mt-4 max-w-3xl font-serif text-display" style={{ color: accentColor }}>
+            <h1 className="mt-4 font-serif text-display" style={{ color: accentColor }}>
               {t.snapshot.pastHeadline(entry.direction, entry.confidence, entry.difference)}
             </h1>
             <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -110,7 +110,7 @@ function RunSnapshotContent() {
               <MiniBalance direction={entry.direction} difference={entry.difference} />
               <span className="text-body-sm text-ink/65">{t.snapshot.gap(entry.difference)}</span>
             </div>
-            <p className="mt-5 max-w-measure text-body-sm text-ink/65">{t.snapshot.earlierVersionBody}</p>
+            <p className="mt-5 text-body-sm text-ink/65">{t.snapshot.earlierVersionBody}</p>
           </>
         )}
 

@@ -5,7 +5,6 @@ export const questions: Question[] = [
     id: "career_job_access",
     dimensionId: "career",
     prompt: "Looking at the next 12 to 24 months, where do you currently see more realistic job openings for your target role?",
-    helpText: "Think about jobs you could actually compete for, not ideal outcomes in theory.",
     options: [
       {
         id: "career_job_access_us",
@@ -34,7 +33,7 @@ export const questions: Question[] = [
     options: [
       {
         id: "career_sponsorship_dependency_low",
-        label: "Not much; I still have realistic US options",
+        label: "Not much, I still have realistic US options",
         stay_us_score: 4,
         return_china_score: 2
       },
@@ -46,7 +45,7 @@ export const questions: Question[] = [
       },
       {
         id: "career_sponsorship_dependency_high",
-        label: "A lot; it is a major bottleneck",
+        label: "A lot, it is a major bottleneck",
         stay_us_score: 1,
         return_china_score: 5
       }
@@ -381,7 +380,6 @@ export const questions: Question[] = [
     id: "family_expectation_constraint",
     dimensionId: "family_emotion",
     prompt: "How much do family expectations affect what feels realistically available to you?",
-    helpText: "This is about practical constraint, not just emotion.",
     options: [
       {
         id: "family_expectation_constraint_low",
@@ -582,7 +580,6 @@ export const questions: Question[] = [
     id: "long_term_growth_platform",
     dimensionId: "long_term",
     prompt: "Which path currently looks like the stronger platform for your long-term development?",
-    helpText: "Focus on realistic growth conditions, not ideal-case upside.",
     options: [
       {
         id: "long_term_growth_platform_us",

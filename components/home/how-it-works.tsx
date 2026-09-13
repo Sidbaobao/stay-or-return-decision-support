@@ -12,7 +12,7 @@ export function HowItWorks() {
 
   return (
     <>
-      <div className="max-w-3xl">
+      <div>
         <p className="text-eyebrow text-accent-warm">{t.home.howItWorks}</p>
         <h2 className="mt-3 text-page-title text-surface-strong">{t.home.threeSteps}</h2>
       </div>
@@ -28,7 +28,7 @@ export function HowItWorks() {
                 <p className="text-eyebrow">{step.step}</p>
               </div>
               <h3 className="mt-5 text-section-title text-surface-strong">{step.title}</h3>
-              <p className="mt-3 max-w-measure text-body text-surface-strong/70">{step.description}</p>
+              <p className="mt-3 text-body text-surface-strong/70">{step.description}</p>
             </section>
           );
         })}
@@ -43,13 +43,13 @@ export function HomeClosing() {
   return (
     <>
       <div className="py-16 text-center lg:py-24">
-        <p className="mx-auto max-w-3xl text-balance font-serif text-section-title text-surface-strong/90">
+        <p className="mx-auto text-balance font-serif text-section-title text-surface-strong/90">
           {t.home.closing}
         </p>
       </div>
 
       <footer className="border-t border-surface-strong/10 pt-8">
-        <p className="mx-auto max-w-measure text-center text-label text-surface-strong/70">{t.home.footer}</p>
+        <p className="mx-auto text-center text-label text-surface-strong/70">{t.home.footer}</p>
       </footer>
     </>
   );
