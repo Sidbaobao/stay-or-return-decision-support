@@ -100,7 +100,7 @@ export default function WeightsPage() {
       <PageHeader
         eyebrow="Step 2"
         title="Set your priorities"
-        description="Choose how much each dimension should influence the final result."
+        description="Your answers stay as they are. Weights set how much each dimension counts, and making one larger makes the others smaller."
         actions={<ResetProgressButton onBeforeReset={flushPendingWeights} />}
       />
 

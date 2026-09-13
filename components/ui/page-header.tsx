@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 type PageHeaderProps = {
   eyebrow?: string;
   title: string;
-  description: string;
+  description?: string;
   actions?: ReactNode;
 };
 
@@ -18,7 +18,7 @@ export function PageHeader({ eyebrow, title, description, actions }: PageHeaderP
           <h1 tabIndex={-1} className="text-page-title text-ink outline-none">
             {title}
           </h1>
-          <p className="max-w-measure text-body-lg text-ink/70">{description}</p>
+          {description ? <p className="max-w-measure text-body-lg text-ink/70">{description}</p> : null}
         </div>
         {/* An action that renders nothing must not leave a gap behind. */}
         {actions ? <div className="empty:hidden">{actions}</div> : null}

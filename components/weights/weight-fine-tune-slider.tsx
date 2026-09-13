@@ -28,7 +28,6 @@ export function WeightFineTuneSlider({
           <h3 className="mt-2 font-serif text-card-title text-ink">
             {dimension.label}
           </h3>
-          <p className="mt-2 max-w-measure text-body-sm text-ink/65">{dimension.description}</p>
         </div>
         <div className="shrink-0 rounded-pill bg-surface-strong px-4 py-2 text-sm font-semibold text-action-primary shadow-legacy-sm">
           {percentage}%
@@ -51,7 +50,7 @@ export function WeightFineTuneSlider({
         <span>Maximum possible share</span>
       </div>
 
-      <p className="mt-3 text-body-sm text-ink/70">{helperMessage}</p>
+      {helperMessage ? <p className="mt-3 text-body-sm text-ink/70">{helperMessage}</p> : null}
     </div>
   );
 }

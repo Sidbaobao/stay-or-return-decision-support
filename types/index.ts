@@ -12,7 +12,6 @@ export type Dimension = {
   id: DimensionId;
   label: string;
   shortLabel: string;
-  description: string;
 };
 
 export type QuestionOption = {
@@ -20,7 +19,6 @@ export type QuestionOption = {
   label: string;
   stay_us_score: number;
   return_china_score: number;
-  note?: string;
 };
 
 export type Question = {
