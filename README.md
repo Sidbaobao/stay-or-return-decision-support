@@ -32,6 +32,9 @@ confident that result really is.  Users leave with a decision memo, not a verdic
 4. **Memo** — a print-friendly decision memo: the recommendation with how far the answers lean
    and which dimensions carry it, one lean per dimension, what would change the result, and
    what to check before deciding.
+5. **Profile & history** — a device-local profile (optional nickname) and the last ten results,
+   each reopenable as a read-only snapshot or restored as the current run.
+6. **Share** — a read-only copy of a result that travels entirely inside the link.
 
 ### Why one score instead of two
 
