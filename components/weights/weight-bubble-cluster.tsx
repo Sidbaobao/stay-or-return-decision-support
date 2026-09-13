@@ -126,7 +126,7 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
     ? "Other priorities are already at the minimum, so this one cannot grow further."
     : !activeCanDecrease
       ? "This priority is already at the minimum."
-      : "Use plus, minus, or the slider to rebalance your priorities.";
+      : "";
 
   const handleStepChange = (dimensionId: DimensionId, direction: "increase" | "decrease") => {
     setActiveDimensionId(dimensionId);
@@ -139,30 +139,8 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
   };
 
   return (
-    <section className="rounded-feature border border-border bg-surface p-5 shadow-soft sm:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-eyebrow text-ink-accent">Priority map</p>
-          <h2 className="mt-2 font-serif text-section-title text-ink">
-            Shape your decision priorities
-          </h2>
-        </div>
-        <p className="max-w-md text-body-sm text-ink/70">
-          Increasing one priority reduces the others proportionally.
-        </p>
-      </div>
-
-      <div className="mt-4 max-w-measure space-y-2">
-        <h3 className="text-body-sm font-semibold text-ink">How weights work</h3>
-        <p className="text-body-sm text-ink/70">
-          This step does not change your answers. It changes how strongly each dimension affects the final score.
-        </p>
-        <p className="text-body-sm text-ink/70">
-          Make a bubble larger when that area matters more right now.
-        </p>
-      </div>
-
-      <div className="relative mx-auto mt-6 aspect-[680/520] w-full max-w-4xl overflow-hidden rounded-panel border border-surface-strong/80 bg-gradient-to-br from-surface via-surface-strong to-surface-warm shadow-legacy-sm">
+    <section aria-label="Priority map" className="rounded-feature border border-border bg-surface p-5 shadow-soft sm:p-6">
+      <div className="relative mx-auto aspect-[680/520] w-full max-w-4xl overflow-hidden rounded-panel border border-surface-strong/80 bg-gradient-to-br from-surface via-surface-strong to-surface-warm shadow-legacy-sm">
         {packedBubbles.map((node) => {
             const dimensionId = node.data.id as DimensionId;
             const dimension = dimensions.find((item) => item.id === dimensionId);

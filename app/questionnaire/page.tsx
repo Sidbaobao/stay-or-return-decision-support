@@ -148,8 +148,7 @@ function DimensionIntroHeader({ dimension }: DimensionIntroHeaderProps) {
         </p>
         <h2 className="mt-2 font-serif text-section-title text-ink">{dimension.label}</h2>
       </div>
-      <p className="max-w-measure text-body text-ink/70">{dimension.description}</p>
-      <p className="max-w-measure border-l-2 border-accent-warm/40 pl-4 text-body-sm font-medium text-ink">
+      <p className="max-w-measure border-l-2 border-accent-warm/40 pl-4 text-body font-medium text-ink">
         {guidingQuestion}
       </p>
     </div>
@@ -209,8 +208,6 @@ export default function QuestionnairePage() {
   const canContinue = completedCount === questions.length;
   const progressPercent = Math.round((completedCount / questions.length) * 100);
   const currentGroup = groupedQuestions[currentStepIndex] ?? groupedQuestions[0];
-  const currentGroupAnsweredCount =
-    currentGroup?.questions.filter((question) => currentAnswers[question.id]).length ?? 0;
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === groupedQuestions.length - 1;
 
@@ -246,20 +243,12 @@ export default function QuestionnairePage() {
 
   return (
     <>
-      <PageHeader
-        eyebrow="Step 1"
-        title="Questionnaire"
-        description="Answer based on your current situation."
-        actions={<ResetProgressButton />}
-      />
+      <PageHeader eyebrow="Step 1" title="Questionnaire" actions={<ResetProgressButton />} />
 
       <div className="sticky top-0 z-20 border-b border-hairline bg-canvas/95 py-3 backdrop-blur">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-label font-medium text-ink/70">
-          <span>
-            {completedCount} of {questions.length} answered
-          </span>
-          <span>{questions.length - completedCount} remaining</span>
-        </div>
+        <p className="mb-2 text-label font-medium text-ink/70">
+          {completedCount} of {questions.length} answered
+        </p>
         <div className="h-1 rounded-pill bg-action-primary/10">
           <div
             className="h-1 rounded-pill bg-action-primary transition-[width] duration-motion-emphasis ease-interaction motion-reduce:transition-none"
@@ -269,12 +258,9 @@ export default function QuestionnairePage() {
       </div>
 
       <section aria-labelledby="steps-heading">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <h2 id="steps-heading" className="text-section-title text-ink">
-            Questionnaire steps
-          </h2>
-          <p className="text-body-sm text-ink/70">One dimension at a time. Jump back to any step.</p>
-        </div>
+        <h2 id="steps-heading" className="text-section-title text-ink">
+          Questionnaire steps
+        </h2>
         <ol role="list" className="mt-5 grid grid-cols-2 gap-x-6 sm:grid-cols-3 xl:grid-cols-6">
           {groupedQuestions.map((group, index) => {
             const answeredCount = group.questions.filter(
@@ -327,14 +313,7 @@ export default function QuestionnairePage() {
         <section className="border-t border-hairline pt-6 sm:pt-8">
           <DimensionIntroHeader dimension={currentGroup.dimension} />
 
-          <p className="mt-6 text-body-sm text-ink/65">
-            <span className="font-medium text-ink">
-              {currentGroupAnsweredCount} of {currentGroup.questions.length}
-            </span>{" "}
-            questions answered in this dimension.
-          </p>
-
-          <div className="mt-6 divide-y divide-hairline border-t border-hairline">
+          <div className="mt-8 divide-y divide-hairline border-t border-hairline">
             {currentGroup.questions.map((question) => (
               <QuestionCard
                 key={question.id}

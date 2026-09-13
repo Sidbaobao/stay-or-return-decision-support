@@ -11,8 +11,7 @@ export const questions: Question[] = [
         id: "career_job_access_us",
         label: "Mostly in the US",
         stay_us_score: 5,
-        return_china_score: 1,
-        note: "A clearly stronger US job market fit is a solid practical case for staying."
+        return_china_score: 1
       },
       {
         id: "career_job_access_balanced",
@@ -24,8 +23,7 @@ export const questions: Question[] = [
         id: "career_job_access_china",
         label: "Mostly in China",
         stay_us_score: 1,
-        return_china_score: 5,
-        note: "A clearly stronger China job market fit is a solid practical case for returning."
+        return_china_score: 5
       }
     ]
   },
@@ -50,8 +48,7 @@ export const questions: Question[] = [
         id: "career_sponsorship_dependency_high",
         label: "A lot; it is a major bottleneck",
         stay_us_score: 1,
-        return_china_score: 5,
-        note: "A sponsorship bottleneck makes returning much more practical."
+        return_china_score: 5
       }
     ]
   },
@@ -84,7 +81,6 @@ export const questions: Question[] = [
     id: "career_work_model_fit",
     dimensionId: "career",
     prompt: "Which work environment currently feels more compatible with how you want to build your career?",
-    helpText: "For example: pace, specialization, management style, promotion expectations, or autonomy.",
     options: [
       {
         id: "career_work_model_fit_us",
@@ -115,8 +111,7 @@ export const questions: Question[] = [
         id: "salary_take_home_outlook_us",
         label: "Likely stronger in the US",
         stay_us_score: 5,
-        return_china_score: 1,
-        note: "A clearly better near-term financial outcome deserves real weight."
+        return_china_score: 1
       },
       {
         id: "salary_take_home_outlook_balanced",
@@ -186,7 +181,6 @@ export const questions: Question[] = [
     id: "salary_cost_tradeoff_acceptability",
     dimensionId: "salary_cost",
     prompt: "Which path has a cost-of-living tradeoff that feels more acceptable to you right now?",
-    helpText: "For example: housing cost, commute burden, dependence on family support, or city choice.",
     options: [
       {
         id: "salary_cost_tradeoff_acceptability_us",
@@ -229,8 +223,7 @@ export const questions: Question[] = [
         id: "immigration_stress_level_high",
         label: "It is one of my biggest concerns",
         stay_us_score: 1,
-        return_china_score: 5,
-        note: "High immigration stress materially strengthens the case for returning."
+        return_china_score: 5
       }
     ]
   },
@@ -263,7 +256,6 @@ export const questions: Question[] = [
     id: "immigration_dependency_risk",
     dimensionId: "immigration",
     prompt: "How comfortable are you with a stay-in-the-US plan that depends on several things going right at once?",
-    helpText: "For example: job offer timing, employer support, lottery outcomes, or policy stability.",
     options: [
       {
         id: "immigration_dependency_risk_high_tolerance",
@@ -356,8 +348,7 @@ export const questions: Question[] = [
         id: "family_responsibility_pull_high",
         label: "It is a major consideration",
         stay_us_score: 1,
-        return_china_score: 5,
-        note: "Strong family obligations pull hard toward returning."
+        return_china_score: 5
       }
     ]
   },
@@ -416,7 +407,6 @@ export const questions: Question[] = [
     id: "lifestyle_daily_fit",
     dimensionId: "lifestyle",
     prompt: "Which place currently feels more compatible with the kind of daily life you want?",
-    helpText: "Think about pace, convenience, social norms, independence, and routine.",
     options: [
       {
         id: "lifestyle_daily_fit_us",
@@ -492,7 +482,6 @@ export const questions: Question[] = [
     id: "lifestyle_location_flexibility",
     dimensionId: "lifestyle",
     prompt: "Which path gives you more flexibility to choose a living environment you could actually enjoy?",
-    helpText: "For example: city choice, distance from family, pace of life, or daily convenience.",
     options: [
       {
         id: "lifestyle_location_flexibility_us",
@@ -568,14 +557,12 @@ export const questions: Question[] = [
     id: "long_term_reentry_cost",
     dimensionId: "long_term",
     prompt: "Which path feels harder to leave now and re-enter later if you change your mind?",
-    helpText: "This is about reversibility and strategic timing.",
     options: [
       {
         id: "long_term_reentry_cost_us",
         label: "Leaving the US path now may be harder to reverse later",
         stay_us_score: 4,
-        return_china_score: 2,
-        note: "If the US path feels less reversible, staying has stronger strategic value."
+        return_china_score: 2
       },
       {
         id: "long_term_reentry_cost_balanced",

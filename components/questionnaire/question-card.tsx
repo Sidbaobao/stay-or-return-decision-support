@@ -54,12 +54,7 @@ export function QuestionCard({ question, value, onChange }: QuestionCardProps) {
                     }`}
                   />
                 </span>
-                <span className="flex min-w-0 flex-col gap-2">
-                  <span className="text-body font-medium text-ink">{option.label}</span>
-                  {option.note ? (
-                    <span className="text-body-sm text-ink/65">{option.note}</span>
-                  ) : null}
-                </span>
+                <span className="min-w-0 text-body font-medium text-ink">{option.label}</span>
               </div>
             </label>
           );
