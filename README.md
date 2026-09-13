@@ -29,8 +29,9 @@ confident that result really is.  Users leave with a decision memo, not a verdic
    tier (low / medium / high, from how far the gap sits from neutral), the key drivers, the
    dimensions that are still close, and a sensitivity check of whether different weights could
    flip the result.
-4. **Memo** — a print-friendly decision memo: recommendation, why not the other path, one lean
-   per dimension, risks, and next steps.
+4. **Memo** — a print-friendly decision memo: the recommendation with how far the answers lean
+   and which dimensions carry it, one lean per dimension, what would change the result, and
+   what to check before deciding.
 5. **Profile & history** — a device-local profile (optional nickname) and the last ten results,
    each reopenable as a read-only snapshot or restored as the current run.
 6. **Share** — a read-only copy of a result that travels entirely inside the link.
@@ -71,7 +72,7 @@ app/            App Router pages: /, /questionnaire, /weights, /results, /report
                 /profile/run (history snapshot), /shared (read-only shared result), /api/stats
 components/     UI by page (home, questionnaire, weights, results, report, profile, share)
                 + layout/ (nav, profile chip) + shared ui/
-data/           dimensions.ts, questions.ts (24 items), report-templates.ts
+data/           dimensions.ts, questions.ts (24 items)
 lib/            scoring.ts (weighted-gap model), report.ts, storage.ts (all localStorage),
                 guards.ts, share.ts (link codec), stats-schema.ts, stats-client.ts
 lib/server/     stats-store.ts (Upstash REST, no SDK), stats-keys.ts, rate-limit.ts, env.ts
