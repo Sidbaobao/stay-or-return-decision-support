@@ -14,6 +14,7 @@ type VideoPanelProps = {
 function VideoPanel({ accentClassName, label, posterSrc, shouldLoadVideo, src }: VideoPanelProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [hasVideoError, setHasVideoError] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const showVideo = shouldLoadVideo && !hasVideoError;
 
   useEffect(() => {
@@ -30,10 +31,13 @@ function VideoPanel({ accentClassName, label, posterSrc, shouldLoadVideo, src }:
   return (
     <figure>
       <div className="relative min-h-[34rem] overflow-hidden rounded-tile bg-hero sm:min-h-[42rem] lg:min-h-[48rem]">
+        {/* The poster stays underneath until frames are actually showing,
+            then leaves so the browser composites one layer, not two. */}
         <img
           alt=""
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover"
+          hidden={showVideo && isPlaying}
           loading="lazy"
           src={posterSrc}
         />
@@ -50,7 +54,11 @@ function VideoPanel({ accentClassName, label, posterSrc, shouldLoadVideo, src }:
             preload="metadata"
             src={src}
             tabIndex={-1}
-            onError={() => setHasVideoError(true)}
+            onPlaying={() => setIsPlaying(true)}
+            onError={() => {
+              setIsPlaying(false);
+              setHasVideoError(true);
+            }}
           />
         ) : null}
       </div>

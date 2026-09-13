@@ -17,6 +17,25 @@ type Dot = {
   driftSpeed: number;
   responsiveness: number;
   textOpacity: number;
+  // Slot into the shared style table, so a frame groups dots by style
+  // without recomputing colour and size per dot.
+  styleIndex: number;
+  // Halo radius for dots that can glow; 0 for the rest.
+  glowRadius: number;
+};
+
+type DotStyle = {
+  strokeStyle: string;
+  lineWidth: number;
+};
+
+// Dots are drawn as zero-length strokes with round caps: the same circle as
+// arc(), but arc() tessellates on every call and cost 9ms a frame for 9,000
+// dots; building line segments costs under 2ms. Radii are quantised to half a
+// pixel so the whole field is a few dozen strokes instead of thousands.
+type StyleTable = {
+  styles: DotStyle[];
+  indexByKey: Map<string, number>;
 };
 
 type PointerState = {
@@ -105,6 +124,36 @@ function getTextAreaOpacity(x: number, y: number, width: number, height: number)
   return 1 - textAreaCalm * 0.48;
 }
 
+function createStyleTable(): StyleTable {
+  return { styles: [], indexByKey: new Map() };
+}
+
+function getStyleIndex(table: StyleTable, style: DotStyle) {
+  const key = `${style.strokeStyle}|${style.lineWidth}`;
+  const existing = table.indexByKey.get(key);
+
+  if (existing !== undefined) {
+    return existing;
+  }
+
+  const index = table.styles.length;
+  table.styles.push(style);
+  table.indexByKey.set(key, index);
+  return index;
+}
+
+function quantizeRadius(radius: number) {
+  return Math.round(radius * 2) / 2;
+}
+
+function getDotOpacity(color: string, textOpacity: number) {
+  if (color === HERO_BLUE) {
+    return textOpacity < 0.68 ? 0.22 : textOpacity < 0.9 ? 0.38 : 0.58;
+  }
+
+  return textOpacity < 0.68 ? 0.2 : textOpacity < 0.9 ? 0.36 : 0.56;
+}
+
 function createDotPosition(width: number, height: number) {
   const x = Math.random() * width;
   const y = Math.random() * height;
@@ -116,12 +165,18 @@ function createDotPosition(width: number, height: number) {
   };
 }
 
-function createDots(width: number, height: number): Dot[] {
+function createDots(width: number, height: number, dotStyles: StyleTable): Dot[] {
   return Array.from({ length: getDotCount(width, height) }, () => {
     const { x, y, textOpacity } = createDotPosition(width, height);
     const brightness = Math.random();
     const isLargeParticle = brightness > 0.82;
-    const radius = isLargeParticle ? Math.random() * 2.5 + 2.8 : Math.random() * 1.55 + 1.55;
+    const radius = quantizeRadius(
+      isLargeParticle ? Math.random() * 2.5 + 2.8 : Math.random() * 1.55 + 1.55
+    );
+    const color = getClusterColor(x, y, width, height);
+    // Only dots in the text-free zone with enough brightness can ever glow;
+    // whether they do on a given frame also depends on how fast they move.
+    const canGlow = textOpacity > 0.78 && brightness > 0.58;
 
     return {
       baseX: x,
@@ -131,13 +186,18 @@ function createDots(width: number, height: number): Dot[] {
       velocityX: 0,
       velocityY: 0,
       radius,
-      color: getClusterColor(x, y, width, height),
+      color,
       glow: brightness,
       phase: Math.random() * Math.PI * 2,
       driftRange: Math.random() * 18 + 12,
       driftSpeed: Math.random() * 0.42 + 0.28,
       responsiveness: Math.random() * 0.55 + 0.65,
-      textOpacity
+      textOpacity,
+      styleIndex: getStyleIndex(dotStyles, {
+        strokeStyle: rgba(color, getDotOpacity(color, textOpacity)),
+        lineWidth: radius * 2
+      }),
+      glowRadius: canGlow ? radius * (1.8 + brightness * 0.7) : 0
     };
   });
 }
@@ -206,6 +266,7 @@ export function DecisionMapCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const dotsRef = useRef<Dot[]>([]);
+  const dotStylesRef = useRef<StyleTable>(createStyleTable());
   const gridRef = useRef<Map<string, number[]>>(new Map());
   const rippleWakesRef = useRef<RippleWake[]>([]);
   const pointerRef = useRef<PointerState>({ x: 0, y: 0, movementX: 0, movementY: 0, active: false });
@@ -368,64 +429,51 @@ export function DecisionMapCanvas() {
     const drawDots = () => {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
-      const bluePath = new Path2D();
-      const redPath = new Path2D();
-      const blueSoftPath = new Path2D();
-      const redSoftPath = new Path2D();
-      const blueCalmPath = new Path2D();
-      const redCalmPath = new Path2D();
+      const dotStyles = dotStylesRef.current.styles;
+      const dotPaths: (Path2D | null)[] = new Array(dotStyles.length).fill(null);
+      // Halos keep arc(): only a tenth of the dots glow, and a shadowed draw
+      // costs a full-canvas blur on the GPU, so there must be exactly two.
       const blueGlowPath = new Path2D();
       const redGlowPath = new Path2D();
+
+      dotsRef.current.forEach((dot) => {
+        const path = (dotPaths[dot.styleIndex] ??= new Path2D());
+
+        path.moveTo(dot.x, dot.y);
+        path.lineTo(dot.x + 0.01, dot.y);
+
+        if (dot.glowRadius === 0) {
+          return;
+        }
+
+        const motionEnergy = Math.abs(dot.velocityX) + Math.abs(dot.velocityY);
+
+        if (dot.glow > GLOW_THRESHOLD || motionEnergy > 2.4) {
+          const glowPath = dot.color === HERO_BLUE ? blueGlowPath : redGlowPath;
+
+          glowPath.moveTo(dot.x + dot.glowRadius, dot.y);
+          glowPath.arc(dot.x, dot.y, dot.glowRadius, 0, Math.PI * 2);
+        }
+      });
 
       context.globalCompositeOperation = "source-over";
       context.clearRect(0, 0, width, height);
       context.fillStyle = HERO_BACKGROUND;
       context.fillRect(0, 0, width, height);
 
-      dotsRef.current.forEach((dot) => {
-        const path =
-          dot.color === HERO_BLUE
-            ? dot.textOpacity < 0.68
-              ? blueCalmPath
-              : dot.textOpacity < 0.9
-                ? blueSoftPath
-                : bluePath
-            : dot.textOpacity < 0.68
-              ? redCalmPath
-              : dot.textOpacity < 0.9
-                ? redSoftPath
-                : redPath;
-        const radius = dot.radius;
-
-        path.moveTo(dot.x + radius, dot.y);
-        path.arc(dot.x, dot.y, radius, 0, Math.PI * 2);
-
-        const motionEnergy = Math.abs(dot.velocityX) + Math.abs(dot.velocityY);
-        const shouldGlow =
-          dot.textOpacity > 0.78 && (dot.glow > GLOW_THRESHOLD || (motionEnergy > 2.4 && dot.glow > 0.58));
-
-        if (shouldGlow) {
-          const glowPath = dot.color === HERO_BLUE ? blueGlowPath : redGlowPath;
-          const glowRadius = radius * (1.8 + dot.glow * 0.7);
-
-          glowPath.moveTo(dot.x + glowRadius, dot.y);
-          glowPath.arc(dot.x, dot.y, glowRadius, 0, Math.PI * 2);
-        }
-      });
-
+      // Additive blending, so the order of the strokes does not matter.
       context.globalCompositeOperation = "lighter";
-      context.fillStyle = rgba(HERO_BLUE, 0.58);
-      context.fill(bluePath);
-      context.fillStyle = rgba(HERO_BLUE, 0.38);
-      context.fill(blueSoftPath);
-      context.fillStyle = rgba(HERO_BLUE, 0.22);
-      context.fill(blueCalmPath);
-      context.fillStyle = rgba(HERO_RED, 0.56);
-      context.fill(redPath);
-      context.fillStyle = rgba(HERO_RED, 0.36);
-      context.fill(redSoftPath);
-      context.fillStyle = rgba(HERO_RED, 0.2);
-      context.fill(redCalmPath);
+      context.lineCap = "round";
+
+      dotPaths.forEach((path, index) => {
+        if (!path) {
+          return;
+        }
+
+        context.lineWidth = dotStyles[index].lineWidth;
+        context.strokeStyle = dotStyles[index].strokeStyle;
+        context.stroke(path);
+      });
 
       context.shadowBlur = 12;
       context.shadowColor = rgba(HERO_BLUE, 0.48);
@@ -438,29 +486,63 @@ export function DecisionMapCanvas() {
       context.globalCompositeOperation = "source-over";
     };
 
+    // The drift clock advances only while frames are drawn. Pausing the
+    // loop (hero scrolled away, tab hidden) then resuming would otherwise
+    // move every dot's target by seconds' worth of drift at once, and the
+    // whole field would lurch as the hero came back into view.
+    let flowTime = 0;
+
     const drawFrame = (time = 0) => {
       const elapsed = lastFrameTimeRef.current ? time - lastFrameTimeRef.current : FRAME_INTERVAL;
 
       if (!reducedMotionRef.current && elapsed < FRAME_INTERVAL) {
-        animationFrameRef.current = window.requestAnimationFrame(drawFrame);
+        animationFrameRef.current = shouldAnimate() ? window.requestAnimationFrame(drawFrame) : null;
         return;
       }
 
       const frameScale = clamp(elapsed / (1000 / 60), 0.7, 2.1);
       lastFrameTimeRef.current = time;
+      flowTime += Math.min(elapsed, FRAME_INTERVAL * 4);
 
-      updateDots(time, frameScale);
+      updateDots(flowTime, frameScale);
       drawDots();
 
-      if (!reducedMotionRef.current) {
-        animationFrameRef.current = window.requestAnimationFrame(drawFrame);
-      }
+      animationFrameRef.current = shouldAnimate() ? window.requestAnimationFrame(drawFrame) : null;
     };
 
     const stopAnimation = () => {
-      if (animationFrameRef.current) {
+      if (animationFrameRef.current !== null) {
         window.cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
+      }
+    };
+
+    const startAnimation = () => {
+      if (animationFrameRef.current !== null) {
+        return;
+      }
+
+      lastFrameTimeRef.current = 0;
+      animationFrameRef.current = window.requestAnimationFrame(drawFrame);
+    };
+
+    // The field used to keep animating after it was scrolled out of view,
+    // which is exactly when the page is busiest (the videos below start).
+    // Now it runs only while the hero is on screen in a visible tab. The
+    // canvas fades to transparent over its bottom third, so once less than
+    // 30% of it is visible only the faded tail remains and the loop stops.
+    const VISIBLE_RATIO_TO_ANIMATE = 0.3;
+    let isInView = true;
+
+    function shouldAnimate() {
+      return isInView && document.visibilityState === "visible" && !reducedMotionRef.current;
+    }
+
+    const syncAnimation = () => {
+      if (shouldAnimate()) {
+        startAnimation();
+      } else {
+        stopAnimation();
       }
     };
 
@@ -485,7 +567,8 @@ export function DecisionMapCanvas() {
       canvas.height = Math.floor(height * ratio);
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-      dotsRef.current = createDots(width, height);
+      dotStylesRef.current = createStyleTable();
+      dotsRef.current = createDots(width, height, dotStylesRef.current);
       gridRef.current = buildGrid(dotsRef.current);
       resetCursorState();
       lastFrameTimeRef.current = 0;
@@ -501,8 +584,7 @@ export function DecisionMapCanvas() {
         resetDotsToBase();
         drawFrame();
       } else {
-        lastFrameTimeRef.current = 0;
-        animationFrameRef.current = window.requestAnimationFrame(drawFrame);
+        syncAnimation();
       }
     };
 
@@ -540,6 +622,19 @@ export function DecisionMapCanvas() {
     resize();
     updateMotionPreference();
 
+    const viewObserver =
+      typeof IntersectionObserver === "undefined"
+        ? null
+        : new IntersectionObserver(
+            (entries) => {
+              isInView = entries.some((entry) => entry.intersectionRatio >= VISIBLE_RATIO_TO_ANIMATE);
+              syncAnimation();
+            },
+            { threshold: [0, VISIBLE_RATIO_TO_ANIMATE] }
+          );
+
+    viewObserver?.observe(canvas);
+    document.addEventListener("visibilitychange", syncAnimation);
     window.addEventListener("resize", resize);
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerleave", resetCursorState);
@@ -552,6 +647,8 @@ export function DecisionMapCanvas() {
       window.removeEventListener("pointerleave", resetCursorState);
       window.removeEventListener("blur", resetCursorState);
       motionQuery.removeEventListener("change", updateMotionPreference);
+      document.removeEventListener("visibilitychange", syncAnimation);
+      viewObserver?.disconnect();
       stopAnimation();
     };
   }, []);
