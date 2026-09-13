@@ -113,14 +113,13 @@ export default function SharedResultPage() {
             <p className="text-eyebrow text-ink-accent">Key drivers</p>
             <h2 className="mt-2 font-serif text-section-title text-ink">Where each dimension pulls</h2>
           </div>
-          <p className="text-body-sm text-ink/70">Strongest weighted pull first.</p>
         </div>
 
         <div className="mt-6">
           <DimensionLeanRows
             contributions={sharedResult.contributions}
             uncertainDimensionIds={sharedResult.uncertainDimensions}
-            footnote="Bars share one scale and show how far this person's answers lean; the number is each dimension's weighted pull on the overall result."
+            footnote="Bars show how far this person's answers lean, on one shared scale. The number is each dimension's weighted pull on the result."
           />
         </div>
       </section>
