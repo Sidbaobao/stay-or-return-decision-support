@@ -16,7 +16,7 @@ const MIN_SHARED_SCALE = 20;
 export function DimensionLeanRows({
   contributions,
   uncertainDimensionIds,
-  footnote = "Bars share one scale and show how far your answers lean; the number is each dimension's weighted pull on the overall result."
+  footnote = "Bars show how far your answers lean, on one shared scale. The number is each dimension's weighted pull on the result."
 }: DimensionLeanRowsProps) {
   const listRef = useRef<HTMLUListElement | null>(null);
   const [isInView, setIsInView] = useState(false);
@@ -73,7 +73,11 @@ export function DimensionLeanRows({
           const isTopDriver = index === 0 && Math.abs(contribution.weightedGap) > 0;
 
           const accent = supportsStay ? "rgb(var(--color-path-stay))" : "rgb(var(--color-path-return))";
-          const directionLabel = isBalanced ? "Balanced" : supportsStay ? "Supports Stay" : "Supports Return";
+          const directionLabel = isBalanced
+            ? "Balanced"
+            : supportsStay
+              ? "Leans toward staying"
+              : "Leans toward returning";
           const barWidth = (Math.abs(contribution.rawGap) / sharedScale) * 50;
 
           return (
@@ -141,10 +145,10 @@ export function DimensionLeanRows({
                 </div>
               </div>
 
-              <div className="col-start-2 flex items-baseline gap-1.5 sm:col-start-auto sm:flex-col sm:items-end sm:gap-0">
-                <span className="text-body-sm font-semibold text-ink">{Math.abs(contribution.weightedGap)}</span>
-                <span className="text-label text-ink/65">weighted pull</span>
-              </div>
+              <p className="col-start-2 text-body-sm font-semibold tabular-nums text-ink sm:col-start-auto sm:text-right">
+                {Math.abs(contribution.weightedGap).toFixed(1)}
+                <span className="sr-only"> weighted pull</span>
+              </p>
             </li>
           );
         })}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { ChevronDown, User } from "lucide-react";
+import { User } from "lucide-react";
 import { dimensions } from "@/data/dimensions";
 import { buildCompletionSignature, buildRunSignature, claimRunStat, hasReportedRunStat } from "@/lib/storage";
 import { reportCompletionStat } from "@/lib/stats-client";
@@ -68,6 +68,12 @@ export default function ResultsPage() {
   const accentAt = (alpha: number) => `rgb(var(${accentToken}) / ${alpha})`;
   const confidenceSteps =
     scoringResult.confidence === "low" ? 1 : scoringResult.confidence === "medium" ? 2 : 3;
+  const { currentTotalGap, totalPotentialShift, couldFlip } = scoringResult.weightFlipAnalysis;
+  const weightSensitivitySentence = couldFlip
+    ? `Re-weighting could flip this result: the lead is ${currentTotalGap.toFixed(1)} points, and changing weights could move it by up to ${totalPotentialShift.toFixed(1)}.`
+    : totalPotentialShift === 0
+      ? `Re-weighting alone would not flip this result: the lead is ${currentTotalGap.toFixed(1)} points, and re-weighting the dimensions that are still close would not move it.`
+      : `Re-weighting alone would not flip this result: the lead is ${currentTotalGap.toFixed(1)} points, and changing weights could move it by at most ${totalPotentialShift.toFixed(1)}.`;
   const conclusionHeadline = getConclusionHeadline(
     scoringResult.recommendedScenario,
     scoringResult.confidence,
@@ -114,9 +120,8 @@ export default function ResultsPage() {
 
           <div className="mt-7 grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-end">
             <div>
-              <p className="text-body-sm font-medium text-ink/70">Your conclusion</p>
               <h1
-                className="mt-3 max-w-3xl font-serif text-display"
+                className="max-w-3xl font-serif text-display"
                 style={{ color: accentColor }}
               >
                 {conclusionHeadline}
@@ -175,13 +180,8 @@ export default function ResultsPage() {
       </section>
 
       <section className="border-t border-hairline pt-6 sm:pt-8">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-eyebrow text-ink-accent">Key drivers</p>
-            <h2 className="mt-2 font-serif text-section-title text-ink">Where each dimension pulls</h2>
-          </div>
-          <p className="text-body-sm text-ink/70">Strongest weighted pull first.</p>
-        </div>
+        <p className="text-eyebrow text-ink-accent">Key drivers</p>
+        <h2 className="mt-2 font-serif text-section-title text-ink">Where each dimension pulls</h2>
 
         <div className="mt-6">
           <DimensionLeanRows
@@ -189,45 +189,9 @@ export default function ResultsPage() {
             uncertainDimensionIds={scoringResult.uncertainDimensions}
           />
         </div>
+
+        <p className="mt-4 max-w-measure text-body-sm text-ink/70">{weightSensitivitySentence}</p>
       </section>
-
-      <details className="interaction-disclosure group border-t border-hairline">
-        <summary className="-mx-3 flex cursor-pointer list-none items-center justify-between gap-4 !rounded-control px-3 py-5">
-          <div>
-            <h2 className="font-serif text-card-title text-ink">More detail</h2>
-            <p className="mt-1 text-body-sm text-ink/70">Whether different weights could flip the result.</p>
-          </div>
-          <ChevronDown
-            aria-hidden="true"
-            className="h-5 w-5 shrink-0 text-ink/55 transition-transform duration-motion-standard ease-interaction group-open:rotate-180 motion-reduce:transition-none"
-          />
-        </summary>
-
-        <div className="pb-5 sm:pb-6">
-          <section>
-            <h3 className="text-body font-semibold text-ink">Weight sensitivity</h3>
-            <dl className="mt-3 flex flex-wrap gap-x-10 gap-y-3">
-              <div>
-                <dt className="text-label text-ink/65">Current gap</dt>
-                <dd className="mt-1 text-lg font-semibold text-ink">
-                  {scoringResult.weightFlipAnalysis.currentTotalGap}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-label text-ink/65">Possible shift</dt>
-                <dd className="mt-1 text-lg font-semibold text-ink">
-                  {scoringResult.weightFlipAnalysis.totalPotentialShift}
-                </dd>
-              </div>
-            </dl>
-            <p className="mt-3 text-body-sm text-ink/65">
-              {scoringResult.weightFlipAnalysis.couldFlip
-                ? "Weight changes could reverse the lead."
-                : "Weights alone are unlikely to reverse the lead."}
-            </p>
-          </section>
-        </div>
-      </details>
 
       {!profile || (!profile.nickname && !profile.nudgeDismissed) ? (
         <aside
@@ -257,8 +221,8 @@ export default function ResultsPage() {
               Share this result
             </h2>
             <p className="mt-1 max-w-measure text-body-sm text-ink/65">
-              The link carries your answers and weights inside it — nothing is uploaded, but anyone
-              you send it to can see this result. Share it only with people you trust.
+              The link itself carries your answers and weights. Nothing is uploaded, and anyone with
+              the link can see this result.
             </p>
             <div className="mt-4">
               <ShareResultButton answers={status.answers} weights={status.state.weights} />
@@ -266,10 +230,7 @@ export default function ResultsPage() {
           </section>
 
           <footer className="flex flex-col gap-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:py-8">
-            <div>
-              <h2 className="font-serif text-section-title text-ink">Read the full memo</h2>
-              <p className="mt-2 text-body-sm text-ink/70">Recommendation, tradeoffs, and next steps.</p>
-            </div>
+            <h2 className="font-serif text-section-title text-ink">Read the full memo</h2>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <SecondaryButtonLink href="/weights">Adjust weights</SecondaryButtonLink>
               <PrimaryButtonLink href="/report">Open the memo</PrimaryButtonLink>
