@@ -76,11 +76,15 @@ family_emotion=HeartHandshake, lifestyle=Sun, long_term=Sprout.
     timestamps finer than the month bucket. The wire payload is
     exactly `{direction, confidence}`. Nothing user-identifying may
     ever leave the device.
-11. **Canvas/particle perf**: never redraw all particles per frame
-    in a way that janks. Use the established approach (per-particle
-    update with Path2D color-batching, selective glow, spatial grid
-    for cursor, frame cap). Scale for devicePixelRatio; clean up
-    rAF + listeners on unmount.
+11. **Canvas/particle perf**: the hero field must never jank the
+    page. The established approach: physics in typed arrays with no
+    per-dot allocation, a spatial grid for cursor forces, WebGL point
+    sprites for drawing (halo computed per fragment, never a blur
+    pass), a loop that runs only while the hero is on screen in a
+    visible tab, a static frame under reduced motion, and a Canvas 2D
+    still image when WebGL is unavailable. Scale for
+    devicePixelRatio; handle context loss; clean up rAF, observers
+    and listeners on unmount.
 
 ## Design tokens (single source of truth)
 
@@ -91,10 +95,11 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
 - Return / China path: red `#D72638`
 - Warm accent: coral `#D96C4A`
 - Home dark hero exception: `#070D18`. Two files draw colors directly
-  because a 2D canvas cannot read CSS custom properties, and both are
-  off-limits to styling tasks: `components/home/decision-map-canvas.tsx`
-  (the two path colors + hero background) and `components/weights/*`
-  (three per-dimension bubble hues).
+  because a canvas (2D or WebGL) cannot read CSS custom properties, and
+  both are off-limits to styling tasks:
+  `components/home/decision-map-canvas.tsx` (the two path colors + hero
+  background) and `components/weights/*` (three per-dimension bubble
+  hues).
 - Hairlines vs borders: `border-hairline` / `divide-hairline` (and
   `-strong`) divide content inside or between blocks; `border-border`
   outlines a surface. Elevation has two levels: `shadow-subtle` on a
