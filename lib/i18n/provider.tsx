@@ -75,6 +75,22 @@ export function useLocalizedTitle(title: string | null) {
       return;
     }
 
-    document.title = title ? `${title} · ${t.brand}` : t.brand;
+    const localized = title ? `${title} · ${t.brand}` : t.brand;
+    const apply = () => {
+      if (document.title !== localized) {
+        document.title = localized;
+      }
+    };
+
+    apply();
+
+    // Next.js writes its own (English) <title> again once its metadata
+    // boundary hydrates, and on every client-side navigation. Watch the
+    // head and put the reader's language back whenever that happens.
+    const observer = new MutationObserver(apply);
+
+    observer.observe(document.head, { childList: true, subtree: true, characterData: true });
+
+    return () => observer.disconnect();
   }, [title, t, isResolved]);
 }
