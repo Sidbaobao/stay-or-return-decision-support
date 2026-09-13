@@ -4,22 +4,19 @@ import { ProfileAccentId } from "@/types";
 // plus the warm accent. Values reference the design tokens, never raw hex.
 export const profileAccentStyles: Record<
   ProfileAccentId,
-  { background: string; color: string; label: string }
+  { background: string; color: string }
 > = {
   stay: {
     background: "rgb(var(--color-path-stay) / 0.12)",
-    color: "rgb(var(--color-path-stay))",
-    label: "Blue"
+    color: "rgb(var(--color-path-stay))"
   },
   return: {
     background: "rgb(var(--color-path-return) / 0.10)",
-    color: "rgb(var(--color-path-return))",
-    label: "Red"
+    color: "rgb(var(--color-path-return))"
   },
   warm: {
     background: "rgb(var(--color-accent-warm) / 0.16)",
-    color: "rgb(var(--color-ink-accent))",
-    label: "Coral"
+    color: "rgb(var(--color-ink-accent))"
   }
 };
 
@@ -31,18 +28,4 @@ export function getMonogram(nickname: string) {
   }
 
   return Array.from(trimmed)[0].toUpperCase();
-}
-
-export function formatFriendlyDate(isoDate: string) {
-  const parsed = new Date(isoDate);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return "";
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric"
-  }).format(parsed);
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { readRunStatus, restoreSnapshotAsCurrentRun } from "@/lib/run-state";
+import { useLocale } from "@/lib/i18n/provider";
 import { InlineConfirm, useConfirmFocus } from "@/components/ui/inline-confirm";
 import { QuietButton } from "@/components/ui/quiet-button";
 import { HistoryEntry } from "@/types";
@@ -16,6 +17,7 @@ type RestoreRunButtonProps = {
 // be destroyed, so that case asks before replacing.
 export function RestoreRunButton({ entry }: RestoreRunButtonProps) {
   const router = useRouter();
+  const { t } = useLocale();
   const [isConfirming, setIsConfirming] = useState(false);
   const [hasFailed, setHasFailed] = useState(false);
   const triggerRef = useConfirmFocus(isConfirming);
@@ -46,9 +48,9 @@ export function RestoreRunButton({ entry }: RestoreRunButtonProps) {
   if (isConfirming) {
     return (
       <InlineConfirm
-        prompt="Replace your in-progress run?"
-        confirmLabel="Replace"
-        cancelLabel="Keep current"
+        prompt={t.history.replacePrompt}
+        confirmLabel={t.history.replace}
+        cancelLabel={t.history.keepCurrent}
         tone="primary"
         onConfirm={performRestore}
         onCancel={() => setIsConfirming(false)}
@@ -59,12 +61,12 @@ export function RestoreRunButton({ entry }: RestoreRunButtonProps) {
   return (
     <span className="inline-flex flex-wrap items-center gap-x-1 gap-y-1">
       <QuietButton ref={triggerRef} tone="primary" onClick={handleClick}>
-        {hasFailed ? "Try again" : "Restore"}
+        {hasFailed ? t.history.tryAgain : t.history.restore}
       </QuietButton>
       {/* Always mounted: a live region only announces changes to content
           that was already there. */}
       <span aria-live="polite" className="text-sm text-ink/70">
-        {hasFailed ? "This snapshot can't be restored here." : ""}
+        {hasFailed ? t.history.restoreFailed : ""}
       </span>
     </span>
   );

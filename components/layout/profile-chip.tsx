@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { User } from "lucide-react";
 import { useLocalProfile } from "@/lib/use-local-profile";
+import { useLocale } from "@/lib/i18n/provider";
 import { getMonogram, profileAccentStyles } from "@/components/profile/profile-utils";
 
 type ProfileChipProps = {
@@ -12,6 +13,7 @@ type ProfileChipProps = {
 
 export function ProfileChip({ variant = "default" }: ProfileChipProps) {
   const pathname = usePathname();
+  const { t } = useLocale();
   // Read-only: a record is created when someone deliberately makes one, never
   // merely by visiting a page (a /shared recipient must stay untouched).
   const { profile } = useLocalProfile();
@@ -19,14 +21,14 @@ export function ProfileChip({ variant = "default" }: ProfileChipProps) {
   const monogram = profile ? getMonogram(profile.nickname) : null;
   const accent = profile ? profileAccentStyles[profile.accentId] : profileAccentStyles.warm;
   const isActive = pathname === "/profile" || pathname.startsWith("/profile/");
-  const greeting = profile?.nickname ? `Hi, ${profile.nickname}` : null;
+  const greeting = profile?.nickname ? t.nav.greeting(profile.nickname) : null;
 
   return (
     <Link
       href="/profile"
-      aria-label="My profile"
+      aria-label={t.nav.profile}
       aria-current={isActive ? "page" : undefined}
-      title="My profile"
+      title={t.nav.profile}
       className="interaction-quiet inline-flex items-center gap-2 rounded-pill"
     >
       {greeting ? (

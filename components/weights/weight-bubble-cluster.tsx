@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/lib/i18n/provider";
+
 import { useEffect, useMemo, useState } from "react";
 import { hierarchy, pack, type HierarchyCircularNode } from "d3-hierarchy";
 import {
@@ -117,15 +119,16 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
       .filter((node: HierarchyCircularNode<BubbleDatum>) => node.data.id);
   }, [dimensions, weights]);
 
+  const { t } = useLocale();
   const activeDimension = dimensions.find((dimension) => dimension.id === activeDimensionId) ?? dimensions[0];
   const activeWeight = weights[activeDimension.id];
   const maxWeight = getMaxWeight(totalBudget, dimensions.length);
   const activeCanIncrease = canIncreaseWeight(weights, activeDimension.id, dimensionIds);
   const activeCanDecrease = canDecreaseWeight(weights, activeDimension.id);
   const boundaryMessage = !activeCanIncrease
-    ? "Other priorities are already at the minimum, so this one cannot grow further."
+    ? t.weights.cannotGrow
     : !activeCanDecrease
-      ? "This priority is already at the minimum."
+      ? t.weights.atMinimum
       : "";
 
   const handleStepChange = (dimensionId: DimensionId, direction: "increase" | "decrease") => {
@@ -139,7 +142,7 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
   };
 
   return (
-    <section aria-label="Priority map" className="rounded-feature border border-border bg-surface p-5 shadow-soft sm:p-6">
+    <section aria-label={t.weights.priorityMap} className="rounded-feature border border-border bg-surface p-5 shadow-soft sm:p-6">
       <div className="relative mx-auto aspect-[680/520] w-full max-w-4xl overflow-hidden rounded-panel border border-surface-strong/80 bg-gradient-to-br from-surface via-surface-strong to-surface-warm shadow-legacy-sm">
         {packedBubbles.map((node) => {
             const dimensionId = node.data.id as DimensionId;
@@ -174,7 +177,7 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
                   onClick={() => setActiveDimensionId(dimensionId)}
                   aria-pressed={isActive}
                   data-selected={isActive ? "true" : "false"}
-                  aria-label={`${dimension.label}, ${percentage}% priority. Open fine tuning.`}
+                  aria-label={t.weights.bubbleAria(dimension.label, `${percentage}`)}
                   className="interaction-bubble absolute inset-0 flex flex-col items-center justify-center rounded-pill border p-4 text-center"
                   style={{
                     backgroundColor: getColorWithAlpha(color, fillAlpha),
@@ -196,7 +199,7 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
                     type="button"
                     onClick={() => handleStepChange(dimensionId, "decrease")}
                     disabled={!canDecrease}
-                    aria-label={`Decrease ${dimension.label} priority`}
+                    aria-label={t.weights.decreaseAria(dimension.label)}
                     className="interaction-stepper flex h-8 w-8 items-center justify-center rounded-pill border border-surface-strong/80 bg-surface-strong/90 text-sm font-bold text-ink disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     -
@@ -205,7 +208,7 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
                     type="button"
                     onClick={() => handleStepChange(dimensionId, "increase")}
                     disabled={!canIncrease}
-                    aria-label={`Increase ${dimension.label} priority`}
+                    aria-label={t.weights.increaseAria(dimension.label)}
                     className="interaction-stepper flex h-8 w-8 items-center justify-center rounded-pill border border-surface-strong/80 bg-surface-strong/90 text-sm font-bold text-ink disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     +

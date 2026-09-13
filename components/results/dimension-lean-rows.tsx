@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { dimensions } from "@/data/dimensions";
 import { dimensionIcons } from "@/components/results/dimension-icons";
+import { useContent } from "@/lib/i18n/content";
+import { useLocale } from "@/lib/i18n/provider";
 import { DimensionContribution, DimensionId } from "@/types";
 
 type DimensionLeanRowsProps = {
@@ -13,11 +14,9 @@ type DimensionLeanRowsProps = {
 
 const MIN_SHARED_SCALE = 20;
 
-export function DimensionLeanRows({
-  contributions,
-  uncertainDimensionIds,
-  footnote = "Bars show how far your answers lean, on one shared scale. The number is each dimension's weighted pull on the result."
-}: DimensionLeanRowsProps) {
+export function DimensionLeanRows({ contributions, uncertainDimensionIds, footnote }: DimensionLeanRowsProps) {
+  const { t } = useLocale();
+  const { dimensionLabel } = useContent();
   const listRef = useRef<HTMLUListElement | null>(null);
   const [isInView, setIsInView] = useState(false);
 
@@ -65,7 +64,6 @@ export function DimensionLeanRows({
     <div>
       <ul ref={listRef} className="divide-y divide-hairline">
         {rankedContributions.map((contribution, index) => {
-          const dimension = dimensions.find((item) => item.id === contribution.dimensionId);
           const Icon = dimensionIcons[contribution.dimensionId];
           const isBalanced = contribution.favoredScenario === "tie";
           const supportsStay = contribution.favoredScenario === "stay_us";
@@ -74,10 +72,8 @@ export function DimensionLeanRows({
 
           const accent = supportsStay ? "rgb(var(--color-path-stay))" : "rgb(var(--color-path-return))";
           const directionLabel = isBalanced
-            ? "Balanced"
-            : supportsStay
-              ? "Leans toward staying"
-              : "Leans toward returning";
+            ? t.results.balanced
+            : t.results.leans(supportsStay ? "stay_us" : "return_china");
           const barWidth = (Math.abs(contribution.rawGap) / sharedScale) * 50;
 
           return (
@@ -98,11 +94,11 @@ export function DimensionLeanRows({
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <p className="text-body font-medium text-ink">
-                    {dimension?.label ?? contribution.dimensionId}
+                    {dimensionLabel(contribution.dimensionId)}
                     <span className="sr-only">
                       {isBalanced
-                        ? ", balanced between the two paths"
-                        : `, leans ${supportsStay ? "stay" : "return"} by ${Math.abs(contribution.rawGap)} points`}
+                        ? t.results.srBalanced
+                        : t.results.srLean(supportsStay ? "stay_us" : "return_china", Math.abs(contribution.rawGap))}
                     </span>
                   </p>
                   <span className="text-label font-medium" style={{ color: isBalanced ? undefined : accent }}>
@@ -119,12 +115,12 @@ export function DimensionLeanRows({
                           color: accent
                         }}
                       >
-                        Top driver
+                        {t.results.topDriver}
                       </span>
                     ) : null}
                     {isStillClose ? (
                       <span className="rounded-pill border border-hairline-strong bg-surface-strong px-2.5 py-1 text-label text-ink/65">
-                        Still close
+                        {t.results.stillClose}
                       </span>
                     ) : null}
                   </span>
@@ -147,14 +143,14 @@ export function DimensionLeanRows({
 
               <p className="col-start-2 text-body-sm font-semibold tabular-nums text-ink sm:col-start-auto sm:text-right">
                 {Math.abs(contribution.weightedGap).toFixed(1)}
-                <span className="sr-only"> weighted pull</span>
+                <span className="sr-only"> {t.results.weightedPull}</span>
               </p>
             </li>
           );
         })}
       </ul>
 
-      <p className="mt-4 text-label text-ink/65">{footnote}</p>
+      <p className="mt-4 text-label text-ink/65">{footnote ?? t.results.footnote}</p>
     </div>
   );
 }

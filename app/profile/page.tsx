@@ -7,11 +7,7 @@ import { SecondaryButton } from "@/components/ui/secondary-button";
 import { QuietButton } from "@/components/ui/quiet-button";
 import { InlineConfirm, useConfirmFocus } from "@/components/ui/inline-confirm";
 import { HistoryList } from "@/components/profile/history-list";
-import {
-  formatFriendlyDate,
-  getMonogram,
-  profileAccentStyles
-} from "@/components/profile/profile-utils";
+import { getMonogram, profileAccentStyles } from "@/components/profile/profile-utils";
 import {
   buildLocalDataExport,
   clearLocalProfileAndHistory,
@@ -19,11 +15,15 @@ import {
   NICKNAME_MAX_LENGTH
 } from "@/lib/storage";
 import { useLocalProfile } from "@/lib/use-local-profile";
+import { formatDate } from "@/lib/i18n";
+import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { HistoryEntry, ProfileAccentId } from "@/types";
 
 const accentOrder: ProfileAccentId[] = ["warm", "stay", "return"];
 
 export default function ProfilePage() {
+  const { t, locale } = useLocale();
+  useLocalizedTitle(t.titles.profile);
   // The profile page is the one place a record is created on arrival.
   const { profile, update: updateProfile } = useLocalProfile({ create: true });
   const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>([]);
@@ -92,9 +92,9 @@ export default function ProfilePage() {
   return (
     <>
       <PageHeader
-        eyebrow="Your space"
-        title={profile.nickname ? `Hi, ${profile.nickname}.` : "Your profile"}
-        description="Set a nickname, pick an accent, and look back at past decisions."
+        eyebrow={t.profile.eyebrow}
+        title={profile.nickname ? t.profile.titleWithName(profile.nickname) : t.profile.title}
+        description={t.profile.description}
       />
 
       <section
@@ -102,7 +102,7 @@ export default function ProfilePage() {
         className="grid gap-6 sm:grid-cols-[4rem_minmax(0,1fr)] sm:gap-8"
       >
         <h2 id="identity-heading" className="sr-only">
-          Profile identity
+          {t.profile.identity}
         </h2>
 
         <span
@@ -116,7 +116,7 @@ export default function ProfilePage() {
         <div className="min-w-0 space-y-6">
           <form onSubmit={handleNicknameSubmit} className="max-w-md">
             <label htmlFor="profile-nickname" className="text-body-sm font-medium text-ink/70">
-              Nickname <span className="font-normal text-ink/50">(optional)</span>
+              {t.profile.nickname} <span className="font-normal text-ink/50">{t.profile.optional}</span>
             </label>
             <div className="mt-2 flex gap-2">
               <input
@@ -125,20 +125,20 @@ export default function ProfilePage() {
                 value={nicknameDraft}
                 maxLength={NICKNAME_MAX_LENGTH}
                 onChange={(event) => setNicknameDraft(event.target.value)}
-                placeholder="How should we greet you?"
+                placeholder={t.profile.placeholder}
                 className="interaction-field min-h-11 w-full rounded-control border border-border bg-surface-strong px-3.5 py-2 text-body text-ink placeholder:text-ink/40"
               />
               <SecondaryButton type="submit" className="shrink-0">
-                Save
+                {t.profile.save}
               </SecondaryButton>
             </div>
             <p aria-live="polite" className="mt-2 min-h-5 text-label text-ink/65">
-              {savedNotice ? "Saved." : ""}
+              {savedNotice ? t.profile.saved : ""}
             </p>
           </form>
 
           <fieldset>
-            <legend className="text-body-sm font-medium text-ink/70">Accent</legend>
+            <legend className="text-body-sm font-medium text-ink/70">{t.profile.accent}</legend>
             <div className="mt-3 flex flex-wrap gap-x-6 gap-y-3">
               {accentOrder.map((accentId) => {
                 const option = profileAccentStyles[accentId];
@@ -161,7 +161,7 @@ export default function ProfilePage() {
                       className="h-6 w-6 rounded-pill ring-offset-2 ring-offset-canvas transition-shadow duration-motion-standard ease-interaction peer-checked:ring-2 peer-checked:ring-ink/40 peer-focus-visible:ring-2 peer-focus-visible:ring-action-primary/70 motion-reduce:transition-none"
                       style={{ backgroundColor: option.color }}
                     />
-                    {option.label}
+                    {t.profile.accents[accentId]}
                   </label>
                 );
               })}
@@ -169,8 +169,7 @@ export default function ProfilePage() {
           </fieldset>
 
           <p className="text-body-sm text-ink/65">
-            Profile created {formatFriendlyDate(profile.createdAt)} ·{" "}
-            {decisionsCount === 1 ? "1 decision saved" : `${decisionsCount} decisions saved`}
+            {t.profile.created(formatDate(locale, profile.createdAt), decisionsCount)}
           </p>
         </div>
       </section>
@@ -181,24 +180,18 @@ export default function ProfilePage() {
       >
         <h2 id="privacy-heading" className="flex items-center gap-2 font-serif text-card-title text-ink">
           <ShieldCheck aria-hidden="true" className="h-5 w-5 shrink-0 text-ink-accent" strokeWidth={1.8} />
-          Private to this device
+          {t.profile.privacyTitle}
         </h2>
-        <p className="mt-3 max-w-measure text-body text-ink/75">
-          Your nickname and history are saved only in this browser, on this device. Nothing is sent
-          anywhere — no account, no cloud, no sync. We couldn&apos;t see it if we wanted to.
-        </p>
-        <p className="mt-2 max-w-measure text-body-sm text-ink/65">
-          The honest flip side: it won&apos;t follow you to other devices, and clearing this
-          browser&apos;s data erases it. Export a copy if you want to keep one.
-        </p>
+        <p className="mt-3 max-w-measure text-body text-ink/75">{t.profile.privacyBody}</p>
+        <p className="mt-2 max-w-measure text-body-sm text-ink/65">{t.profile.privacyFlip}</p>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-          <SecondaryButton onClick={handleExport}>Export my data (JSON)</SecondaryButton>
+          <SecondaryButton onClick={handleExport}>{t.profile.exportData}</SecondaryButton>
 
           {isConfirmingDeleteAll ? (
             <InlineConfirm
-              prompt="Erase your profile and all saved decisions from this device?"
-              confirmLabel="Erase everything"
+              prompt={t.profile.erasePrompt}
+              confirmLabel={t.profile.erase}
               onConfirm={handleDeleteAll}
               onCancel={() => setIsConfirmingDeleteAll(false)}
             />
@@ -208,7 +201,7 @@ export default function ProfilePage() {
               tone="caution"
               onClick={() => setIsConfirmingDeleteAll(true)}
             >
-              Delete profile &amp; history
+              {t.profile.deleteAll}
             </QuietButton>
           )}
         </div>
@@ -217,17 +210,17 @@ export default function ProfilePage() {
       <section aria-labelledby="history-heading" className="border-t border-hairline pt-6 sm:pt-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-eyebrow text-ink-accent">History</p>
+            <p className="text-eyebrow text-ink-accent">{t.profile.historyEyebrow}</p>
             {/* Focus target after the last history row is deleted. */}
             <h2
               id="history-heading"
               tabIndex={-1}
               className="mt-2 font-serif text-section-title text-ink outline-none"
             >
-              Your decisions
+              {t.profile.historyTitle}
             </h2>
           </div>
-          <p className="text-body-sm text-ink/70">Newest first.</p>
+          <p className="text-body-sm text-ink/70">{t.profile.newestFirst}</p>
         </div>
 
         <div className="mt-6">

@@ -14,6 +14,9 @@ immigration and policy uncertainty, family, lifestyle, long-term development —
 how much each dimension matters, and shows what is pulling them in each direction and how
 confident that result really is.  Users leave with a decision memo, not a verdict.
 
+The whole site is available in English and Simplified Chinese (中文): the switch sits in the
+home page header, and the choice stays on the device with everything else.
+
 <p align="center">
   <img src="docs/screenshots/home.png" width="49%" alt="Home">
   <img src="docs/screenshots/questionnaire.png" width="49%" alt="Questionnaire">
@@ -72,8 +75,8 @@ app/            App Router pages: /, /questionnaire, /weights, /results, /report
                 /profile/run (history snapshot), /shared (read-only shared result), /api/stats
 components/     UI by page (home, questionnaire, weights, results, report, profile, share)
                 + layout/ (nav, profile chip) + shared ui/
-data/           dimensions.ts, questions.ts (24 items)
-lib/            scoring.ts (weighted-gap model), report.ts, storage.ts (all localStorage),
+data/           dimensions.ts, questions.ts (24 items), and their Chinese copy (*.zh.ts)
+lib/            scoring.ts (weighted-gap model), report.ts, i18n/ (dictionaries, provider), storage.ts (all localStorage),
                 guards.ts, share.ts (link codec), stats-schema.ts, stats-client.ts
 lib/server/     stats-store.ts (Upstash REST, no SDK), stats-keys.ts, rate-limit.ts, env.ts
 public/         hero videos (compressed from 56.4 MB to 2.6 MB, lazy-loaded) and posters

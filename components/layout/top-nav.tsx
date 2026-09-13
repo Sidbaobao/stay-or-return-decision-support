@@ -4,28 +4,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Lock } from "lucide-react";
 import { useRunStatus } from "@/lib/run-state";
+import { useLocale } from "@/lib/i18n/provider";
+import { Dictionary } from "@/lib/i18n";
+import { LanguageToggle } from "@/components/layout/language-toggle";
 import { ProfileChip } from "@/components/layout/profile-chip";
 
 // Weights always exist (they default), so finishing the questionnaire is the
 // only real gate. The "Set your weights first" lock could never engage.
 const navItems = [
-  { href: "/", label: "Home", requirement: "none" },
-  { href: "/questionnaire", label: "Questionnaire", requirement: "none" },
-  { href: "/weights", label: "Weights", requirement: "answers" },
-  { href: "/results", label: "Results", requirement: "answers" },
-  { href: "/report", label: "Memo", requirement: "answers" }
+  { href: "/", key: "home", requirement: "none" },
+  { href: "/questionnaire", key: "questionnaire", requirement: "none" },
+  { href: "/weights", key: "weights", requirement: "answers" },
+  { href: "/results", key: "results", requirement: "answers" },
+  { href: "/report", key: "memo", requirement: "answers" }
 ] as const;
 
 type NavLinksProps = {
   pathname: string;
   isHome: boolean;
   isUnlocked: boolean;
+  t: Dictionary;
 };
 
-const LOCKED_REASON = "Complete the questionnaire first.";
-
-function NavLinks({ pathname, isHome, isUnlocked: hasCompletedQuestionnaire }: NavLinksProps) {
+function NavLinks({ pathname, isHome, isUnlocked: hasCompletedQuestionnaire, t }: NavLinksProps) {
   return navItems.map((item) => {
+    const label = t.nav[item.key];
     const isActive = pathname === item.href;
     const isUnlocked = item.requirement === "none" || hasCompletedQuestionnaire;
     const baseClassName = "inline-flex items-center gap-1.5 whitespace-nowrap text-sm";
@@ -55,7 +58,7 @@ function NavLinks({ pathname, isHome, isUnlocked: hasCompletedQuestionnaire }: N
           className={`${baseClassName} interaction-nav -mx-1 rounded-control px-1 py-1 ${unlockedClassName}`}
         >
           {statusIcon}
-          {item.label}
+          {label}
         </Link>
       );
     }
@@ -66,14 +69,14 @@ function NavLinks({ pathname, isHome, isUnlocked: hasCompletedQuestionnaire }: N
         role="link"
         aria-disabled="true"
         aria-current={isActive ? "page" : undefined}
-        aria-label={`${item.label}. ${LOCKED_REASON}`}
-        title={LOCKED_REASON}
+        aria-label={`${label}. ${t.nav.lockedReason}`}
+        title={t.nav.lockedReason}
         className={`${baseClassName} cursor-not-allowed select-none ${
           isHome ? "text-surface-strong/35" : "text-ink/35"
         }`}
       >
         {statusIcon}
-        {item.label}
+        {label}
       </span>
     );
   });
@@ -84,6 +87,7 @@ export function TopNav() {
   const isHome = pathname === "/";
   const status = useRunStatus();
   const isUnlocked = status?.isComplete ?? false;
+  const { t } = useLocale();
 
   return (
     <header
@@ -101,23 +105,27 @@ export function TopNav() {
               isHome ? "text-surface-strong" : "text-ink"
             }`}
           >
-            Stay or Return
+            {t.brand}
           </Link>
 
-          <nav aria-label="Primary navigation" className="hidden items-center gap-5 md:flex">
-            <NavLinks pathname={pathname} isHome={isHome} isUnlocked={isUnlocked} />
+          <nav aria-label={t.nav.primary} className="hidden items-center gap-5 md:flex">
+            <NavLinks pathname={pathname} isHome={isHome} isUnlocked={isUnlocked} t={t} />
           </nav>
 
-          <ProfileChip variant={isHome ? "light" : "default"} />
+          <div className="flex items-center gap-4">
+            {/* The language switch lives on the home page. */}
+            {isHome ? <LanguageToggle variant="light" /> : null}
+            <ProfileChip variant={isHome ? "light" : "default"} />
+          </div>
         </div>
 
         <nav
-          aria-label="Primary navigation"
+          aria-label={t.nav.primary}
           className={`-mx-1 mt-3 flex items-center gap-4 overflow-x-auto px-1 pb-1 pt-3 md:hidden ${
             isHome ? "border-t border-surface-strong/10" : "border-t border-ink/10"
           }`}
         >
-          <NavLinks pathname={pathname} isHome={isHome} isUnlocked={isUnlocked} />
+          <NavLinks pathname={pathname} isHome={isHome} isUnlocked={isUnlocked} t={t} />
         </nav>
       </div>
     </header>

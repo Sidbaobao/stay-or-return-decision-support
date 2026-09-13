@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ScenarioId } from "@/types";
 import { clamp } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/provider";
 
 type DecisionBalanceProps = {
   difference: number;
@@ -64,9 +65,10 @@ function AnimatedNumber({ value, delay = 0 }: AnimatedNumberProps) {
 }
 
 export function DecisionBalance({ difference, recommendedScenario, isRevealed }: DecisionBalanceProps) {
+  const { t } = useLocale();
   const isTied = difference === 0;
   const isStayLeading = !isTied && recommendedScenario === "stay_us";
-  const leaderLabel = recommendedScenario === "stay_us" ? "Stay in the US" : "Return to China";
+  const leaderLabel = t.balance.leader[recommendedScenario];
 
   const accent = isStayLeading ? "rgb(var(--color-path-stay))" : "rgb(var(--color-path-return))";
   const fillGradient = isStayLeading
@@ -83,24 +85,20 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
   return (
     <div>
       <div className="flex items-center justify-between gap-3">
-        <p className="text-eyebrow text-ink/65">Decision balance</p>
+        <p className="text-eyebrow text-ink/65">{t.balance.eyebrow}</p>
         <span className="text-label font-medium" style={{ color: isTied ? undefined : accent }}>
-          {isTied ? "Evenly balanced" : `${leaderLabel} leads`}
+          {isTied ? t.balance.evenly : t.balance.leads(leaderLabel)}
         </span>
       </div>
 
       <div
         className="mt-5"
         role="img"
-        aria-label={
-          isTied
-            ? "Decision balance: evenly balanced between staying in the US and returning to China."
-            : `Decision balance: ${leaderLabel} leads by ${formatScore(difference)} points on one scale running from strong stay on the left to strong return on the right.`
-        }
+        aria-label={isTied ? t.balance.ariaTied : t.balance.aria(leaderLabel, formatScore(difference))}
       >
         <div className="flex items-baseline justify-between">
-          <span className="text-label font-semibold text-path-stay">Stay</span>
-          <span className="text-label font-semibold text-path-return">Return</span>
+          <span className="text-label font-semibold text-path-stay">{t.balance.stay}</span>
+          <span className="text-label font-semibold text-path-return">{t.balance.return}</span>
         </div>
 
         <div className="relative mt-2 pb-6">
@@ -132,28 +130,26 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
           </div>
 
           <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-4 text-label text-ink/65">
-            Balanced
+            {t.balance.balanced}
           </span>
         </div>
 
         <p className="mt-3 text-center text-body-sm text-ink/70">
           {isTied ? (
-            "Evenly balanced right now."
+            t.balance.evenlyNow
           ) : (
             <>
-              Leads by{" "}
+              {t.balance.leadsBy}{" "}
               <span className="font-semibold" style={{ color: accent }}>
                 <AnimatedNumber value={difference} delay={300} />
               </span>{" "}
-              points
+              {t.balance.points}
             </>
           )}
         </p>
       </div>
 
-      <p className="mt-3 border-t border-hairline pt-3 text-center text-label text-ink/65">
-        Each answer moves this one balance — from strong stay to strong return.
-      </p>
+      <p className="mt-3 border-t border-hairline pt-3 text-center text-label text-ink/65">{t.balance.footnote}</p>
     </div>
   );
 }

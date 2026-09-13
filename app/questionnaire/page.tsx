@@ -11,12 +11,12 @@ import {
   Sun,
   type LucideIcon
 } from "lucide-react";
-import { questions } from "@/data/questions";
-import { dimensions } from "@/data/dimensions";
 import { usePrerequisiteGuard } from "@/lib/guards";
 import { filterAnswersToCurrent, saveAnswers, STORAGE_KEYS, subscribeToStorageKey } from "@/lib/storage";
 import { readRunStatus } from "@/lib/run-state";
-import { Answers, Dimension, DimensionId } from "@/types";
+import { useContent } from "@/lib/i18n/content";
+import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
+import { Answers, Dimension, DimensionId, Question } from "@/types";
 import { PageHeader } from "@/components/ui/page-header";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
@@ -24,42 +24,13 @@ import { ResetProgressButton } from "@/components/ui/reset-progress-button";
 import { QuietLink } from "@/components/ui/quiet-button";
 import { QuestionCard } from "@/components/questionnaire/question-card";
 
-const groupedQuestions = dimensions.map((dimension) => ({
-  dimension,
-  questions: questions.filter((question) => question.dimensionId === dimension.id)
-}));
-
-const dimensionIntroById: Record<
-  DimensionId,
-  {
-    Icon: LucideIcon;
-    guidingQuestion: string;
-  }
-> = {
-  career: {
-    Icon: Briefcase,
-    guidingQuestion: "Where can you realistically build the career you want?"
-  },
-  salary_cost: {
-    Icon: Scale,
-    guidingQuestion: "Where does your money actually go further for the life you want?"
-  },
-  immigration: {
-    Icon: Stamp,
-    guidingQuestion: "How much does visa and status uncertainty weigh on you?"
-  },
-  family_emotion: {
-    Icon: HeartHandshake,
-    guidingQuestion: "How strong is the pull of the people back home?"
-  },
-  lifestyle: {
-    Icon: Sun,
-    guidingQuestion: "Which daily life genuinely feels more like you?"
-  },
-  long_term: {
-    Icon: Sprout,
-    guidingQuestion: "Which path do you trust more over the next ten years?"
-  }
+const dimensionIcons: Record<DimensionId, LucideIcon> = {
+  career: Briefcase,
+  salary_cost: Scale,
+  immigration: Stamp,
+  family_emotion: HeartHandshake,
+  lifestyle: Sun,
+  long_term: Sprout
 };
 
 type DimensionProgressRingProps = {
@@ -134,17 +105,19 @@ function DimensionProgressRing({ answeredCount, totalCount, isComplete }: Dimens
 
 type DimensionIntroHeaderProps = {
   dimension: Dimension;
+  guidingQuestion: string;
+  eyebrow: string;
 };
 
-function DimensionIntroHeader({ dimension }: DimensionIntroHeaderProps) {
-  const { Icon, guidingQuestion } = dimensionIntroById[dimension.id];
+function DimensionIntroHeader({ dimension, guidingQuestion, eyebrow }: DimensionIntroHeaderProps) {
+  const Icon = dimensionIcons[dimension.id];
 
   return (
     <div className="space-y-3">
       <div>
         <p className="flex items-center gap-2 text-eyebrow text-ink-accent">
           <Icon aria-hidden="true" strokeWidth={1.8} className="h-5 w-5 text-accent-warm" />
-          Current dimension
+          {eyebrow}
         </p>
         <h2 className="mt-2 font-serif text-section-title text-ink">{dimension.label}</h2>
       </div>
@@ -155,14 +128,30 @@ function DimensionIntroHeader({ dimension }: DimensionIntroHeaderProps) {
   );
 }
 
+type QuestionGroup = {
+  dimension: Dimension;
+  questions: Question[];
+};
+
 export default function QuestionnairePage() {
   const isReady = usePrerequisiteGuard("none");
   const router = useRouter();
+  const { t } = useLocale();
+  const { questions, dimensions } = useContent();
+  useLocalizedTitle(t.titles.questionnaire);
+
+  const groupedQuestions: QuestionGroup[] = dimensions.map((dimension) => ({
+    dimension,
+    questions: questions.filter((question) => question.dimensionId === dimension.id)
+  }));
+
   const [answers, setAnswers] = useState<Answers>({});
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   // Mirrors `answers` for the storage listener, which must not re-run when we
   // are the ones who wrote.
   const answersRef = useRef<Answers>({});
+  const groupedRef = useRef(groupedQuestions);
+  groupedRef.current = groupedQuestions;
 
   useEffect(() => {
     const adoptStoredAnswers = () => {
@@ -187,7 +176,7 @@ export default function QuestionnairePage() {
       }
 
       if (Object.keys(current).length === 0) {
-        const firstIncompleteIndex = groupedQuestions.findIndex((group) =>
+        const firstIncompleteIndex = groupedRef.current.findIndex((group) =>
           group.questions.some((question) => !stored[question.id])
         );
 
@@ -243,11 +232,11 @@ export default function QuestionnairePage() {
 
   return (
     <>
-      <PageHeader eyebrow="Step 1" title="Questionnaire" actions={<ResetProgressButton />} />
+      <PageHeader eyebrow={t.questionnaire.eyebrow} title={t.questionnaire.title} actions={<ResetProgressButton />} />
 
       <div className="sticky top-0 z-20 border-b border-hairline bg-canvas/95 py-3 backdrop-blur">
         <p className="mb-2 text-label font-medium text-ink/70">
-          {completedCount} of {questions.length} answered
+          {t.questionnaire.answered(completedCount, questions.length)}
         </p>
         <div className="h-1 rounded-pill bg-action-primary/10">
           <div
@@ -259,7 +248,7 @@ export default function QuestionnairePage() {
 
       <section aria-labelledby="steps-heading">
         <h2 id="steps-heading" className="text-section-title text-ink">
-          Questionnaire steps
+          {t.questionnaire.stepsHeading}
         </h2>
         <ol role="list" className="mt-5 grid grid-cols-2 gap-x-6 sm:grid-cols-3 xl:grid-cols-6">
           {groupedQuestions.map((group, index) => {
@@ -289,15 +278,15 @@ export default function QuestionnairePage() {
                     isComplete={isComplete}
                   />
                   <span className="min-w-0">
-                    <span className="block text-eyebrow">Step {index + 1}</span>
+                    <span className="block text-eyebrow">{t.questionnaire.step(index + 1)}</span>
                     <span className="mt-1 block text-body-sm font-semibold">{group.dimension.label}</span>
                     <span className="mt-1 block text-label text-ink/65">
                       {isComplete ? (
-                        "Done"
+                        t.questionnaire.done
                       ) : (
                         <>
-                          {answeredCount} of {group.questions.length}
-                          <span className="sr-only"> answered</span>
+                          {t.questionnaire.ofCount(answeredCount, group.questions.length)}
+                          <span className="sr-only">{t.questionnaire.answeredSuffix}</span>
                         </>
                       )}
                     </span>
@@ -311,7 +300,11 @@ export default function QuestionnairePage() {
 
       {currentGroup ? (
         <section className="border-t border-hairline pt-6 sm:pt-8">
-          <DimensionIntroHeader dimension={currentGroup.dimension} />
+          <DimensionIntroHeader
+            dimension={currentGroup.dimension}
+            guidingQuestion={t.questionnaire.guiding[currentGroup.dimension.id]}
+            eyebrow={t.questionnaire.currentDimension}
+          />
 
           <div className="mt-8 divide-y divide-hairline border-t border-hairline">
             {currentGroup.questions.map((question) => (
@@ -328,22 +321,22 @@ export default function QuestionnairePage() {
 
       <div className="flex flex-col gap-3 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between">
         <QuietLink href="/" className="-mx-2 self-center sm:self-auto">
-          Back to home
+          {t.questionnaire.backHome}
         </QuietLink>
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           {/* Always present, so the pair does not jump between steps. */}
           <SecondaryButton onClick={goToPreviousStep} disabled={isFirstStep} className="px-5">
-            Previous
+            {t.questionnaire.previous}
           </SecondaryButton>
 
           {isLastStep ? (
             <PrimaryButton onClick={handleSave} disabled={!canContinue} className="w-full sm:w-auto">
-              Save and continue to weights
+              {t.questionnaire.saveContinue}
             </PrimaryButton>
           ) : (
             <PrimaryButton type="button" onClick={goToNextStep} className="w-full sm:w-auto">
-              Next
+              {t.questionnaire.next}
             </PrimaryButton>
           )}
         </div>

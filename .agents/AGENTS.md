@@ -133,5 +133,12 @@ blues).
   filler phrases ("In conclusion", "It's worth noting", "Overall"),
   uniform information density. Vary rhythm; point out the key
   message; let visuals carry information.
-- Bilingual (EN/CN) support is planned for LAST; do not add it
-  preemptively.
+- The site is bilingual (EN/中文). Every user-facing string lives in
+  `lib/i18n/en.ts` with its Chinese twin in `lib/i18n/zh.ts` (same
+  shape, enforced by the type); question and dimension copy lives in
+  `data/questions.zh.ts` and `data/dimensions.zh.ts`, keyed by id, with
+  the English data files staying canonical for ids and scores. Components
+  read text through `useLocale()` / `useContent()`; never hardcode a
+  user-facing string. The preference is a localStorage key like the rest
+  of the app's state (`stay-or-return-locale-v1`); the switch lives on the
+  home page.

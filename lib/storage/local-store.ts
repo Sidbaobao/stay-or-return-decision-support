@@ -9,7 +9,8 @@ export const STORAGE_KEYS = {
   currentRun: "stay-or-return-v1",
   profile: "stay-or-return-profile-v1",
   history: "stay-or-return-history-v1",
-  reportedStats: "stay-or-return-stats-v1"
+  reportedStats: "stay-or-return-stats-v1",
+  locale: "stay-or-return-locale-v1"
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

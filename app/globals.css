@@ -588,6 +588,46 @@ input[type="range"] {
   }
 }
 
+/* Locale: the boot script in app/layout.tsx marks a Chinese reader's
+   document before first paint, and the provider lifts the veil once the
+   page is rendered in Chinese, so no English flashes through. Chinese
+   glyphs fall through Inter/Fraunces to Noto (loaded on demand) and then
+   to the system CJK faces. */
+html[data-locale="zh"]:not([data-hydrated]) body {
+  visibility: hidden;
+  /* Release valve: if hydration never comes (a stale chunk, a script
+     error), the English page appears after a moment rather than nothing. */
+  animation: locale-unveil 0s 2.5s forwards;
+}
+
+@keyframes locale-unveil {
+  to {
+    visibility: visible;
+  }
+}
+
+html[data-locale="zh"] body,
+html[data-locale="zh"] .font-sans {
+  font-family: var(--font-inter), var(--font-noto-sans), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+html[data-locale="zh"] :is(h1, h2, h3, h4, h5, h6),
+html[data-locale="zh"] .font-serif {
+  font-family: var(--font-fraunces), var(--font-noto-serif), "Songti SC", "STSong", "SimSun", serif;
+}
+
+/* Latin display tracking is negative; CJK wants none. Eyebrows keep a
+   little air. */
+html[data-locale="zh"] .text-display,
+html[data-locale="zh"] .text-page-title,
+html[data-locale="zh"] .text-section-title {
+  letter-spacing: 0;
+}
+
+html[data-locale="zh"] .text-eyebrow {
+  letter-spacing: 0.08em;
+}
+
 @keyframes interaction-disclosure-reveal {
   from {
     opacity: 0;
