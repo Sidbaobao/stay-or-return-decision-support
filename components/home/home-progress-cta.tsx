@@ -1,24 +1,18 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { loadRunHistory } from "@/lib/storage";
 import { resetCurrentRun, useRunStatus } from "@/lib/run-state";
 import { InlineConfirm, useConfirmFocus } from "@/components/ui/inline-confirm";
-import { QuietButton } from "@/components/ui/quiet-button";
+import { PrimaryButton, PrimaryButtonLink } from "@/components/ui/primary-button";
+import { QuietButton, QuietLink } from "@/components/ui/quiet-button";
 
 type ProgressState = "fresh" | "partial" | "completed";
 
 type HomeProgressCtaProps = {
   align?: "center" | "end";
 };
-
-const buttonClassName =
-  "interaction-primary inline-flex min-h-11 max-w-full items-center justify-center rounded-control bg-action-primary px-5 py-3 text-center text-sm font-semibold leading-5 text-surface-strong";
-
-const quietClassName =
-  "interaction-quiet rounded-control px-1 text-xs font-medium leading-5 text-current opacity-65 hover:opacity-100";
 
 export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
   const router = useRouter();
@@ -60,13 +54,13 @@ export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
   if (progressState === "completed") {
     return (
       <div className={`flex flex-col gap-2 ${alignmentClassName}`}>
-        <button type="button" onClick={startOver} className={buttonClassName}>
+        <PrimaryButton type="button" onClick={startOver}>
           Start a new questionnaire
-        </button>
+        </PrimaryButton>
         {canReviewResults ? (
-          <Link href="/results" className={quietClassName}>
+          <QuietLink href="/results" tone="inherit" size="xs">
             Or review your last results
-          </Link>
+          </QuietLink>
         ) : null}
       </div>
     );
@@ -74,9 +68,9 @@ export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
 
   return (
     <div className={`flex flex-col gap-2 ${alignmentClassName}`}>
-      <Link href="/questionnaire" className={buttonClassName}>
+      <PrimaryButtonLink href="/questionnaire">
         {progressState === "partial" ? "Continue questionnaire" : "Start questionnaire"}
-      </Link>
+      </PrimaryButtonLink>
       {progressState === "partial" ? (
         isConfirming ? (
           <InlineConfirm
@@ -99,9 +93,9 @@ export function HomeProgressCta({ align = "center" }: HomeProgressCtaProps) {
         )
       ) : null}
       {progressState === "fresh" && hasHistory ? (
-        <Link href="/profile" className={quietClassName}>
+        <QuietLink href="/profile" tone="inherit" size="xs">
           Or revisit a past decision
-        </Link>
+        </QuietLink>
       ) : null}
     </div>
   );

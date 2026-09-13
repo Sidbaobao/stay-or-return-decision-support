@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Briefcase,
@@ -22,6 +21,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { ResetProgressButton } from "@/components/ui/reset-progress-button";
+import { QuietLink } from "@/components/ui/quiet-button";
 import { QuestionCard } from "@/components/questionnaire/question-card";
 
 const groupedQuestions = dimensions.map((dimension) => ({
@@ -65,18 +65,12 @@ const dimensionIntroById: Record<
 type DimensionProgressRingProps = {
   answeredCount: number;
   totalCount: number;
-  isCurrent: boolean;
   isComplete: boolean;
 };
 
-function DimensionProgressRing({
-  answeredCount,
-  totalCount,
-  isCurrent,
-  isComplete
-}: DimensionProgressRingProps) {
-  const size = isCurrent ? 52 : 46;
-  const strokeWidth = 4;
+function DimensionProgressRing({ answeredCount, totalCount, isComplete }: DimensionProgressRingProps) {
+  const size = 40;
+  const strokeWidth = 3;
   const center = size / 2;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -84,15 +78,7 @@ function DimensionProgressRing({
   const dashOffset = circumference * (1 - progressRatio);
 
   return (
-    <div
-      className={`relative shrink-0 rounded-pill ${
-        isCurrent
-          ? "bg-action-primary/10 p-1 shadow-subtle"
-          : "bg-surface-strong/70 p-0.5"
-      }`}
-      role="img"
-      aria-label={`${answeredCount} of ${totalCount} questions answered`}
-    >
+    <div aria-hidden="true" className="relative shrink-0">
       <svg
         width={size}
         height={size}
@@ -154,27 +140,18 @@ function DimensionIntroHeader({ dimension }: DimensionIntroHeaderProps) {
   const { Icon, guidingQuestion } = dimensionIntroById[dimension.id];
 
   return (
-    <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-tile bg-accent-warm/10 text-accent-warm shadow-subtle">
-        <Icon aria-hidden="true" strokeWidth={1.8} className="h-7 w-7" />
-      </div>
-
-      <div className="min-w-0 space-y-3">
-        <div>
-          <p className="text-eyebrow text-ink-accent">
-            Current dimension
-          </p>
-          <h2 className="mt-2 font-serif text-section-title text-ink">
-            {dimension.label}
-          </h2>
-        </div>
-        <p className="max-w-measure text-body text-ink/70">
-          {dimension.description}
+    <div className="space-y-3">
+      <div>
+        <p className="flex items-center gap-2 text-eyebrow text-ink-accent">
+          <Icon aria-hidden="true" strokeWidth={1.8} className="h-5 w-5 text-accent-warm" />
+          Current dimension
         </p>
-        <p className="max-w-measure border-l-2 border-accent-warm/40 pl-4 text-body-sm font-medium text-ink">
-          {guidingQuestion}
-        </p>
+        <h2 className="mt-2 font-serif text-section-title text-ink">{dimension.label}</h2>
       </div>
+      <p className="max-w-measure text-body text-ink/70">{dimension.description}</p>
+      <p className="max-w-measure border-l-2 border-accent-warm/40 pl-4 text-body-sm font-medium text-ink">
+        {guidingQuestion}
+      </p>
     </div>
   );
 }
@@ -276,88 +253,88 @@ export default function QuestionnairePage() {
         actions={<ResetProgressButton />}
       />
 
-      <div className="sticky top-3 z-20 rounded-pill border border-border bg-surface/95 px-4 py-3 shadow-subtle backdrop-blur">
+      <div className="sticky top-0 z-20 border-b border-hairline bg-canvas/95 py-3 backdrop-blur">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-label font-medium text-ink/70">
           <span>
             {completedCount} of {questions.length} answered
           </span>
           <span>{questions.length - completedCount} remaining</span>
         </div>
-        <div className="h-2 rounded-pill bg-action-primary/10">
+        <div className="h-1 rounded-pill bg-action-primary/10">
           <div
-            className="h-2 rounded-pill bg-action-primary transition-[width] duration-motion-emphasis ease-interaction motion-reduce:transition-none"
+            className="h-1 rounded-pill bg-action-primary transition-[width] duration-motion-emphasis ease-interaction motion-reduce:transition-none"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
       </div>
 
-      <section>
-        <h2 className="text-section-title text-ink">Questionnaire steps</h2>
-        <p className="mt-2 max-w-measure text-body-sm text-ink/70">
-          Move through one dimension at a time — you can jump back to any step.
-        </p>
-        <div className="-mx-2 mt-5 overflow-x-auto px-2">
-          <div className="flex min-w-max gap-3 pb-1">
-            {groupedQuestions.map((group, index) => {
-              const answeredCount = group.questions.filter(
-                (question) => currentAnswers[question.id]
-              ).length;
-              const isComplete = answeredCount === group.questions.length;
-              const isCurrent = index === currentStepIndex;
+      <section aria-labelledby="steps-heading">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <h2 id="steps-heading" className="text-section-title text-ink">
+            Questionnaire steps
+          </h2>
+          <p className="text-body-sm text-ink/70">One dimension at a time. Jump back to any step.</p>
+        </div>
+        <ol role="list" className="mt-5 grid grid-cols-2 gap-x-6 sm:grid-cols-3 xl:grid-cols-6">
+          {groupedQuestions.map((group, index) => {
+            const answeredCount = group.questions.filter(
+              (question) => currentAnswers[question.id]
+            ).length;
+            const isComplete = answeredCount === group.questions.length;
+            const isCurrent = index === currentStepIndex;
 
-              return (
+            return (
+              <li key={group.dimension.id} className="border-t border-hairline">
                 <button
-                  key={group.dimension.id}
                   type="button"
                   onClick={() => setCurrentStepIndex(index)}
-                  data-selected={isCurrent ? "true" : "false"}
-                  className={`interaction-option min-w-64 rounded-tile border p-4 text-left ${
-                    isCurrent
-                      ? "border-accent-warm/50 bg-surface-selected text-ink"
-                      : isComplete
-                        ? "border-action-primary/30 bg-surface-strong/85 text-ink"
-                        : "border-ink/10 bg-surface-raised text-ink/65"
-                  }`}
                   aria-current={isCurrent ? "step" : undefined}
+                  className={`interaction-step -mt-px flex w-full items-center gap-3 border-t-2 py-4 text-left transition-colors duration-motion-standard ease-interaction motion-reduce:transition-none ${
+                    isCurrent
+                      ? "border-accent-warm text-ink"
+                      : isComplete
+                        ? "border-transparent text-ink hover:border-ink/20"
+                        : "border-transparent text-ink/70 hover:border-ink/20 hover:text-ink"
+                  }`}
                 >
-                  <span className="flex items-start gap-3">
-                    <DimensionProgressRing
-                      answeredCount={answeredCount}
-                      totalCount={group.questions.length}
-                      isCurrent={isCurrent}
-                      isComplete={isComplete}
-                    />
-                    <span className="min-w-0 flex-1">
-                      <span className="text-eyebrow block">
-                        Step {index + 1}
-                      </span>
-                      <span className="mt-2 block text-body-sm font-semibold">
-                        {group.dimension.label}
-                      </span>
-                      <span className="mt-3 block text-label text-ink/65">
-                        {isComplete ? "Done" : `${answeredCount} of ${group.questions.length}`}
-                      </span>
+                  <DimensionProgressRing
+                    answeredCount={answeredCount}
+                    totalCount={group.questions.length}
+                    isComplete={isComplete}
+                  />
+                  <span className="min-w-0">
+                    <span className="block text-eyebrow">Step {index + 1}</span>
+                    <span className="mt-1 block text-body-sm font-semibold">{group.dimension.label}</span>
+                    <span className="mt-1 block text-label text-ink/65">
+                      {isComplete ? (
+                        "Done"
+                      ) : (
+                        <>
+                          {answeredCount} of {group.questions.length}
+                          <span className="sr-only"> answered</span>
+                        </>
+                      )}
                     </span>
                   </span>
                 </button>
-              );
-            })}
-          </div>
-        </div>
+              </li>
+            );
+          })}
+        </ol>
       </section>
 
       {currentGroup ? (
-        <section>
+        <section className="border-t border-hairline pt-6 sm:pt-8">
           <DimensionIntroHeader dimension={currentGroup.dimension} />
 
-          <p className="mb-6 mt-6 text-body-sm text-ink/65">
+          <p className="mt-6 text-body-sm text-ink/65">
             <span className="font-medium text-ink">
               {currentGroupAnsweredCount} of {currentGroup.questions.length}
             </span>{" "}
             questions answered in this dimension.
           </p>
 
-          <div className="space-y-4">
+          <div className="mt-6 divide-y divide-hairline border-t border-hairline">
             {currentGroup.questions.map((question) => (
               <QuestionCard
                 key={question.id}
@@ -370,20 +347,16 @@ export default function QuestionnairePage() {
         </section>
       ) : null}
 
-      <div className="flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <Link
-          href="/"
-          className="interaction-quiet -mx-1 self-center rounded-control px-1 py-1 text-sm font-medium text-ink/70 hover:text-ink sm:self-auto"
-        >
+      <div className="flex flex-col gap-3 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <QuietLink href="/" className="-mx-2 self-center sm:self-auto">
           Back to home
-        </Link>
+        </QuietLink>
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          {!isFirstStep ? (
-            <SecondaryButton onClick={goToPreviousStep} className="px-5">
-              Previous
-            </SecondaryButton>
-          ) : null}
+          {/* Always present, so the pair does not jump between steps. */}
+          <SecondaryButton onClick={goToPreviousStep} disabled={isFirstStep} className="px-5">
+            Previous
+          </SecondaryButton>
 
           {isLastStep ? (
             <PrimaryButton onClick={handleSave} disabled={!canContinue} className="w-full sm:w-auto">

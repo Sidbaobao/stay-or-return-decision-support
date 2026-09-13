@@ -56,11 +56,11 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
   return (
     <article className="decision-memo overflow-hidden rounded-panel border border-border bg-surface shadow-subtle">
       <header className="memo-block px-memo-x py-memo-header-y sm:px-memo-x-sm sm:py-memo-header-y-sm lg:px-memo-x-lg">
-        <div className="flex flex-col gap-2 border-b border-ink/15 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <p className="font-serif text-section-title text-ink">Decision Memo</p>
           <p className="text-eyebrow text-ink/65">{generatedDate}</p>
         </div>
-        <p className="mt-3 max-w-measure text-body-sm text-ink/70">
+        <p className="mt-2 max-w-measure text-body-sm text-ink/70">
           A personal memo on whether to stay in the US or return to China.
         </p>
       </header>

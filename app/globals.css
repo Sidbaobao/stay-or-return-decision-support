@@ -28,8 +28,6 @@
   --color-accent-warm: 217 108 74;
   --color-ink-accent: 178 74 43;
   --color-hero: 7 13 24;
-  --color-home-surface: 15 24 39;
-  --color-home-border: 108 130 171;
 
   --gradient-hero-vignette: radial-gradient(
     circle at center,
@@ -61,10 +59,6 @@
   --shadow-soft: 0 16px 40px rgb(var(--color-ink) / 0.08);
   /* Alias kept only for components/weights/*, which styling tasks may not edit. */
   --shadow-legacy-sm: var(--shadow-subtle);
-  --shadow-home-glow:
-    0 0 0 1px rgb(var(--color-home-border) / 0.12),
-    0 24px 70px rgb(0 0 0 / 0.3),
-    0 0 44px rgb(var(--color-path-stay) / 0.05);
   --shadow-interaction-primary: 0 8px 20px rgb(var(--color-action-primary) / 0.2),
     inset 0 1px 0 rgb(255 255 255 / 0.16);
   --shadow-interaction-primary-hover: 0 14px 32px rgb(var(--color-action-primary) / 0.28),
@@ -380,6 +374,7 @@ input[type="range"] {
 
   .interaction-secondary:focus-visible,
   .interaction-quiet:focus-visible,
+  .interaction-step:focus-visible,
   .interaction-nav:focus-visible {
     outline: 2px solid rgb(var(--color-surface-strong));
     outline-offset: 2px;

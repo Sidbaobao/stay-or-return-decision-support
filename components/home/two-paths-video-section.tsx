@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { PrimaryButtonLink } from "@/components/ui/primary-button";
 
 type VideoPanelProps = {
   accentClassName: string;
@@ -26,8 +26,9 @@ function VideoPanel({ accentClassName, label, posterSrc, shouldLoadVideo, src }:
     });
   }, [showVideo]);
 
+  // The footage stands on its own: a figure with a caption, not a framed card.
   return (
-    <div className="rounded-card border border-home-border/25 bg-home-surface/75 p-3 shadow-home-glow backdrop-blur-sm">
+    <figure>
       <div className="relative min-h-[34rem] overflow-hidden rounded-tile bg-hero sm:min-h-[42rem] lg:min-h-[48rem]">
         <img
           alt=""
@@ -54,11 +55,11 @@ function VideoPanel({ accentClassName, label, posterSrc, shouldLoadVideo, src }:
         ) : null}
       </div>
 
-      <div className="px-2 pb-2 pt-5">
-        <div className={`mb-4 h-1 w-16 rounded-pill ${accentClassName}`} />
+      <figcaption className="pt-5">
+        <div aria-hidden="true" className={`mb-4 h-1 w-16 rounded-pill ${accentClassName}`} />
         <h3 className="text-section-title text-surface-strong">{label}</h3>
-      </div>
-    </div>
+      </figcaption>
+    </figure>
   );
 }
 
@@ -143,12 +144,7 @@ export function TwoPathsVideoSection() {
       </div>
 
       <div className="mt-8 flex justify-center">
-        <Link
-          href="/questionnaire"
-          className="interaction-primary inline-flex min-h-11 max-w-full items-center justify-center rounded-control bg-action-primary px-5 py-3 text-center text-sm font-semibold leading-5 text-surface-strong"
-        >
-          Start questionnaire
-        </Link>
+        <PrimaryButtonLink href="/questionnaire">Start questionnaire</PrimaryButtonLink>
       </div>
     </section>
   );
