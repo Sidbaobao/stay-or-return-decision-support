@@ -24,16 +24,14 @@ export function ProfileChip({ variant = "default" }: ProfileChipProps) {
   return (
     <Link
       href="/profile"
-      aria-label="My profile — saved only on this device"
+      aria-label="My profile"
       aria-current={isActive ? "page" : undefined}
       title="My profile"
-      className={`interaction-quiet inline-flex items-center gap-2 rounded-pill ${
-        isActive ? "outline outline-2 outline-offset-2 outline-action-primary/40" : ""
-      }`}
+      className="interaction-quiet inline-flex items-center gap-2 rounded-pill"
     >
       {greeting ? (
         <span
-          className={`hidden text-sm lg:inline ${
+          className={`hidden whitespace-nowrap text-sm lg:inline ${
             variant === "light" ? "text-surface-strong/75" : "text-ink/70"
           }`}
         >
@@ -44,7 +42,7 @@ export function ProfileChip({ variant = "default" }: ProfileChipProps) {
         aria-hidden="true"
         className={`flex h-10 w-10 items-center justify-center rounded-pill border text-sm font-semibold ${
           variant === "light" ? "border-surface-strong/25" : "border-transparent"
-        }`}
+        } ${isActive ? "ring-2 ring-action-primary/40 ring-offset-2 ring-offset-surface-strong" : ""}`}
         style={
           variant === "light"
             ? { backgroundColor: "rgb(var(--color-surface-strong) / 0.12)", color: "rgb(var(--color-surface-strong) / 0.85)" }

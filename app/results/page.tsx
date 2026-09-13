@@ -20,6 +20,7 @@ import { getConclusionHeadline } from "@/components/results/verdict-copy";
 import { ShareResultButton } from "@/components/share/share-result-button";
 import { PrimaryButtonLink } from "@/components/ui/primary-button";
 import { SecondaryButtonLink } from "@/components/ui/secondary-button";
+import { QuietButton } from "@/components/ui/quiet-button";
 
 export default function ResultsPage() {
   const { isReady, status, scoringResult } = useScoredRun("weights");
@@ -244,13 +245,7 @@ export default function ResultsPage() {
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             <SecondaryButtonLink href="/profile">Add a nickname</SecondaryButtonLink>
-            <button
-              type="button"
-              onClick={() => updateProfile({ nudgeDismissed: true })}
-              className="interaction-quiet rounded-control px-2 py-1.5 text-sm font-medium text-ink/60 hover:text-ink"
-            >
-              Not now
-            </button>
+            <QuietButton onClick={() => updateProfile({ nudgeDismissed: true })}>Not now</QuietButton>
           </div>
         </aside>
       ) : null}

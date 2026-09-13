@@ -6,9 +6,11 @@ type QuestionCardProps = {
   onChange: (questionId: string, optionId: string) => void;
 };
 
+// One question in the dimension's list: a hairline-divided block. The
+// options keep their outlines, because they are the controls.
 export function QuestionCard({ question, value, onChange }: QuestionCardProps) {
   return (
-    <div className="rounded-card border border-ink/10 bg-surface-strong p-5 shadow-subtle">
+    <section className="py-7">
       <div className="space-y-2">
         <h3 id={`${question.id}-prompt`} className="text-card-title text-ink">
           {question.prompt}
@@ -63,6 +65,6 @@ export function QuestionCard({ question, value, onChange }: QuestionCardProps) {
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

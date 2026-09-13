@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Lock } from "lucide-react";
 import { useRunStatus } from "@/lib/run-state";
-import { ResetProgressButton } from "@/components/ui/reset-progress-button";
 import { ProfileChip } from "@/components/layout/profile-chip";
 
 // Weights always exist (they default), so finishing the questionnaire is the
@@ -109,10 +108,7 @@ export function TopNav() {
             <NavLinks pathname={pathname} isHome={isHome} isUnlocked={isUnlocked} />
           </nav>
 
-          <div className="flex items-center gap-3">
-            <ResetProgressButton variant={isHome ? "light" : "default"} />
-            <ProfileChip variant={isHome ? "light" : "default"} />
-          </div>
+          <ProfileChip variant={isHome ? "light" : "default"} />
         </div>
 
         <nav

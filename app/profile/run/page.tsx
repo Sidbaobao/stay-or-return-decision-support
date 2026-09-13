@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { History } from "lucide-react";
@@ -12,6 +11,7 @@ import { getConclusionHeadline, getPastRunStatement } from "@/components/results
 import { MiniBalance } from "@/components/profile/mini-balance";
 import { RestoreRunButton } from "@/components/profile/restore-run-button";
 import { formatFriendlyDate } from "@/components/profile/profile-utils";
+import { QuietLink } from "@/components/ui/quiet-button";
 import { HistoryEntry } from "@/types";
 
 function RunSnapshotContent() {
@@ -49,12 +49,9 @@ function RunSnapshotContent() {
           It may have been deleted, or saved in a different browser.
         </p>
         <div className="mt-5">
-          <Link
-            href="/profile"
-            className="interaction-quiet rounded-control px-1.5 py-1 text-sm font-medium text-action-primary hover:text-action-primary-hover"
-          >
+          <QuietLink href="/profile" tone="primary">
             Back to my profile
-          </Link>
+          </QuietLink>
         </div>
       </section>
     );
@@ -75,12 +72,9 @@ function RunSnapshotContent() {
           A snapshot saved on this device on {formatFriendlyDate(entry.completedAt)} — viewing it
           doesn&apos;t change your current run.
         </p>
-        <Link
-          href="/profile"
-          className="interaction-quiet rounded-control px-1.5 py-1 text-sm font-medium text-ink/70 hover:text-ink"
-        >
+        <QuietLink href="/profile" className="-mr-2">
           Back to my profile
-        </Link>
+        </QuietLink>
       </div>
 
       <section className="rounded-feature border border-border bg-surface p-6 shadow-soft sm:p-8">

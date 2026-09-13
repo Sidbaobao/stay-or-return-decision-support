@@ -1,29 +1,133 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { dimensions } from "@/data/dimensions";
 import { dimensionIcons } from "@/components/results/dimension-icons";
 import { getPastRunStatement } from "@/components/results/verdict-copy";
 import { MiniBalance } from "@/components/profile/mini-balance";
 import { RestoreRunButton } from "@/components/profile/restore-run-button";
 import { formatFriendlyDate } from "@/components/profile/profile-utils";
+import { InlineConfirm, useConfirmFocus } from "@/components/ui/inline-confirm";
+import { PrimaryButtonLink } from "@/components/ui/primary-button";
+import { QuietButton, QuietLink } from "@/components/ui/quiet-button";
 import { deleteRunHistoryEntry, QUESTIONS_VERSION } from "@/lib/storage";
 import { HistoryEntry } from "@/types";
-import { PrimaryButtonLink } from "@/components/ui/primary-button";
 
 type HistoryListProps = {
   entries: HistoryEntry[];
   onEntriesChange: (entries: HistoryEntry[]) => void;
 };
 
+type HistoryRowProps = {
+  entry: HistoryEntry;
+  index: number;
+  onDelete: (id: string, index: number) => void;
+};
+
+function HistoryRow({ entry, index, onDelete }: HistoryRowProps) {
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const deleteTriggerRef = useConfirmFocus(isConfirmingDelete);
+
+  const isTie = entry.difference === 0;
+  const accent = isTie
+    ? "rgb(var(--color-ink) / 0.7)"
+    : entry.direction === "stay_us"
+      ? "rgb(var(--color-path-stay))"
+      : "rgb(var(--color-path-return))";
+  const statement = getPastRunStatement(entry.direction, entry.confidence, entry.difference);
+  const topDimension = entry.topDimensionId
+    ? dimensions.find((dimension) => dimension.id === entry.topDimensionId)
+    : null;
+  const Icon = entry.topDimensionId ? dimensionIcons[entry.topDimensionId] : null;
+  const isCurrentVersion = entry.questionsVersion === QUESTIONS_VERSION;
+
+  return (
+    <li
+      className="reveal-row grid gap-3 py-4 first:pt-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+      style={{ animationDelay: `${index * 40}ms` }}
+    >
+      <div className="min-w-0">
+        <p className="text-label text-ink/65">{formatFriendlyDate(entry.completedAt)}</p>
+
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <p className="text-body font-medium" style={{ color: accent }}>
+            {statement}
+            <span className="sr-only">, gap {Math.abs(entry.difference)} points</span>
+          </p>
+          <MiniBalance direction={entry.direction} difference={entry.difference} />
+        </div>
+
+        {topDimension && Icon ? (
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 text-body-sm text-ink/65">
+            <span className="inline-flex items-center gap-1.5">
+              <Icon aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.8} />
+              Driven by {topDimension.label}
+            </span>
+            {!isCurrentVersion ? <span>· Earlier questionnaire version</span> : null}
+          </p>
+        ) : !isCurrentVersion ? (
+          <p className="mt-1.5 text-body-sm text-ink/65">Earlier questionnaire version</p>
+        ) : null}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-1 gap-y-1 sm:justify-end">
+        {isConfirmingDelete ? (
+          <InlineConfirm
+            prompt="Remove from this device?"
+            confirmLabel="Remove"
+            onConfirm={() => {
+              setIsConfirmingDelete(false);
+              onDelete(entry.id, index);
+            }}
+            onCancel={() => setIsConfirmingDelete(false)}
+          />
+        ) : (
+          <>
+            <QuietLink href={`/profile/run?id=${entry.id}`}>View</QuietLink>
+            {isCurrentVersion ? <RestoreRunButton entry={entry} /> : null}
+            <QuietButton
+              ref={deleteTriggerRef}
+              data-history-delete=""
+              onClick={() => setIsConfirmingDelete(true)}
+            >
+              Delete
+            </QuietButton>
+          </>
+        )}
+      </div>
+    </li>
+  );
+}
+
 export function HistoryList({ entries, onEntriesChange }: HistoryListProps) {
-  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const focusAfterDeleteRef = useRef<number | null>(null);
+
+  // A removed row takes its Delete button with it. Focus moves to the row
+  // that took its place (or the last one), and to the section heading once
+  // the list is empty, instead of dropping to <body>.
+  useEffect(() => {
+    const index = focusAfterDeleteRef.current;
+
+    if (index === null) {
+      return;
+    }
+
+    focusAfterDeleteRef.current = null;
+    const triggers = listRef.current?.querySelectorAll<HTMLButtonElement>("[data-history-delete]");
+    const next = triggers && triggers.length > 0 ? triggers[Math.min(index, triggers.length - 1)] : null;
+    (next ?? document.getElementById("history-heading"))?.focus();
+  }, [entries]);
+
+  const handleDelete = (id: string, index: number) => {
+    focusAfterDeleteRef.current = index;
+    onEntriesChange(deleteRunHistoryEntry(id));
+  };
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-tile border border-dashed border-hairline-strong bg-surface-strong/50 p-6 text-center">
-        <p className="text-body text-ink/70">No decisions saved on this device yet.</p>
+      <div className="py-8 text-center">
+        <p className="text-body text-ink/70">No decisions saved yet.</p>
         <p className="mt-1 text-body-sm text-ink/60">
           Finish the questionnaire and your result will appear here automatically.
         </p>
@@ -35,93 +139,10 @@ export function HistoryList({ entries, onEntriesChange }: HistoryListProps) {
   }
 
   return (
-    <ul className="space-y-4">
-      {entries.map((entry) => {
-        const isStay = entry.direction === "stay_us";
-        const accent = isStay ? "rgb(var(--color-path-stay))" : "rgb(var(--color-path-return))";
-        const statement = getPastRunStatement(entry.direction, entry.confidence, entry.difference);
-        const topDimension = entry.topDimensionId
-          ? dimensions.find((dimension) => dimension.id === entry.topDimensionId)
-          : null;
-        const Icon = entry.topDimensionId ? dimensionIcons[entry.topDimensionId] : null;
-        const isCurrentVersion = entry.questionsVersion === QUESTIONS_VERSION;
-        const isConfirmingDelete = confirmingDeleteId === entry.id;
-
-        return (
-          <li
-            key={entry.id}
-            className="grid gap-3 rounded-tile border border-surface-strong/80 bg-surface-strong/75 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
-          >
-            <div className="min-w-0">
-              <p className="text-label text-ink/65">{formatFriendlyDate(entry.completedAt)}</p>
-
-              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                <p className="text-body font-medium" style={{ color: accent }}>
-                  {statement}
-                  <span className="sr-only">, gap {Math.abs(entry.difference)} points</span>
-                </p>
-                <MiniBalance direction={entry.direction} difference={entry.difference} />
-              </div>
-
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-                {topDimension && Icon ? (
-                  <p className="inline-flex items-center gap-1.5 text-body-sm text-ink/65">
-                    <Icon aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.8} />
-                    Driven by {topDimension.label}
-                  </p>
-                ) : null}
-                {!isCurrentVersion ? (
-                  <span className="rounded-pill border border-border bg-surface px-2.5 py-0.5 text-label text-ink/65">
-                    Earlier questionnaire version
-                  </span>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-x-1 gap-y-1 sm:justify-end">
-              {isConfirmingDelete ? (
-                <span className="inline-flex flex-wrap items-center gap-2">
-                  <span className="text-sm text-ink/70">Remove from this device?</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onEntriesChange(deleteRunHistoryEntry(entry.id));
-                      setConfirmingDeleteId(null);
-                    }}
-                    className="interaction-quiet rounded-control px-1.5 py-1 text-sm font-medium text-path-return"
-                  >
-                    Remove
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmingDeleteId(null)}
-                    className="interaction-quiet rounded-control px-1.5 py-1 text-sm font-medium text-ink/60 hover:text-ink"
-                  >
-                    Keep
-                  </button>
-                </span>
-              ) : (
-                <>
-                  <Link
-                    href={`/profile/run?id=${entry.id}`}
-                    className="interaction-quiet rounded-control px-1.5 py-1 text-sm font-medium text-ink/70 hover:text-ink"
-                  >
-                    View
-                  </Link>
-                  {isCurrentVersion ? <RestoreRunButton entry={entry} /> : null}
-                  <button
-                    type="button"
-                    onClick={() => setConfirmingDeleteId(entry.id)}
-                    className="interaction-quiet rounded-control px-1.5 py-1 text-sm font-medium text-ink/60 hover:text-ink"
-                  >
-                    Delete
-                  </button>
-                </>
-              )}
-            </div>
-          </li>
-        );
-      })}
+    <ul ref={listRef} className="divide-y divide-hairline">
+      {entries.map((entry, index) => (
+        <HistoryRow key={entry.id} entry={entry} index={index} onDelete={handleDelete} />
+      ))}
     </ul>
   );
 }

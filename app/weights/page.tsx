@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { defaultWeights, dimensions } from "@/data/dimensions";
 import { usePrerequisiteGuard } from "@/lib/guards";
@@ -12,6 +11,8 @@ import { PageHeader } from "@/components/ui/page-header";
 import { WeightBubbleCluster } from "@/components/weights/weight-bubble-cluster";
 import { getWeightTotal } from "@/components/weights/weight-bubble-utils";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { ResetProgressButton } from "@/components/ui/reset-progress-button";
+import { QuietLink } from "@/components/ui/quiet-button";
 
 export default function WeightsPage() {
   const isReady = usePrerequisiteGuard("answers");
@@ -82,6 +83,14 @@ export default function WeightsPage() {
     router.push("/results");
   };
 
+  // The header's reset snapshots the run from storage. Flush the debounced
+  // autosave first so a bubble dragged a moment ago is what gets saved.
+  const flushPendingWeights = () => {
+    if (hasUserEditedRef.current) {
+      saveWeights(weightsRef.current);
+    }
+  };
+
   if (!isReady) {
     return null;
   }
@@ -92,6 +101,7 @@ export default function WeightsPage() {
         eyebrow="Step 2"
         title="Set your priorities"
         description="Choose how much each dimension should influence the final result."
+        actions={<ResetProgressButton onBeforeReset={flushPendingWeights} />}
       />
 
       <WeightBubbleCluster
@@ -101,13 +111,10 @@ export default function WeightsPage() {
         onChange={handleWeightsChange}
       />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Link
-          href="/questionnaire"
-          className="interaction-quiet -mx-1 self-center rounded-control px-1 py-1 text-sm font-medium text-ink/70 hover:text-ink sm:self-auto"
-        >
+      <div className="flex flex-col gap-3 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <QuietLink href="/questionnaire" className="-mx-2 self-center sm:self-auto">
           Back to questionnaire
-        </Link>
+        </QuietLink>
         <PrimaryButton onClick={handleSave} className="w-full sm:w-auto">
           Save and continue to results
         </PrimaryButton>

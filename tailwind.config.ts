@@ -34,9 +34,7 @@ const config: Config = {
         "path-return": "rgb(var(--color-path-return) / <alpha-value>)",
         "accent-warm": "rgb(var(--color-accent-warm) / <alpha-value>)",
         "ink-accent": "rgb(var(--color-ink-accent) / <alpha-value>)",
-        hero: "rgb(var(--color-hero) / <alpha-value>)",
-        "home-surface": "rgb(var(--color-home-surface) / <alpha-value>)",
-        "home-border": "rgb(var(--color-home-border) / <alpha-value>)"
+        hero: "rgb(var(--color-hero) / <alpha-value>)"
       },
       borderRadius: {
         control: "var(--radius-control)",
@@ -72,8 +70,7 @@ const config: Config = {
         subtle: "var(--shadow-subtle)",
         soft: "var(--shadow-soft)",
         // Only components/weights/* still uses this; it resolves to `subtle`.
-        "legacy-sm": "var(--shadow-legacy-sm)",
-        "home-glow": "var(--shadow-home-glow)"
+        "legacy-sm": "var(--shadow-legacy-sm)"
       },
       transitionDuration: {
         "motion-fast": "var(--motion-duration-fast)",
