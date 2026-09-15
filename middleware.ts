@@ -7,8 +7,8 @@ import { recoverRoute } from "@/lib/routes";
 // survive the trip; one an app folded into the path is put back in the
 // Location header. Canonical requests pass straight through.
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const recovered = recoverRoute(pathname);
+  const { pathname, hostname } = request.nextUrl;
+  const recovered = recoverRoute(pathname, hostname);
 
   if (recovered === null || (recovered.pathname === pathname && !recovered.hash && !recovered.search)) {
     return NextResponse.next();

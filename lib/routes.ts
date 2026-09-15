@@ -4,9 +4,10 @@
 // full stop or a full-width 。 from the sentence around it, an emoji, an
 // invisible zero-width character from a keyboard or a copy, a capital
 // letter, a share link's # folded into the path by an app, an old path
-// someone remembered. Rather than a 404, the middleware sends such a
-// request to the page the sender meant. Nothing here reads or stores
-// anything.
+// someone remembered, or the whole address pasted twice so that our own
+// domain turns up inside the path. Rather than a 404, the middleware
+// sends such a request to the page the sender meant. Nothing here reads
+// or stores anything.
 
 export const KNOWN_ROUTES = [
   "/",
@@ -53,6 +54,32 @@ const FORMAT_CHARACTERS = /\p{Cf}/gu;
 const LEADING_JUNK = /^[^\p{L}\p{N}]+/u;
 const TRAILING_JUNK = /[^\p{L}\p{N}]+$/u;
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// "stayorreturn.com/https://stayorreturn.com/questionnaire": the address
+// was pasted twice, or typed after a bare domain. Whatever follows the
+// last mention of our own host is the path that was meant. Other hosts
+// are left alone; we cannot know what they meant.
+function stripEmbeddedSelf(path: string, hostname: string) {
+  if (!hostname) {
+    return path;
+  }
+
+  const ownHost = new RegExp(
+    `(?:^|[/:@])(?:www\\.)?${escapeRegExp(hostname)}(?::\\d+)?\\.?(?=[/?#]|$)`,
+    "giu"
+  );
+  let lastEnd = -1;
+
+  for (const match of path.matchAll(ownHost)) {
+    lastEnd = match.index + match[0].length;
+  }
+
+  return lastEnd === -1 ? path : path.slice(lastEnd);
+}
+
 export type RecoveredRoute = {
   pathname: string;
   // A share link's payload, when an app encoded the # into the path.
@@ -63,7 +90,9 @@ export type RecoveredRoute = {
 
 // The page a request path most plausibly meant, or null when it is not one
 // of ours. Returns the canonical path unchanged when it already is one.
-export function recoverRoute(rawPathname: string): RecoveredRoute | null {
+// `hostname` is the site's own host, for links that contain the site's
+// address a second time.
+export function recoverRoute(rawPathname: string, hostname = ""): RecoveredRoute | null {
   let path = rawPathname;
 
   try {
@@ -72,7 +101,7 @@ export function recoverRoute(rawPathname: string): RecoveredRoute | null {
     // Malformed escapes: judge the raw path instead.
   }
 
-  path = path.replace(FORMAT_CHARACTERS, "");
+  path = stripEmbeddedSelf(path.replace(FORMAT_CHARACTERS, ""), hostname);
 
   // "#" and "?" cannot reach the server inside a real path, so their
   // presence here means an app percent-encoded them. Peel them back off.
