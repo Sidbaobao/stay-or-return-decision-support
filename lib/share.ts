@@ -94,7 +94,28 @@ export type DecodedShare =
   | { status: "version-mismatch"; linkVersion: string }
   | { status: "invalid" };
 
-export function decodeSharePayload(payload: string): DecodedShare {
+// A share link travels through chat apps, which glue the sentence's full
+// stop, an emoji or an invisible zero-width character onto its end, and
+// sometimes percent-encode the fragment. The payload alphabet is letters,
+// digits, "-" and "_" around one "."; anything else at either end is not
+// part of it.
+function cleanSharePayload(raw: string): string {
+  let payload = raw;
+
+  try {
+    payload = decodeURIComponent(payload);
+  } catch {
+    // Malformed escapes: judge the raw payload instead.
+  }
+
+  return payload
+    .replace(/\p{Cf}/gu, "")
+    .replace(/^[^A-Za-z0-9]+/, "")
+    .replace(/[^A-Za-z0-9_-]+$/, "");
+}
+
+export function decodeSharePayload(rawPayload: string): DecodedShare {
+  const payload = cleanSharePayload(rawPayload);
   const separatorIndex = payload.indexOf(".");
 
   if (separatorIndex <= 0) {
