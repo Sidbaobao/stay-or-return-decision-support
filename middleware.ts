@@ -1,21 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { canonicalizePath } from "@/lib/routes";
+import { recoverRoute } from "@/lib/routes";
 
-// Turns a slightly damaged link (see lib/routes.ts) into the page it meant,
-// with a permanent redirect. A share link's #fragment never reaches the
-// server, and browsers carry it over to the redirect target, so shared
-// results survive the trip. Canonical requests pass straight through.
+// Turns a damaged link (see lib/routes.ts) into the page it meant, with a
+// permanent redirect. A share link's #fragment never reaches the server
+// and browsers carry it over to the redirect target, so shared results
+// survive the trip; one an app folded into the path is put back in the
+// Location header. Canonical requests pass straight through.
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const canonical = canonicalizePath(pathname);
+  const { pathname, hostname } = request.nextUrl;
+  const recovered = recoverRoute(pathname, hostname);
 
-  if (canonical === null || canonical === pathname) {
+  if (recovered === null || (recovered.pathname === pathname && !recovered.hash && !recovered.search)) {
     return NextResponse.next();
   }
 
   const url = request.nextUrl.clone();
 
-  url.pathname = canonical;
+  url.pathname = recovered.pathname;
+
+  if (recovered.search) {
+    url.search = recovered.search;
+  }
+
+  if (recovered.hash) {
+    url.hash = recovered.hash;
+  }
 
   return NextResponse.redirect(url, 308);
 }
