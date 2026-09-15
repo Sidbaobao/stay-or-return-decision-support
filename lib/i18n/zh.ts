@@ -103,6 +103,13 @@ export const zh: Dictionary = {
 
   reset: "重置当前作答",
 
+  notFound: {
+    title: "没有这个页面。",
+    body: "链接在转发时可能多了或少了几个字符。",
+    home: "回到首页",
+    start: "开始问卷"
+  },
+
   questionnaire: {
     eyebrow: "第 1 步",
     title: "问卷",

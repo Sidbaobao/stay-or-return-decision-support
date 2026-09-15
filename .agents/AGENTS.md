@@ -42,6 +42,10 @@ Tone across the product: calm, warm, trustworthy, Qatchup-like.
 - `lib/` — scoring.ts, storage.ts (all localStorage), guards.ts,
   report.ts, share.ts (link codec), stats-client.ts, utils.ts,
   server/ (Redis REST wrapper — server only).
+- `middleware.ts` + `lib/routes.ts` — a damaged link (stray full stop
+  or 。 from a chat app, a capital letter, an old alias) is redirected to
+  the page it meant; anything else lands on `app/not-found.tsx`, which
+  speaks the reader's language. The middleware reads and stores nothing.
 - `types/` — index.ts.
 
 There are 6 decision dimensions: career, salary_cost, immigration,

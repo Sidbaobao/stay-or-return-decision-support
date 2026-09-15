@@ -78,6 +78,7 @@ components/     UI by page (home, questionnaire, weights, results, report, profi
 data/           dimensions.ts, questions.ts (24 items), and their Chinese copy (*.zh.ts)
 lib/            scoring.ts (weighted-gap model), report.ts, i18n/ (dictionaries, provider), storage.ts (all localStorage),
                 guards.ts, share.ts (link codec), stats-schema.ts, stats-client.ts
+middleware.ts   redirects damaged links (stray punctuation, capitals, old aliases) to the page they meant; lib/routes.ts holds the route list
 lib/server/     stats-store.ts (Upstash REST, no SDK), stats-keys.ts, rate-limit.ts, env.ts
 public/         hero videos (compressed from 56.4 MB to 2.6 MB, lazy-loaded) and posters
 types/          shared TypeScript types
