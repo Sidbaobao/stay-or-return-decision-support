@@ -102,6 +102,13 @@ export const en = {
 
   reset: "Reset current run",
 
+  notFound: {
+    title: "That page isn't here.",
+    body: "The link may have picked up or lost a character on its way.",
+    home: "Go to the home page",
+    start: "Start the questionnaire"
+  },
+
   questionnaire: {
     eyebrow: "Step 1",
     title: "Questionnaire",
