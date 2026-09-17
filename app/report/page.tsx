@@ -14,12 +14,12 @@ export default function ReportPage() {
   useLocalizedTitle(t.titles.memo);
 
   const report = useMemo(() => {
-    if (!scoringResult) {
+    if (!scoringResult || !status) {
       return null;
     }
 
-    return buildRecommendationReport(scoringResult, locale);
-  }, [scoringResult, locale]);
+    return buildRecommendationReport(scoringResult, status.answers, locale);
+  }, [scoringResult, status, locale]);
 
   if (!isReady || !scoringResult || !report || !status) {
     return null;

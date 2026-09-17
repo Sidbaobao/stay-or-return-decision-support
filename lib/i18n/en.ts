@@ -6,36 +6,58 @@ type StepCopy = { step: string; title: string; description: string };
 // so a string the Chinese version lacks is a type error, not a silent
 // fallback. Sentences that depend on data are functions, because word order
 // differs between the two languages.
+//
+// The voice: a friend who has thought about this properly. Conclusion
+// first, then the reason, then what to do. Things are called what a person
+// calls them (the visa, money, family), never what a spreadsheet calls
+// them. Doubt goes into a specific number or a specific answer, not a
+// disclaimer.
 
 const pathWord: Record<ScenarioId, string> = {
   stay_us: "staying",
-  return_china: "returning"
+  return_china: "going back"
+};
+
+const verdictWord: Record<ScenarioId, string> = {
+  stay_us: "stay",
+  return_china: "go back"
 };
 
 function pastStatement(direction: ScenarioId, confidence: ConfidenceLevel, difference?: number): string {
   if (difference === 0) {
-    return "Came out evenly balanced";
+    return "Dead even";
   }
 
-  const path = pathWord[direction];
-
   if (confidence === "high") {
-    return `Pointed clearly toward ${path}`;
+    return `Clear: ${verdictWord[direction]}`;
   }
 
   if (confidence === "medium") {
-    return `Leaned toward ${path}`;
+    return `Leaned toward ${pathWord[direction]}`;
   }
 
-  return `Leaned slightly toward ${path}`;
+  return `Leaned a little toward ${pathWord[direction]}`;
 }
 
-function joinLabels(labels: string[]) {
-  if (labels.length <= 1) {
-    return labels[0] ?? "";
+function joinPhrases(phrases: string[]) {
+  if (phrases.length <= 1) {
+    return phrases[0] ?? "";
   }
 
-  return `${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}`;
+  return `${phrases.slice(0, -1).join(", ")} and ${phrases[phrases.length - 1]}`;
+}
+
+function capitalize(text: string) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+// Quoted answers read as one report: "you said X, and that Y".
+function joinReasons(reasons: string[]) {
+  if (reasons.length <= 1) {
+    return reasons[0] ?? "";
+  }
+
+  return `${reasons.slice(0, -1).join(", ")}, and that ${reasons[reasons.length - 1]}`;
 }
 
 export const en = {
@@ -46,67 +68,80 @@ export const en = {
 
   nav: {
     home: "Home",
-    questionnaire: "Questionnaire",
-    weights: "Weights",
-    results: "Results",
+    questionnaire: "Questions",
+    weights: "Priorities",
+    results: "Result",
     memo: "Memo",
-    primary: "Primary navigation",
-    lockedReason: "Complete the questionnaire first.",
-    profile: "My profile",
+    primary: "Main navigation",
+    lockedReason: "Answer the questions first.",
+    profile: "Your profile",
     greeting: (nickname: string) => `Hi, ${nickname}`
   },
 
   titles: {
-    questionnaire: "Questionnaire",
-    weights: "Weights",
-    results: "Results",
+    questionnaire: "Questions",
+    weights: "Priorities",
+    results: "Result",
     memo: "Memo",
-    profile: "My profile",
+    profile: "Your profile",
     shared: "Shared result",
-    snapshot: "Snapshot"
+    snapshot: "Saved decision"
   },
 
   home: {
-    heroTitle: "Think clearly about staying in the US or returning to China.",
-    heroSubtitle: "Compare the tradeoffs, set your priorities, and see what is driving the result.",
+    heroTitle: "Stay, or go home? Work out which, and why.",
+    heroSubtitle:
+      "Twenty minutes of honest answers. Then a clear read on which way you lean, what is driving it, and what would change it.",
     howItWorks: "How it works",
-    threeSteps: "Three steps. Clear reasoning.",
+    threeSteps: "Three short steps.",
     steps: [
-      { step: "Step 1", title: "Answer questions", description: "Practical questions across six decision dimensions." },
-      { step: "Step 2", title: "Set priorities", description: "Decide how much each dimension counts." },
-      { step: "Step 3", title: "Review output", description: "See the scores, tradeoffs, uncertainty, and decision memo." }
+      {
+        step: "Step 1",
+        title: "Answer 24 questions",
+        description: "About work, money, the visa, family, daily life and the next ten years. Plain questions, plain answers."
+      },
+      {
+        step: "Step 2",
+        title: "Say what matters most",
+        description: "Make the things you care about count for more."
+      },
+      {
+        step: "Step 3",
+        title: "Read the result",
+        description: "Which way you lean, why, what would change it, and a memo you can keep."
+      }
     ] satisfies [StepCopy, StepCopy, StepCopy],
     twoPaths: "Two paths",
-    seeBoth: "See both paths clearly.",
-    picture: "Picture each future before you weigh the tradeoffs.",
+    seeBoth: "Picture both before you weigh them.",
+    picture: "A minute each. Then the questions.",
     stay: "Stay in the US",
-    return: "Return to China",
-    closing: "A decision this big deserves your clearest thinking.",
-    footer: "A reflection tool for clearer tradeoffs, not legal, financial, or immigration advice."
+    return: "Go back to China",
+    closing: "Twenty minutes of honest answers beats a month of going round in circles.",
+    footer: "Not legal, financial or immigration advice. Just your own answers, laid out."
   },
 
   cta: {
-    start: "Start questionnaire",
-    continue: "Continue questionnaire",
-    startNew: "Start a new questionnaire",
-    reviewLast: "Or review your last results",
+    start: "Start the questions",
+    continue: "Pick up where you left off",
+    startNew: "Start again",
+    reviewLast: "Or see your last result",
     startOver: "Or start over",
-    revisit: "Or revisit a past decision"
+    revisit: "Or look back at an earlier decision"
   },
 
   confirm: {
-    keep: "Keep",
-    discardPrompt: "Discard your in-progress answers?",
-    discard: "Discard"
+    keep: "Keep them",
+    discardPrompt: "Throw away the answers you've given so far?",
+    discard: "Throw them away"
   },
 
-  reset: "Reset current run",
+  reset: "Start over",
 
   notFound: {
     title: "That page isn't here.",
     body: "The link may have picked up or lost a character on its way.",
     home: "Go to the home page",
-    start: "Start the questionnaire"
+    start: "Start the questions"
   },
 
   appError: {
@@ -119,294 +154,287 @@ export const en = {
 
   questionnaire: {
     eyebrow: "Step 1",
-    title: "Questionnaire",
+    title: "The questions",
     answered: (count: number, total: number) => `${count} of ${total} answered`,
-    stepsHeading: "Questionnaire steps",
-    step: (index: number) => `Step ${index}`,
+    stepsHeading: "Six parts",
+    step: (index: number) => `Part ${index}`,
     done: "Done",
     ofCount: (count: number, total: number) => `${count} of ${total}`,
     answeredSuffix: " answered",
-    currentDimension: "Current dimension",
-    backHome: "Back to home",
-    previous: "Previous",
-    next: "Next",
-    nextStep: (label: string) => `Next: ${label}`,
+    currentDimension: "This part",
+    backHome: "Home",
+    previous: "Back",
+    next: "Continue",
+    nextStep: (label: string) => `Continue to ${label.toLowerCase()}`,
     questionOf: (index: number, total: number) => `Question ${index} of ${total}`,
-    stepOf: (index: number, total: number) => `Step ${index} of ${total}`,
-    remaining: (count: number) => (count === 1 ? "1 question still open" : `${count} questions still open`),
-    saveContinue: "Save and continue to weights",
+    stepOf: (index: number, total: number) => `Part ${index} of ${total}`,
+    remaining: (count: number) => (count === 1 ? "1 question left" : `${count} questions left`),
+    saveContinue: "Continue to priorities",
     guiding: {
-      career: "Where can you realistically build the career you want?",
-      salary_cost: "Where does your money actually go further for the life you want?",
-      immigration: "How much does visa and status uncertainty weigh on you?",
-      family_emotion: "How strong is the pull of the people back home?",
-      lifestyle: "Which daily life genuinely feels more like you?",
-      long_term: "Which path do you trust more over the next ten years?"
+      career: "Where can you actually get the work you want?",
+      salary_cost: "Where does your money go further for the life you want?",
+      immigration: "How much does the visa situation weigh on you?",
+      family_emotion: "How much do you need to be near your family?",
+      lifestyle: "Which everyday life feels more like you?",
+      long_term: "Ten years from now, where do you see yourself?"
     }
   },
 
   weights: {
     eyebrow: "Step 2",
-    title: "Set your priorities",
+    title: "What matters most right now?",
     description:
-      "Your answers stay as they are. Weights set how much each dimension counts, and making one larger makes the others smaller.",
-    priorityMap: "Priority map",
+      "Your answers stay as they are. This is where you say which of the six counts for more. Make one bigger and the others shrink.",
+    priorityMap: "Your priorities",
     fineTune: "Fine tune",
-    minimum: "Minimum priority",
-    maximum: "Maximum possible share",
-    cannotGrow: "Other priorities are already at the minimum, so this one cannot grow further.",
-    atMinimum: "This priority is already at the minimum.",
-    fineTuneAria: (label: string) => `Fine tune ${label} priority`,
-    bubbleAria: (label: string, percentage: string) => `${label}, ${percentage}% priority. Open fine tuning.`,
-    decreaseAria: (label: string) => `Decrease ${label} priority`,
-    increaseAria: (label: string) => `Increase ${label} priority`,
-    backQuestionnaire: "Back to questionnaire",
-    saveContinue: "Save and continue to results"
+    minimum: "Lowest",
+    maximum: "Highest it can go",
+    cannotGrow: "The others are as small as they can be, so this one can't grow.",
+    atMinimum: "This one is as small as it can be.",
+    fineTuneAria: (label: string) => `Fine tune ${label}`,
+    bubbleAria: (label: string, percentage: string) => `${label}, ${percentage}% of your priorities. Open fine tuning.`,
+    decreaseAria: (label: string) => `Give ${label} less priority`,
+    increaseAria: (label: string) => `Give ${label} more priority`,
+    backQuestionnaire: "Back to the questions",
+    saveContinue: "See the result"
   },
 
   results: {
-    eyebrow: "Step 3 / Results",
+    eyebrow: "Step 3",
     headline: (direction: ScenarioId, confidence: ConfidenceLevel, gap: number): string => {
-      const isStay = direction === "stay_us";
-
       if (confidence === "high" && gap > 25) {
-        return isStay ? "The US is clearly your path right now." : "Returning to China is clearly your path right now.";
+        return direction === "stay_us" ? "Stay. Your answers are clear about it." : "Go back. Your answers are clear about it.";
       }
 
       if (confidence === "medium" && gap >= 10 && gap <= 25) {
-        return isStay
-          ? "You're leaning toward staying, with real tradeoffs."
-          : "You're leaning toward returning, with real tradeoffs.";
+        return `You lean toward ${pathWord[direction]}. Not by a mile, but clearly.`;
       }
 
-      return isStay ? "It's close. You lean slightly toward staying." : "It's close. You lean slightly toward returning.";
+      return `It's close. You lean a little toward ${pathWord[direction]}.`;
     },
-    hook: (dimensionLabel: string, direction: ScenarioId) =>
-      `${dimensionLabel} creates the strongest pull, pointing toward ${
-        direction === "stay_us" ? "staying in the US" : "returning to China"
-      }.`,
-    hookNone: "No single dimension creates a strong pull yet.",
-    confidence: "Confidence",
-    confidenceLevel: { low: "Low", medium: "Medium", high: "High" } satisfies Record<ConfidenceLevel, string>,
-    confidenceAria: (level: string) => `${level} confidence`,
-    keyDrivers: "Key drivers",
-    wherePulls: "Where each dimension pulls",
-    balanced: "Balanced",
-    leans: (direction: ScenarioId) => `Leans toward ${pathWord[direction]}`,
-    topDriver: "Top driver",
-    stillClose: "Still close",
-    weightedPull: "weighted pull",
-    footnote: "Bars show how far your answers lean, on one shared scale. The number is each dimension's weighted pull on the result.",
-    srBalanced: ", balanced between the two paths",
-    srLean: (direction: ScenarioId, gap: number) => `, leans ${direction === "stay_us" ? "stay" : "return"} by ${gap} points`,
+    hook: (phrase: string, reason: string | null) =>
+      reason ? `Mostly ${phrase}. You said ${reason}.` : `Mostly ${phrase}.`,
+    hookNone: "Nothing stands out yet.",
+    confidence: "How sure",
+    confidenceLevel: { low: "Not very", medium: "Fairly", high: "Very" } satisfies Record<ConfidenceLevel, string>,
+    confidenceAria: (level: string) => `${level} sure`,
+    keyDrivers: "What's behind it",
+    wherePulls: "Where each part of your life points",
+    balanced: "Even",
+    leans: (direction: ScenarioId) => `Toward ${pathWord[direction]}`,
+    topDriver: "Biggest",
+    stillClose: "Close",
+    weightedPull: "after priorities",
+    footnote:
+      "The bars show how far your answers lean, all on one scale. The number is how much each part counts once your priorities are applied.",
+    srBalanced: ", even between the two",
+    srLean: (direction: ScenarioId, gap: number) => `, toward ${pathWord[direction]} by ${Math.round(gap)} points`,
     sensitivityCouldFlip: (gap: string, shift: string) =>
-      `Re-weighting could flip this result: the lead is ${gap} points, and changing weights could move it by up to ${shift}.`,
+      `Changing your priorities could flip this. The lead is ${gap} points, and priorities alone could move it by up to ${shift}.`,
     sensitivityNoShift: (gap: string) =>
-      `Re-weighting alone would not flip this result: the lead is ${gap} points, and re-weighting the dimensions that are still close would not move it.`,
+      `Changing your priorities won't flip this. The lead is ${gap} points, and the parts that are close don't add up to enough. Only different answers would.`,
     sensitivityCannotFlip: (gap: string, shift: string) =>
-      `Re-weighting alone would not flip this result: the lead is ${gap} points, and changing weights could move it by at most ${shift}.`,
-    nudgeAria: "Local profile suggestion",
+      `Changing your priorities won't flip this. The lead is ${gap} points, and priorities could move it by ${shift} at most.`,
+    nudgeAria: "Keep this on your device",
     nudgeTitle: "This result is saved on this device.",
-    nudgeBody: "Add a nickname to make it yours. Everything stays in this browser, private to you.",
-    addNickname: "Add a nickname",
+    nudgeBody: "Add a name if you want it to feel like yours. Nothing leaves this browser.",
+    addNickname: "Add a name",
     notNow: "Not now",
     shareHeading: "Share this result",
-    shareBody: "The link itself carries your answers and weights. Nothing is uploaded, and anyone with the link can see this result.",
-    readMemo: "Read the full memo",
-    adjustWeights: "Adjust weights",
-    openMemo: "Open the memo"
+    shareBody: "The link holds your answers and priorities. Nothing is uploaded. Anyone with the link can see it.",
+    readMemo: "Want it written down?",
+    adjustWeights: "Change priorities",
+    openMemo: "Read the memo"
   },
 
   balance: {
-    eyebrow: "Decision balance",
-    evenly: "Evenly balanced",
+    eyebrow: "The balance",
+    evenly: "Dead even",
     leads: (leader: string) => `${leader} leads`,
-    leader: { stay_us: "Stay in the US", return_china: "Return to China" } satisfies Record<ScenarioId, string>,
+    leader: { stay_us: "Staying", return_china: "Going back" } satisfies Record<ScenarioId, string>,
     stay: "Stay",
-    return: "Return",
-    balanced: "Balanced",
-    evenlyNow: "Evenly balanced right now.",
+    return: "Go back",
+    balanced: "Even",
+    evenlyNow: "Dead even right now.",
     leadsBy: "Leads by",
     points: "points",
-    ariaTied: "Decision balance: evenly balanced between staying in the US and returning to China.",
+    ariaTied: "Balance: dead even between staying and going back.",
     aria: (leader: string, points: string) =>
-      `Decision balance: ${leader} leads by ${points} points on one scale running from strong stay on the left to strong return on the right.`,
-    footnote: "Each answer moves this one balance, from strong stay to strong return."
+      `Balance: ${leader} leads by ${points} points, on a scale from firmly staying on the left to firmly going back on the right.`,
+    footnote: "Every answer moves this one balance, from firmly staying to firmly going back."
   },
 
   share: {
-    copy: "Copy share link",
-    copied: "Link copied.",
-    manual: "Copy the link manually:"
+    copy: "Copy link",
+    copied: "Copied.",
+    manual: "Copy this link:"
   },
 
   memo: {
-    title: "Decision Memo",
-    recommendation: "Recommendation",
-    verdict: { stay_us: "Stay in the US.", return_china: "Return to China." } satisfies Record<ScenarioId, string>,
-    balanced: "Evenly balanced.",
-    confidence: { low: "Low confidence", medium: "Moderate confidence", high: "High confidence" } satisfies Record<
+    title: "Decision memo",
+    recommendation: "Where you land",
+    verdict: { stay_us: "Stay.", return_china: "Go back." } satisfies Record<ScenarioId, string>,
+    balanced: "Dead even.",
+    confidence: { low: "Not very sure", medium: "Fairly sure", high: "Very sure" } satisfies Record<
       ConfidenceLevel,
       string
     >,
-    whereLeans: "Where each dimension leans",
-    dimension: "Dimension",
+    whereLeans: "Where each part points",
+    dimension: "Part",
     columnStay: "Stay",
-    columnBalanced: "Balanced",
-    columnReturn: "Return",
-    leanBalanced: "Balanced",
-    leanStillClose: (direction: ScenarioId) => `Leans toward ${pathWord[direction]}, still close`,
-    lean: (direction: ScenarioId) => `Leans toward ${pathWord[direction]}`,
-    leanClearly: (direction: ScenarioId) => `Clearly favors ${pathWord[direction]}`,
-    srLeansBy: (gap: number) => `, leans by ${gap} points`,
-    barsNote: "Bars share one scale.",
+    columnBalanced: "Even",
+    columnReturn: "Go back",
+    leanBalanced: "Even",
+    leanStillClose: (direction: ScenarioId) => `Toward ${pathWord[direction]}, just`,
+    lean: (direction: ScenarioId) => `Toward ${pathWord[direction]}`,
+    leanClearly: (direction: ScenarioId) => `Firmly ${pathWord[direction]}`,
+    srLeansBy: (gap: number) => `, by ${Math.round(gap)} points`,
+    barsNote: "One scale for all six.",
     whatWouldChange: "What would change this",
-    beforeDeciding: "Before deciding",
-    backResults: "Back to results",
-    changeAnswers: "Change answers",
-    disclaimer: "A structured reflection, not legal, immigration or financial advice.",
+    beforeDeciding: "Before you decide",
+    backResults: "Back to the result",
+    changeAnswers: "Change an answer",
+    disclaimer: "This is your own answers, laid out. For the visa and the money, talk to someone who does this for a living.",
 
     // ---- sentences the generator composes from the run's numbers
     sentenceSeparator: " ",
-    leadBalanced: "Your answers come out evenly balanced between the two paths.",
-    leadBy: (direction: ScenarioId, gap: string) => `Your answers lean toward ${pathWord[direction]} by ${gap} points.`,
-    carries: (leadLabels: string[], strongestAgainst: string | null) => {
-      const carries =
-        leadLabels.length === 1
-          ? `${leadLabels[0]} carries most of that lead`
-          : `${joinLabels(leadLabels)} carry most of that lead`;
+    leadBalanced: "Your answers come out dead even.",
+    leadBy: (direction: ScenarioId, gap: string) => `You lean toward ${pathWord[direction]}, by ${gap} points.`,
+    carries: (leadPhrases: string[], reasons: string[], againstPhrase: string | null) => {
+      const mostly =
+        reasons.length > 0
+          ? `Most of that is ${joinPhrases(leadPhrases)}: you said ${joinReasons(reasons)}.`
+          : `Most of that is ${joinPhrases(leadPhrases)}.`;
 
-      return strongestAgainst
-        ? `${carries}. ${strongestAgainst} is the strongest pull the other way.`
-        : `${carries}. Nothing pulls the other way.`;
+      return againstPhrase
+        ? `${mostly} ${capitalize(againstPhrase)} is the main thing pulling the other way.`
+        : `${mostly} Nothing pulls the other way.`;
     },
     margin: {
-      low: "The margin is small: a few different answers would change it.",
-      medium: "The margin is clear but not decisive.",
-      high: "The margin is wide."
+      low: "It's a small lead. A couple of different answers would change it.",
+      medium: "A clear lead, not a landslide.",
+      high: "A wide lead."
     } satisfies Record<ConfidenceLevel, string>,
-    otherPath: { stay_us: "Returning to China", return_china: "Staying in the US" } satisfies Record<ScenarioId, string>,
-    otherStrongerOn: (otherPath: string, againstLabels: string[], leadLabels: string[]) =>
-      `${otherPath} is stronger on ${joinLabels(againstLabels)}. For it to lead, ${
-        againstLabels.length === 1 ? "that" : "those"
-      } would have to matter more to you than ${joinLabels(leadLabels)} ${leadLabels.length === 1 ? "does" : "do"} now.`,
-    otherNotStronger: (otherPath: string) => `${otherPath} is not stronger on any dimension.`,
-    noClose: "No dimension is close. Re-weighting would not flip this result. Only different answers would.",
-    closeBalanced: (closeLabels: string[]) =>
-      `${joinLabels(closeLabels)} ${closeLabels.length === 1 ? "is" : "are"} balanced, so re-weighting ${
-        closeLabels.length === 1 ? "it" : "them"
-      } would not move the result. Only different answers would.`,
-    closeShift: (closeLabels: string[], shift: string, gap: string, couldFlip: boolean) =>
-      `${joinLabels(closeLabels)} ${closeLabels.length === 1 ? "is" : "are"} still close. Re-weighting ${
-        closeLabels.length === 1 ? "it" : "them"
-      } could move the result by up to ${shift} points against a lead of ${gap}, so weights ${
-        couldFlip ? "could flip it" : "alone would not flip it"
+    otherPath: { stay_us: "Going back", return_china: "Staying" } satisfies Record<ScenarioId, string>,
+    otherStrongerOn: (otherPath: string, againstPhrases: string[], leadPhrases: string[]) =>
+      `${otherPath} wins on ${joinPhrases(againstPhrases)}. The day ${
+        againstPhrases.length === 1 ? "that matters" : "those matter"
+      } more to you than ${joinPhrases(leadPhrases)}, the answer flips.`,
+    otherNotStronger: (otherPath: string) => `${otherPath} doesn't win on anything.`,
+    noClose: "Nothing is close. Changing your priorities won't flip this. Only different answers would.",
+    closeBalanced: (closePhrases: string[]) =>
+      `${capitalize(joinPhrases(closePhrases))} ${closePhrases.length === 1 ? "is" : "are"} dead even, so ${
+        closePhrases.length === 1 ? "its" : "their"
+      } priority changes nothing. Only different answers would.`,
+    closeShift: (closePhrases: string[], shift: string, gap: string, couldFlip: boolean) =>
+      `${capitalize(joinPhrases(closePhrases))} ${closePhrases.length === 1 ? "is" : "are"} still close. Giving ${
+        closePhrases.length === 1 ? "it" : "them"
+      } more or less priority could move the result by up to ${shift} points against a lead of ${gap}, so priorities ${
+        couldFlip ? "could flip it" : "alone won't flip it"
       }.`,
-    levelPaths: "The two paths are level. Any change to your answers or weights would tip the result.",
-    planCompare: (leadLabels: string[]) =>
-      `Write down one concrete plan for each path and compare them on ${
-        leadLabels.length === 1 ? "the dimension that decided this" : "the two dimensions that decided this"
-      }: ${joinLabels(leadLabels)}.`,
-    planCompareGeneric: "Write down one concrete plan for each path and compare them side by side.",
-    checkAssumption: (label: string) => `Check the assumption behind your strongest pull the other way: ${label}.`,
-    revisitWeights: (closeLabels: string[]) =>
-      `Revisit your weights once ${joinLabels(closeLabels)} ${closeLabels.length === 1 ? "is" : "are"} clearer.`
+    levelPaths: "The two are level. Any change to an answer or a priority tips it.",
+    planCompare: (leadPhrases: string[]) =>
+      `Write one concrete plan for each path, then compare them on what decided this: ${joinPhrases(leadPhrases)}.`,
+    planCompareGeneric: "Write one concrete plan for each path and put them side by side.",
+    checkAssumption: (phrase: string, reason: string | null) =>
+      reason
+        ? `Check the one thing pulling the other way. You said ${reason}. Is that still true?`
+        : `Check the one thing pulling the other way: ${phrase}.`,
+    revisitWeights: (closePhrases: string[]) =>
+      `Come back to your priorities once ${joinPhrases(closePhrases)} ${closePhrases.length === 1 ? "is" : "are"} clearer.`
   },
 
   shared: {
-    intro: "A read-only result someone chose to share. It lives entirely in the link. Nothing about it is stored on our side.",
+    intro: "Someone shared this result with you. It lives in the link itself. Nothing is stored anywhere.",
     eyebrow: "Shared result",
     headline: (direction: ScenarioId, confidence: ConfidenceLevel, gap: number): string => {
-      const path = pathWord[direction];
-
       if (confidence === "high" && gap > 25) {
-        return `This result points clearly toward ${path}.`;
+        return `Their answers are clear: ${verdictWord[direction]}.`;
       }
 
       if (confidence === "medium" && gap >= 10 && gap <= 25) {
-        return `This result leans toward ${path}, with real tradeoffs.`;
+        return `They lean toward ${pathWord[direction]}. Not by a mile, but clearly.`;
       }
 
-      return `It's close. This result leans slightly toward ${path}.`;
+      return `It's close. They lean a little toward ${pathWord[direction]}.`;
     },
-    footnote: "Bars show how far this person's answers lean, on one shared scale. The number is each dimension's weighted pull on the result.",
-    cta: "Facing the same decision?",
-    ctaBody:
-      "Stay or Return walks you through 24 questions and your own priorities, transparently, with nothing stored anywhere but your own browser.",
-    tryIt: "Try it yourself",
-    explore: "Explore Stay or Return",
-    versionTitle: "This link is from an earlier questionnaire.",
-    versionBody:
-      "It was created with a previous version of Stay or Return, so it can't be displayed accurately anymore. Whoever sent it can re-share from a fresh run.",
+    footnote:
+      "The bars show how far their answers lean, all on one scale. The number is how much each part counts with their priorities.",
+    cta: "Facing the same choice?",
+    ctaBody: "Twenty-four questions, your own priorities, and nothing stored anywhere but your own browser.",
+    tryIt: "Try it",
+    explore: "See how it works",
+    versionTitle: "This link is from an older version.",
+    versionBody: "The questions have changed since it was made, so it can't be shown properly. Ask whoever sent it to share a fresh one.",
     invalidTitle: "This link doesn't work.",
     invalidBody:
-      "It looks incomplete or damaged. Shared links carry the whole result inside the link itself, so a truncated copy loses it. Ask for the link again, or try the questionnaire yourself."
+      "It looks cut off or changed. The whole result lives inside the link, so a partial copy loses it. Ask for it again, or answer the questions yourself."
   },
 
   profile: {
-    eyebrow: "Your space",
+    eyebrow: "Yours",
     titleWithName: (nickname: string) => `Hi, ${nickname}.`,
     title: "Your profile",
-    description: "Set a nickname, pick an accent, and look back at past decisions.",
-    identity: "Profile identity",
-    nickname: "Nickname",
+    description: "A name, a colour, and the decisions you've saved.",
+    identity: "You",
+    nickname: "Name",
     optional: "(optional)",
-    placeholder: "How should we greet you?",
+    placeholder: "What should we call you?",
     save: "Save",
     saved: "Saved.",
-    accent: "Accent",
+    accent: "Colour",
     accents: { warm: "Coral", stay: "Blue", return: "Red" } satisfies Record<"warm" | "stay" | "return", string>,
     created: (date: string, count: number) =>
-      `Profile created ${date} · ${count === 1 ? "1 decision saved" : `${count} decisions saved`}`,
-    privacyTitle: "Private to this device",
+      `Since ${date} · ${count === 1 ? "1 decision saved" : `${count} decisions saved`}`,
+    privacyTitle: "Only on this device",
     privacyBody:
-      "Your nickname and history are saved only in this browser, on this device. Nothing is sent anywhere. No account, no cloud, no sync. We couldn't see it if we wanted to.",
+      "Your name and history live in this browser, on this device. Nothing is sent anywhere. No account, no cloud, no sync. We couldn't read it if we tried.",
     privacyFlip:
-      "The honest flip side: it won't follow you to other devices, and clearing this browser's data erases it. Export a copy if you want to keep one.",
-    exportData: "Export my data (JSON)",
-    deleteAll: "Delete profile & history",
-    erasePrompt: "Erase your profile and all saved decisions from this device?",
-    erase: "Erase everything",
+      "The other side of that: it won't follow you to another device, and clearing this browser's data erases it. Export a copy if you want to keep one.",
+    exportData: "Export my data",
+    deleteAll: "Delete everything",
+    erasePrompt: "Delete your profile and every saved decision from this device?",
+    erase: "Delete everything",
     historyEyebrow: "History",
     historyTitle: "Your decisions",
     newestFirst: "Newest first."
   },
 
   history: {
-    emptyTitle: "No decisions saved yet.",
-    emptyBody: "Finish the questionnaire and your result will appear here automatically.",
-    start: "Start questionnaire",
-    view: "View",
+    emptyTitle: "Nothing saved yet.",
+    emptyBody: "Finish the questions once and the result shows up here.",
+    start: "Start the questions",
+    view: "Open",
     delete: "Delete",
-    removePrompt: "Remove from this device?",
+    removePrompt: "Remove this one?",
     remove: "Remove",
-    drivenBy: (label: string) => `Driven by ${label}`,
-    earlierVersion: "Earlier questionnaire version",
-    restore: "Restore",
+    drivenBy: (phrase: string) => `Mostly ${phrase}`,
+    earlierVersion: "Older version of the questions",
+    restore: "Reopen",
     tryAgain: "Try again",
-    restoreFailed: "This snapshot can't be restored here.",
-    replacePrompt: "Replace your in-progress run?",
+    restoreFailed: "This one can't be reopened here.",
+    replacePrompt: "Replace the answers you're working on?",
     replace: "Replace",
-    keepCurrent: "Keep current",
+    keepCurrent: "Keep them",
     pastStatement,
-    srGap: (points: number) => `, gap ${points} points`
+    srGap: (points: number) => `, ${Math.round(points)} points apart`
   },
 
   snapshot: {
-    missingTitle: "This snapshot isn't on this device anymore.",
-    missingBody: "It may have been deleted, or saved in a different browser.",
-    backProfile: "Back to my profile",
-    intro: (date: string) => `A snapshot saved on this device on ${date}. Viewing it doesn't change your current run.`,
-    eyebrow: (date: string) => `Snapshot · ${date}`,
+    missingTitle: "This one isn't on this device anymore.",
+    missingBody: "It may have been deleted, or saved in another browser.",
+    backProfile: "Back to your profile",
+    intro: (date: string) => `Saved on this device on ${date}. Looking at it doesn't change what you're working on now.`,
+    eyebrow: (date: string) => `Saved · ${date}`,
     pastHeadline: (direction: ScenarioId, confidence: ConfidenceLevel, difference?: number) =>
       `${pastStatement(direction, confidence, difference)}.`,
-    confidence: (level: string) => `${level} confidence`,
-    gap: (points: number) => `Gap ${points} points`,
+    confidence: (level: string) => `${level} sure`,
+    gap: (points: number) => `${Math.round(points)} points apart`,
     earlierVersionBody:
-      "This snapshot was made with an earlier version of the questionnaire, so the full dimension breakdown can't be recomputed. The direction, confidence, and gap above are exactly what it showed at the time.",
-    restoreNote: "Restoring makes this snapshot your current run again.",
-    keyDrivers: "Key drivers",
-    wherePulled: "Where each dimension pulled",
+      "This was made with an older set of questions, so the breakdown by part can't be rebuilt. The direction, the confidence and the gap are exactly what it showed at the time.",
+    restoreNote: "Reopening makes this your current set of answers again.",
+    keyDrivers: "What was behind it",
+    wherePulled: "Where each part pointed",
     asOf: (date: string) => `As of ${date}.`
   }
 };

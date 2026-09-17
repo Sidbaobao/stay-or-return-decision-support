@@ -12,11 +12,17 @@ export type Dimension = {
   id: DimensionId;
   label: string;
   shortLabel: string;
+  // How the dimension is named inside a sentence ("the visa situation").
+  phrase: string;
 };
 
 export type QuestionOption = {
   id: string;
   label: string;
+  // What choosing this says, as a clause after "you said": "you'd have more
+  // left over each month in the US". Balanced options have none; only an
+  // answer that pushes one way gets quoted back.
+  reason?: string;
   stay_us_score: number;
   return_china_score: number;
 };

@@ -26,7 +26,7 @@ type HistoryRowProps = {
 
 function HistoryRow({ entry, index, onDelete }: HistoryRowProps) {
   const { t, locale } = useLocale();
-  const { dimensionLabel } = useContent();
+  const { dimensionPhrase } = useContent();
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const deleteTriggerRef = useConfirmFocus(isConfirmingDelete);
 
@@ -60,7 +60,7 @@ function HistoryRow({ entry, index, onDelete }: HistoryRowProps) {
           <p className="mt-1.5 flex flex-wrap items-center gap-x-2 text-body-sm text-ink/65">
             <span className="inline-flex items-center gap-1.5">
               <Icon aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.8} />
-              {t.history.drivenBy(dimensionLabel(entry.topDimensionId))}
+              {t.history.drivenBy(dimensionPhrase(entry.topDimensionId))}
             </span>
             {!isCurrentVersion ? <span>· {t.history.earlierVersion}</span> : null}
           </p>

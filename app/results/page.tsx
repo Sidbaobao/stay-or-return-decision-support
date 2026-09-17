@@ -16,6 +16,7 @@ import { DecisionBalance } from "@/components/results/decision-balance";
 import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
 import { dimensionIcons } from "@/components/results/dimension-icons";
 import { useContent } from "@/lib/i18n/content";
+import { strongestReason } from "@/lib/reasons";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { ShareResultButton } from "@/components/share/share-result-button";
 import { PrimaryButtonLink } from "@/components/ui/primary-button";
@@ -25,7 +26,7 @@ import { QuietButton } from "@/components/ui/quiet-button";
 export default function ResultsPage() {
   const { isReady, status, scoringResult } = useScoredRun("weights");
   const { t } = useLocale();
-  const { dimensionLabel } = useContent();
+  const { questions, dimensionPhrase } = useContent();
   useLocalizedTitle(t.titles.results);
   const isRevealed = useRevealOnReady(Boolean(scoringResult));
   const { profile, update: updateProfile } = useLocalProfile();
@@ -72,11 +73,14 @@ export default function ResultsPage() {
   const confidenceSteps =
     scoringResult.confidence === "low" ? 1 : scoringResult.confidence === "medium" ? 2 : 3;
   const { currentTotalGap, totalPotentialShift, couldFlip } = scoringResult.weightFlipAnalysis;
+  // Whole points in prose; the rows below keep a decimal.
+  const gapText = String(Math.round(currentTotalGap));
+  const shiftText = String(Math.round(totalPotentialShift));
   const weightSensitivitySentence = couldFlip
-    ? t.results.sensitivityCouldFlip(currentTotalGap.toFixed(1), totalPotentialShift.toFixed(1))
+    ? t.results.sensitivityCouldFlip(gapText, shiftText)
     : totalPotentialShift === 0
-      ? t.results.sensitivityNoShift(currentTotalGap.toFixed(1))
-      : t.results.sensitivityCannotFlip(currentTotalGap.toFixed(1), totalPotentialShift.toFixed(1));
+      ? t.results.sensitivityNoShift(gapText)
+      : t.results.sensitivityCannotFlip(gapText, shiftText);
   const conclusionHeadline = t.results.headline(
     scoringResult.recommendedScenario,
     scoringResult.confidence,
@@ -88,7 +92,15 @@ export default function ResultsPage() {
     ? dimensionIcons[topContribution.dimensionId]
     : dimensionIcons.career;
   const conclusionHook = topContribution
-    ? t.results.hook(dimensionLabel(topContribution.dimensionId), topContribution.weightedGap < 0 ? "return_china" : "stay_us")
+    ? t.results.hook(
+        dimensionPhrase(topContribution.dimensionId),
+        strongestReason(
+          questions,
+          status.answers,
+          topContribution.dimensionId,
+          topContribution.weightedGap < 0 ? "return_china" : "stay_us"
+        )
+      )
     : t.results.hookNone;
 
   return (

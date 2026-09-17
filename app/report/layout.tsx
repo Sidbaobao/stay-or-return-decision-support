@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Memo",
-  description: "A personal decision memo with the recommendation, tradeoffs, and next steps."
+  description: "Your decision, written down: where you land, why, and what to check before you decide."
 };
 
 export default function ReportLayout({ children }: { children: ReactNode }) {

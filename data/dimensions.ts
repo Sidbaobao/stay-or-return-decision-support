@@ -1,35 +1,44 @@
 import { Dimension, DimensionId, Weights } from "@/types";
 
+// The six parts of the decision, named the way a person names them.
+// `label` heads a section or a row; `shortLabel` fits a bubble on a phone
+// (one word); `phrase` sits inside a sentence.
 export const dimensions: Dimension[] = [
   {
     id: "career",
-    label: "Career Opportunity",
-    shortLabel: "Career"
+    label: "Work",
+    shortLabel: "Work",
+    phrase: "work"
   },
   {
     id: "salary_cost",
-    label: "Salary and Cost of Living",
-    shortLabel: "Money"
+    label: "Money",
+    shortLabel: "Money",
+    phrase: "money"
   },
   {
     id: "immigration",
-    label: "Immigration and Policy Uncertainty",
-    shortLabel: "Policy"
+    label: "Visa",
+    shortLabel: "Visa",
+    phrase: "the visa situation"
   },
   {
     id: "family_emotion",
-    label: "Family and Emotional Factors",
-    shortLabel: "Family"
+    label: "Family",
+    shortLabel: "Family",
+    phrase: "family"
   },
   {
     id: "lifestyle",
-    label: "Lifestyle Preference",
-    shortLabel: "Lifestyle"
+    label: "Daily life",
+    shortLabel: "Life",
+    phrase: "daily life"
   },
   {
     id: "long_term",
-    label: "Long-Term Development",
-    shortLabel: "Long-Term"
+    label: "Ten years out",
+    shortLabel: "Future",
+    phrase: "the next ten years"
   }
 ];
 

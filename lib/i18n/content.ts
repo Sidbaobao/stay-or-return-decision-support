@@ -27,7 +27,8 @@ function localizeQuestions(): Question[] {
       prompt: translation.prompt,
       options: question.options.map((option) => ({
         ...option,
-        label: translation.options[option.id] ?? option.label
+        label: translation.options[option.id] ?? option.label,
+        reason: option.reason ? (translation.reasons?.[option.id] ?? option.reason) : undefined
       }))
     };
   });
@@ -51,8 +52,18 @@ export function getDimensions(locale: Locale) {
   return localizedDimensions[locale];
 }
 
+function findDimension(locale: Locale, dimensionId: DimensionId | string) {
+  return localizedDimensions[locale].find((dimension) => dimension.id === dimensionId);
+}
+
+// For headings, rows and buttons: "Work", "The visa".
 export function getDimensionLabel(locale: Locale, dimensionId: DimensionId | string) {
-  return localizedDimensions[locale].find((dimension) => dimension.id === dimensionId)?.label ?? dimensionId;
+  return findDimension(locale, dimensionId)?.label ?? dimensionId;
+}
+
+// For the inside of a sentence: "work", "the visa situation".
+export function getDimensionPhrase(locale: Locale, dimensionId: DimensionId | string) {
+  return findDimension(locale, dimensionId)?.phrase ?? dimensionId;
 }
 
 export function useContent() {
@@ -63,7 +74,8 @@ export function useContent() {
       locale,
       questions: getQuestions(locale),
       dimensions: getDimensions(locale),
-      dimensionLabel: (dimensionId: DimensionId | string) => getDimensionLabel(locale, dimensionId)
+      dimensionLabel: (dimensionId: DimensionId | string) => getDimensionLabel(locale, dimensionId),
+      dimensionPhrase: (dimensionId: DimensionId | string) => getDimensionPhrase(locale, dimensionId)
     }),
     [locale]
   );

@@ -3,8 +3,7 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Shared result",
-  description:
-    "A read-only Stay or Return result that someone chose to share. Nothing about it is stored on our side.",
+  description: "A result someone shared. It lives in the link itself and is stored nowhere.",
   robots: {
     index: false,
     follow: false
