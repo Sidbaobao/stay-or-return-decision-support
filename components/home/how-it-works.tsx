@@ -5,8 +5,8 @@ import { useLocale } from "@/lib/i18n/provider";
 
 const stepIcons: LucideIcon[] = [ListChecks, SlidersHorizontal, FileText];
 
-// The three steps, one column each, separated by hairlines rather than
-// framed as cards. The copy comes from the dictionary in the same order.
+// The three steps, one column each, separated by space. The copy comes
+// from the dictionary in the same order.
 export function HowItWorks() {
   const { t } = useLocale();
 
@@ -17,12 +17,12 @@ export function HowItWorks() {
         <h2 className="mt-3 text-page-title text-surface-strong">{t.home.threeSteps}</h2>
       </div>
 
-      <div className="mt-10 grid divide-y divide-surface-strong/10 border-t border-surface-strong/10 md:grid-cols-3 md:divide-x md:divide-y-0 md:pt-8">
+      <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8 lg:gap-12">
         {t.home.steps.map((step, index) => {
           const Icon = stepIcons[index] ?? FileText;
 
           return (
-            <section key={step.step} className="py-6 md:px-6 md:py-0 md:first:pl-0 md:last:pr-0 lg:px-8">
+            <section key={step.step}>
               <div className="flex items-center gap-3 text-accent-warm">
                 <Icon aria-hidden="true" strokeWidth={1.8} className="h-5 w-5 shrink-0" />
                 <p className="text-eyebrow">{step.step}</p>
@@ -48,7 +48,7 @@ export function HomeClosing() {
         </p>
       </div>
 
-      <footer className="border-t border-surface-strong/10 pt-8">
+      <footer className="pt-2">
         <p className="mx-auto text-center text-label text-surface-strong/70">{t.home.footer}</p>
       </footer>
     </>

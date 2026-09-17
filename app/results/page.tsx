@@ -19,6 +19,7 @@ import { useContent } from "@/lib/i18n/content";
 import { strongestReason } from "@/lib/reasons";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { ShareResultButton } from "@/components/share/share-result-button";
+import { Band, OffsetGrid } from "@/components/ui/band";
 import { PrimaryButtonLink } from "@/components/ui/primary-button";
 import { SecondaryButtonLink } from "@/components/ui/secondary-button";
 import { QuietButton } from "@/components/ui/quiet-button";
@@ -105,10 +106,10 @@ export default function ResultsPage() {
 
   return (
     <>
+      <Band>
       <section
-        className="relative overflow-hidden rounded-feature border p-6 shadow-soft sm:p-8 lg:p-10"
+        className="relative overflow-hidden rounded-feature p-6 shadow-soft sm:p-8 lg:p-10"
         style={{
-          borderColor: accentAt(0.25),
           background: `linear-gradient(138deg, rgb(var(--color-surface)) 0%, rgb(var(--color-surface-strong)) 55%, ${accentAt(0.09)} 100%)`
         }}
       >
@@ -152,8 +153,8 @@ export default function ResultsPage() {
               </div>
             </div>
 
-            <div className="space-y-5 lg:border-l lg:border-hairline lg:pl-8">
-              <div className="border-b border-hairline pb-5">
+            <div className="space-y-6 lg:pl-8">
+              <div className="pb-1">
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-body-sm font-medium text-ink/70">{t.results.confidence}</span>
                   <span className="text-body-sm font-semibold text-ink">
@@ -194,25 +195,30 @@ export default function ResultsPage() {
           </div>
         </div>
       </section>
+      </Band>
 
-      <section className="border-t border-hairline pt-6 sm:pt-8">
-        <p className="text-eyebrow text-ink-accent">{t.results.keyDrivers}</p>
-        <h2 className="mt-2 font-serif text-section-title text-ink">{t.results.wherePulls}</h2>
-
-        <div className="mt-6">
+      <Band>
+        <OffsetGrid
+          aside={
+            <>
+              <p className="text-eyebrow text-ink-accent">{t.results.keyDrivers}</p>
+              <h2 className="mt-2 font-serif text-section-title text-ink">{t.results.wherePulls}</h2>
+            </>
+          }
+        >
           <DimensionLeanRows
             contributions={scoringResult.contributions}
             uncertainDimensionIds={scoringResult.uncertainDimensions}
           />
-        </div>
-
-        <p className="mt-4 text-body-sm text-ink/70">{weightSensitivitySentence}</p>
-      </section>
+          <p className="mt-6 text-body-sm text-ink/70">{weightSensitivitySentence}</p>
+        </OffsetGrid>
+      </Band>
 
       {!profile || (!profile.nickname && !profile.nudgeDismissed) ? (
+        <Band padding="none" className="pb-band">
         <aside
           aria-label={t.results.nudgeAria}
-          className="flex flex-col gap-4 rounded-card border-l-4 border-ink-accent/60 bg-surface-warm px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6"
+          className="flex flex-col gap-4 rounded-card bg-surface-warm px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6"
         >
           <div className="flex items-start gap-3">
             <User aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-ink-accent" strokeWidth={1.8} />
@@ -226,29 +232,33 @@ export default function ResultsPage() {
             <QuietButton onClick={() => updateProfile({ nudgeDismissed: true })}>{t.results.notNow}</QuietButton>
           </div>
         </aside>
+        </Band>
       ) : null}
 
-      <div className="border-t border-hairline">
-        <div className="divide-y divide-hairline">
-          <section aria-labelledby="share-heading" className="py-6 sm:py-8">
+      {/* Sharing on its own warm band: words left, the control right. */}
+      <Band tone="warm" padding="tight" aria-labelledby="share-heading">
+        <div className="flex flex-col gap-4 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
+          <div className="min-w-0">
             <h2 id="share-heading" className="font-serif text-card-title text-ink">
               {t.results.shareHeading}
             </h2>
             <p className="mt-1 text-body-sm text-ink/65">{t.results.shareBody}</p>
-            <div className="mt-4">
-              <ShareResultButton answers={status.answers} weights={status.state.weights} />
-            </div>
-          </section>
-
-          <footer className="flex flex-col gap-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:py-8">
-            <h2 className="font-serif text-section-title text-ink">{t.results.readMemo}</h2>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <SecondaryButtonLink href="/weights">{t.results.adjustWeights}</SecondaryButtonLink>
-              <PrimaryButtonLink href="/report">{t.results.openMemo}</PrimaryButtonLink>
-            </div>
-          </footer>
+          </div>
+          <div className="shrink-0">
+            <ShareResultButton answers={status.answers} weights={status.state.weights} />
+          </div>
         </div>
-      </div>
+      </Band>
+
+      <Band as="footer">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="font-serif text-section-title text-ink">{t.results.readMemo}</h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+            <SecondaryButtonLink href="/weights">{t.results.adjustWeights}</SecondaryButtonLink>
+            <PrimaryButtonLink href="/report">{t.results.openMemo}</PrimaryButtonLink>
+          </div>
+        </div>
+      </Band>
     </>
   );
 }

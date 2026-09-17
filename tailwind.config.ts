@@ -55,6 +55,7 @@ const config: Config = {
       },
       spacing: {
         "page-gutter": "var(--space-page-gutter)",
+        band: "var(--space-band)",
         section: "var(--space-section)",
         feature: "var(--space-feature)",
         "memo-x": "1.25rem",

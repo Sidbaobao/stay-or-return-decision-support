@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
+import { Band } from "@/components/ui/band";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButtonLink } from "@/components/ui/secondary-button";
 
@@ -23,7 +24,8 @@ export default function ErrorPage({ error }: ErrorPageProps) {
   }, [error]);
 
   return (
-    <section className="mx-auto py-16 text-center sm:py-24">
+    <Band as="div">
+    <section className="mx-auto py-8 text-center sm:py-16">
       <h1 className="font-serif text-page-title text-ink">{t.appError.title}</h1>
       <p className="mt-3 text-body text-ink/70">{t.appError.body}</p>
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -40,5 +42,6 @@ export default function ErrorPage({ error }: ErrorPageProps) {
         </pre>
       </details>
     </section>
+    </Band>
   );
 }

@@ -49,10 +49,12 @@
   --radius-feature: 2rem;
   --radius-pill: 9999px;
 
-  /* Layout rhythm */
+  /* Layout rhythm. A band is one full-width stretch of the page; its
+     vertical padding is the only thing between it and the next. */
   --space-page-gutter: 1rem;
   --space-section: 2rem;
   --space-feature: 1.5rem;
+  --space-band: clamp(2.5rem, 4vw, 4rem);
 
   /* Elevation — two levels: subtle on any surface, soft on a page's lead block. */
   --shadow-subtle: 0 1px 2px rgb(var(--color-ink) / 0.05);
@@ -151,6 +153,26 @@ input[type="range"] {
     font-weight: 600;
     line-height: var(--leading-label);
     letter-spacing: var(--tracking-eyebrow);
+  }
+
+  /* A heading column beside a content column on wide screens. The
+     offset separates the block from its neighbours; no rule needed. */
+  .offset-grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  @media (min-width: 1024px) {
+    .offset-grid {
+      grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+      column-gap: 4rem;
+      align-items: start;
+    }
+  }
+
+  /* A bar that sticks carries a soft shadow instead of a rule. */
+  .shadow-stuck {
+    box-shadow: 0 8px 24px -12px rgb(var(--color-ink) / 0.18);
   }
 
   /* The memo reads like a document: its prose is set in the serif. */
@@ -572,6 +594,41 @@ input[type="range"] {
   animation: reveal-row-in var(--motion-duration-reveal) var(--motion-ease-reveal) both;
 }
 
+/* Moving between pages: the header stays, and the new page's bands rise
+   into place one after another. Content that arrives later (a page
+   that renders once its stored run is read) rises the same way. */
+.app-main > * {
+  animation: band-enter var(--motion-duration-reveal) var(--motion-ease-interaction) both;
+}
+
+.app-main > :nth-child(2) {
+  animation-delay: 50ms;
+}
+
+.app-main > :nth-child(3) {
+  animation-delay: 100ms;
+}
+
+.app-main > :nth-child(4) {
+  animation-delay: 150ms;
+}
+
+.app-main > :nth-child(n + 5) {
+  animation-delay: 200ms;
+}
+
+@keyframes band-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes reveal-row-in {
   from {
     opacity: 0;
@@ -694,6 +751,7 @@ html[data-locale="zh"] .memo-prose {
   .interaction-field,
   .inline-confirm,
   .reveal-row,
+  .app-main > *,
   .interaction-disclosure::details-content,
   .interaction-disclosure > summary,
   .interaction-disclosure[open] > :not(summary) {

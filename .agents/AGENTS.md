@@ -113,10 +113,26 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
   `components/home/decision-map-canvas.tsx` (the two path colors + hero
   background) and `components/weights/*` (three per-dimension bubble
   hues).
-- Hairlines vs borders: `border-hairline` / `divide-hairline` (and
-  `-strong`) divide content inside or between blocks; `border-border`
-  outlines a surface. Elevation has two levels: `shadow-subtle` on a
-  surface, `shadow-soft` on a page's lead block only.
+- Separation: no rules and no boxes. A page is a stack of full-width
+  bands (`components/ui/band.tsx`) in three tones (canvas, white, warm);
+  two tones meeting is the only edge. Inside a band, blocks are
+  separated by space, or by the offset grid (`OffsetGrid`, heading
+  column beside content column). Rows in a list are separated by space.
+  `border-hairline` / `divide-hairline` / `border-border` are not used
+  for separation any more; borders remain only on controls (options,
+  inputs, secondary buttons) and inside `components/weights/*`. The two
+  containers left are the result page's verdict block and the memo
+  sheet, both by shadow, not border. Elevation: `shadow-subtle` on a
+  surface, `shadow-soft` on a page's lead block, `shadow-stuck` under a
+  sticky bar.
+- Alignment varies with the layout, on purpose: the hero and the home
+  page's closing line centred; page headers, questions, rows and prose
+  left; a band with one action puts the words left and the control
+  right; footers and disclaimers end-aligned. Never centre a whole page.
+- Page transitions: the header is fixed across navigations and the new
+  page's bands rise into place (`.app-main > *`, staggered, off under
+  reduced motion). Pages that wait for stored state render nothing until
+  ready, so the rise happens when the content is real.
 The whole site shares one warm, cohesive palette. Do not reintroduce
 retired colors (orange `#F97316`, teal `#0F8B8D`, the old competing
 blues).

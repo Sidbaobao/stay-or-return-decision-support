@@ -50,7 +50,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
   );
 
   return (
-    <article className="decision-memo overflow-hidden rounded-panel border border-border bg-surface shadow-subtle">
+    <article className="decision-memo overflow-hidden rounded-panel bg-surface shadow-soft">
       <header className="memo-block px-memo-x py-memo-header-y sm:px-memo-x-sm sm:py-memo-header-y-sm lg:px-memo-x-lg">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
           <p className="font-serif text-section-title text-ink">{memo.title}</p>
@@ -59,21 +59,21 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
       </header>
 
       <section
-        className="memo-block border-t border-border px-memo-x py-memo-section-y sm:px-memo-x-sm sm:py-memo-section-y-sm lg:px-memo-x-lg lg:py-memo-section-y-lg"
+        className="memo-block bg-surface-warm px-memo-x py-memo-section-y sm:px-memo-x-sm sm:py-memo-section-y-sm lg:px-memo-x-lg lg:py-memo-section-y-lg"
         aria-labelledby="recommendation-heading"
       >
         <p className="text-eyebrow text-ink/65">{memo.recommendation}</p>
         <h1 id="recommendation-heading" className="mt-2 font-serif text-page-title text-ink">
           {recommendationLabel}
         </h1>
-        <span className="text-eyebrow mt-4 inline-flex rounded-pill border border-hairline-strong bg-surface-strong/55 px-3 py-1.5 text-ink/65">
+        <span className="text-eyebrow mt-4 inline-flex rounded-pill bg-surface-strong/80 px-3 py-1.5 text-ink/65">
           {memo.confidence[report.confidence]}
         </span>
         <p className="memo-prose mt-5 text-ink/80">{report.lead}</p>
       </section>
 
       <section
-        className="memo-comparison border-t border-border px-memo-x py-memo-comparison-y sm:px-memo-x-sm sm:py-memo-comparison-y-sm lg:px-memo-x-lg lg:py-memo-comparison-y-lg"
+        className="memo-comparison px-memo-x py-memo-comparison-y sm:px-memo-x-sm sm:py-memo-comparison-y-sm lg:px-memo-x-lg lg:py-memo-comparison-y-lg"
         aria-labelledby="comparison-heading"
       >
         <div>
@@ -82,8 +82,8 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           </h2>
         </div>
 
-        <div className="mt-5 border-y border-hairline-strong">
-          <div className="grid grid-cols-1 border-b border-hairline-strong text-label sm:grid-cols-[1.35fr_1fr]">
+        <div className="mt-5">
+          <div className="grid grid-cols-1 text-label sm:grid-cols-[1.35fr_1fr]">
             <div className="hidden px-memo-row-x-sm py-memo-row-y font-semibold text-ink/65 sm:block">{memo.dimension}</div>
             <div className="flex items-baseline justify-between px-memo-row-x py-memo-row-y sm:px-memo-row-x-sm">
               <span className="font-semibold text-path-stay">{memo.columnStay}</span>
@@ -92,7 +92,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
             </div>
           </div>
 
-          <div className="divide-y divide-hairline">
+          <div className="mt-1 space-y-1">
             {scoringResult.contributions.map((contribution) => {
               const Icon = dimensionIcons[contribution.dimensionId];
               const isBalanced = contribution.favoredScenario === "tie";
@@ -104,7 +104,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
               return (
                 <div
                   key={contribution.dimensionId}
-                  className="grid grid-cols-1 gap-2.5 px-memo-row-x py-memo-row-y sm:grid-cols-[1.35fr_1fr] sm:items-center sm:gap-4 sm:px-memo-row-x-sm"
+                  className="grid grid-cols-1 gap-2.5 rounded-tile px-memo-row-x py-memo-row-y odd:bg-surface-strong/45 sm:grid-cols-[1.35fr_1fr] sm:items-center sm:gap-4 sm:px-memo-row-x-sm"
                 >
                   <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
                     <span className="flex items-center gap-3">
@@ -154,9 +154,9 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
         <p className="mt-3 text-label text-ink/65">{memo.barsNote}</p>
       </section>
 
-      <div className="grid border-t border-border lg:grid-cols-2">
+      <div className="grid bg-canvas lg:grid-cols-2 lg:gap-x-6">
         <section
-          className="memo-block border-b border-border px-memo-x py-memo-comparison-y sm:px-memo-x-sm lg:border-b-0 lg:border-r lg:px-memo-x-lg lg:py-memo-section-y-lg"
+          className="memo-block px-memo-x py-memo-comparison-y sm:px-memo-x-sm lg:px-memo-x-lg lg:py-memo-section-y-lg"
           aria-labelledby="change-heading"
         >
           <h2 id="change-heading" className="font-serif text-card-title text-ink">
@@ -164,7 +164,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           </h2>
           <ul className="mt-4 space-y-3">
             {report.whatWouldChange.map((item) => (
-              <li key={item} className="memo-prose border-l border-ink/20 pl-4 text-ink/75">
+              <li key={item} className="memo-prose text-ink/75">
                 {item}
               </li>
             ))}
@@ -172,7 +172,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
         </section>
 
         <section
-          className="memo-block px-memo-x py-memo-comparison-y sm:px-memo-x-sm lg:px-memo-x-lg lg:py-memo-section-y-lg"
+          className="memo-block px-memo-x py-memo-comparison-y pt-0 sm:px-memo-x-sm lg:px-memo-x-lg lg:py-memo-section-y-lg"
           aria-labelledby="before-heading"
         >
           <h2 id="before-heading" className="font-serif text-card-title text-ink">
@@ -188,7 +188,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
         </section>
       </div>
 
-      <footer className="memo-block border-t border-ink/10 px-memo-x py-memo-footer-y sm:px-memo-x-sm lg:px-memo-x-lg">
+      <footer className="memo-block px-memo-x py-memo-footer-y text-right sm:px-memo-x-sm lg:px-memo-x-lg">
         <p className="text-label text-ink/65">{report.disclaimer}</p>
       </footer>
     </article>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
+import { Band } from "@/components/ui/band";
 import { PrimaryButtonLink } from "@/components/ui/primary-button";
 import { SecondaryButtonLink } from "@/components/ui/secondary-button";
 
@@ -12,7 +13,8 @@ export default function NotFound() {
   useLocalizedTitle(t.notFound.title);
 
   return (
-    <section className="mx-auto py-16 text-center sm:py-24">
+    <Band as="div">
+    <section className="mx-auto py-8 text-center sm:py-16">
       <p className="text-eyebrow text-ink-accent">404</p>
       <h1 className="mt-3 font-serif text-page-title text-ink">{t.notFound.title}</h1>
       <p className="mt-3 text-body text-ink/70">{t.notFound.body}</p>
@@ -21,5 +23,6 @@ export default function NotFound() {
         <SecondaryButtonLink href="/questionnaire">{t.notFound.start}</SecondaryButtonLink>
       </div>
     </section>
+    </Band>
   );
 }
