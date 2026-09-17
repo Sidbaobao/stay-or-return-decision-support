@@ -88,7 +88,16 @@ family_emotion=HeartHandshake, lifestyle=Sun, long_term=Sprout.
     visible tab, a static frame under reduced motion, and a Canvas 2D
     still image when WebGL is unavailable. Scale for
     devicePixelRatio; handle context loss; clean up rAF, observers
-    and listeners on unmount.
+    and listeners on unmount. Touch counts as a cursor: passive
+    touch listeners feed the same state, so the page keeps scrolling
+    and the field follows the finger. The renderer never throws
+    (a context can be lost at creation on phones with many tabs);
+    the canvas and the videos sit inside `DecorativeBoundary`, so a
+    decorative failure leaves the ground and never the error page.
+12. **Error pages**: `app/error.tsx` (inside the shell, localized,
+    reload + home, the message under a details fold) and
+    `app/global-error.tsx` (own html/body, bilingual). Never leave
+    Next's default "Application error" text.
 
 ## Design tokens (single source of truth)
 

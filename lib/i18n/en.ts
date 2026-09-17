@@ -109,6 +109,14 @@ export const en = {
     start: "Start the questionnaire"
   },
 
+  appError: {
+    title: "Something went wrong on this page.",
+    body: "Reloading usually fixes it. Your answers are saved on this device and are not affected.",
+    reload: "Reload the page",
+    home: "Go to the home page",
+    details: "Technical details"
+  },
+
   questionnaire: {
     eyebrow: "Step 1",
     title: "Questionnaire",

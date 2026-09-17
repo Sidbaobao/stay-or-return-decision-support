@@ -110,6 +110,14 @@ export const zh: Dictionary = {
     start: "开始问卷"
   },
 
+  appError: {
+    title: "这个页面出了点问题。",
+    body: "刷新一般就能解决。你的答案保存在这台设备上，不受影响。",
+    reload: "刷新页面",
+    home: "回到首页",
+    details: "技术细节"
+  },
+
   questionnaire: {
     eyebrow: "第 1 步",
     title: "问卷",
