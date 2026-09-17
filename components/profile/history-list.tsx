@@ -42,7 +42,7 @@ function HistoryRow({ entry, index, onDelete }: HistoryRowProps) {
 
   return (
     <li
-      className="reveal-row grid gap-3 py-4 first:pt-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+      className="reveal-row grid gap-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
       style={{ animationDelay: `${index * 40}ms` }}
     >
       <div className="min-w-0">
@@ -137,7 +137,7 @@ export function HistoryList({ entries, onEntriesChange }: HistoryListProps) {
   }
 
   return (
-    <ul ref={listRef} className="divide-y divide-hairline">
+    <ul ref={listRef} className="space-y-3">
       {entries.map((entry, index) => (
         <HistoryRow key={entry.id} entry={entry} index={index} onDelete={handleDelete} />
       ))}

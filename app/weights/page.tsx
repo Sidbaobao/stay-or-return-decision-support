@@ -9,6 +9,7 @@ import { readRunStatus } from "@/lib/run-state";
 import { useContent } from "@/lib/i18n/content";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { Weights } from "@/types";
+import { Band } from "@/components/ui/band";
 import { PageHeader } from "@/components/ui/page-header";
 import { WeightBubbleCluster } from "@/components/weights/weight-bubble-cluster";
 import { getWeightTotal } from "@/components/weights/weight-bubble-utils";
@@ -104,28 +105,34 @@ export default function WeightsPage() {
 
   return (
     <>
-      <PageHeader
-        eyebrow={t.weights.eyebrow}
-        title={t.weights.title}
-        description={t.weights.description}
-        actions={<ResetProgressButton onBeforeReset={flushPendingWeights} />}
-      />
+      <Band padding="header">
+        <PageHeader
+          eyebrow={t.weights.eyebrow}
+          title={t.weights.title}
+          description={t.weights.description}
+          actions={<ResetProgressButton onBeforeReset={flushPendingWeights} />}
+        />
+      </Band>
 
-      <WeightBubbleCluster
-        dimensions={dimensions}
-        weights={weights}
-        totalBudget={totalBudget}
-        onChange={handleWeightsChange}
-      />
+      <Band padding="none" className="pb-band pt-4">
+        <WeightBubbleCluster
+          dimensions={dimensions}
+          weights={weights}
+          totalBudget={totalBudget}
+          onChange={handleWeightsChange}
+        />
+      </Band>
 
-      <div className="flex flex-col gap-3 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <QuietLink href="/questionnaire" className="-mx-2 self-center sm:self-auto">
-          {t.weights.backQuestionnaire}
-        </QuietLink>
-        <PrimaryButton onClick={handleSave} className="w-full sm:w-auto">
-          {t.weights.saveContinue}
-        </PrimaryButton>
-      </div>
+      <Band tone="white" padding="tight" as="div">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <QuietLink href="/questionnaire" className="-mx-2 self-center sm:self-auto">
+            {t.weights.backQuestionnaire}
+          </QuietLink>
+          <PrimaryButton onClick={handleSave} className="w-full sm:w-auto">
+            {t.weights.saveContinue}
+          </PrimaryButton>
+        </div>
+      </Band>
     </>
   );
 }

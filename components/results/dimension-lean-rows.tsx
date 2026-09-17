@@ -62,7 +62,7 @@ export function DimensionLeanRows({ contributions, uncertainDimensionIds, footno
 
   return (
     <div>
-      <ul ref={listRef} className="divide-y divide-hairline">
+      <ul ref={listRef} className="space-y-7">
         {rankedContributions.map((contribution, index) => {
           const Icon = dimensionIcons[contribution.dimensionId];
           const isBalanced = contribution.favoredScenario === "tie";
@@ -79,7 +79,7 @@ export function DimensionLeanRows({ contributions, uncertainDimensionIds, footno
           return (
             <li
               key={contribution.dimensionId}
-              className={`grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 py-4 transition-all duration-500 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center ${
+              className={`grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 transition-all duration-500 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center ${
                 isInView ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
               }`}
               style={{ transitionDelay: `${index * 80}ms` }}
@@ -107,11 +107,11 @@ export function DimensionLeanRows({ contributions, uncertainDimensionIds, footno
                   <span className="ml-auto flex items-center gap-1.5">
                     {isTopDriver ? (
                       <span
-                        className="rounded-pill border px-2.5 py-1 text-label font-medium"
+                        className="rounded-pill px-2.5 py-1 text-label font-medium"
                         style={{
-                          borderColor: supportsStay
-                            ? "rgb(var(--color-path-stay) / 0.35)"
-                            : "rgb(var(--color-path-return) / 0.35)",
+                          backgroundColor: supportsStay
+                            ? "rgb(var(--color-path-stay) / 0.09)"
+                            : "rgb(var(--color-path-return) / 0.09)",
                           color: accent
                         }}
                       >
@@ -119,7 +119,7 @@ export function DimensionLeanRows({ contributions, uncertainDimensionIds, footno
                       </span>
                     ) : null}
                     {isStillClose ? (
-                      <span className="rounded-pill border border-hairline-strong bg-surface-strong px-2.5 py-1 text-label text-ink/65">
+                      <span className="rounded-pill bg-ink/5 px-2.5 py-1 text-label text-ink/65">
                         {t.results.stillClose}
                       </span>
                     ) : null}

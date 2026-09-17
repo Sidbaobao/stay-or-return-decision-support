@@ -14,7 +14,7 @@ export function questionElementId(questionId: string) {
   return `question-${questionId}`;
 }
 
-// One question in the dimension's list: a hairline-divided block. The
+// One question in the part's list, separated from the next by space. The
 // options keep their outlines, because they are the controls. Once a
 // question is answered, the options it passed over step back so the eye
 // moves on to the next open one.
@@ -22,7 +22,7 @@ export function QuestionCard({ question, value, onChange, numberLabel, isActive 
   const isAnswered = value !== undefined;
 
   return (
-    <section id={questionElementId(question.id)} className="scroll-mt-24 py-7">
+    <section id={questionElementId(question.id)} className="scroll-mt-28">
       <p
         className={`text-eyebrow transition-colors duration-motion-standard ease-interaction motion-reduce:transition-none ${
           isActive ? "text-accent-warm" : "text-ink/50"

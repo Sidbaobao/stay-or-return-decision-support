@@ -18,6 +18,7 @@ import { readRunStatus } from "@/lib/run-state";
 import { useContent } from "@/lib/i18n/content";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { Answers, Dimension, DimensionId, Question } from "@/types";
+import { Band, OffsetGrid } from "@/components/ui/band";
 import { PageHeader } from "@/components/ui/page-header";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
@@ -125,22 +126,20 @@ type DimensionIntroHeaderProps = {
 function DimensionIntroHeader({ dimension, guidingQuestion, eyebrow, headingRef }: DimensionIntroHeaderProps) {
   const Icon = dimensionIcons[dimension.id];
 
+  // The heading column of the step: stays in view on wide screens while
+  // the questions scroll past it.
   return (
-    <div className="space-y-3">
-      <div>
-        <p className="flex items-center gap-2 text-eyebrow text-ink-accent">
-          <Icon aria-hidden="true" strokeWidth={1.8} className="h-5 w-5 text-accent-warm" />
-          {eyebrow}
-        </p>
-        {/* Focus lands here after a step change, so keyboard and screen
-            reader users arrive with the new questions. */}
-        <h2 ref={headingRef} tabIndex={-1} className="mt-2 font-serif text-section-title text-ink outline-none">
-          {dimension.label}
-        </h2>
-      </div>
-      <p className="border-l-2 border-accent-warm/40 pl-4 text-body font-medium text-ink">
-        {guidingQuestion}
+    <div className="lg:sticky lg:top-28">
+      <p className="flex items-center gap-2 text-eyebrow text-ink-accent">
+        <Icon aria-hidden="true" strokeWidth={1.8} className="h-5 w-5 text-accent-warm" />
+        {eyebrow}
       </p>
+      {/* Focus lands here after a step change, so keyboard and screen
+          reader users arrive with the new questions. */}
+      <h2 ref={headingRef} tabIndex={-1} className="mt-2 font-serif text-page-title text-ink outline-none">
+        {dimension.label}
+      </h2>
+      <p className="mt-4 font-serif text-card-title text-ink/70">{guidingQuestion}</p>
     </div>
   );
 }
@@ -173,7 +172,7 @@ export default function QuestionnairePage() {
 
   const stepSectionRef = useRef<HTMLElement>(null);
   const introHeadingRef = useRef<HTMLHeadingElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLElement>(null);
   const scrollTimerRef = useRef<number | null>(null);
   // Set by the reader's own step changes only; a run cleared or restored in
   // another tab must not scroll this one.
@@ -313,32 +312,37 @@ export default function QuestionnairePage() {
 
   return (
     <>
-      <PageHeader eyebrow={t.questionnaire.eyebrow} title={t.questionnaire.title} actions={<ResetProgressButton />} />
+      <Band padding="header">
+        <PageHeader eyebrow={t.questionnaire.eyebrow} title={t.questionnaire.title} actions={<ResetProgressButton />} />
+      </Band>
 
-      <div className="sticky top-0 z-20 border-b border-hairline bg-canvas/95 py-3 backdrop-blur">
-        <div className="mb-2 flex items-baseline justify-between gap-4 text-label">
-          <p className="shrink-0 font-medium text-ink/70">
-            {t.questionnaire.answered(completedCount, questions.length)}
-          </p>
-          {currentGroup ? (
-            <p className="min-w-0 truncate text-ink/60">
-              {t.questionnaire.stepOf(currentStepIndex + 1, groupedQuestions.length)} · {currentGroup.dimension.label}
+      {/* Sticks under the header; a soft shadow instead of a rule. */}
+      <div className="sticky top-0 z-20 w-full bg-canvas/95 shadow-stuck backdrop-blur">
+        <div className="mx-auto w-full max-w-6xl px-page-gutter py-3">
+          <div className="mb-2 flex items-baseline justify-between gap-4 text-label">
+            <p className="shrink-0 font-medium text-ink/70">
+              {t.questionnaire.answered(completedCount, questions.length)}
             </p>
-          ) : null}
-        </div>
-        <div className="h-1 rounded-pill bg-action-primary/10">
-          <div
-            className="h-1 rounded-pill bg-action-primary transition-[width] duration-motion-emphasis ease-interaction motion-reduce:transition-none"
-            style={{ width: `${progressPercent}%` }}
-          />
+            {currentGroup ? (
+              <p className="min-w-0 truncate text-ink/60">
+                {t.questionnaire.stepOf(currentStepIndex + 1, groupedQuestions.length)} · {currentGroup.dimension.label}
+              </p>
+            ) : null}
+          </div>
+          <div className="h-1 rounded-pill bg-action-primary/10">
+            <div
+              className="h-1 rounded-pill bg-action-primary transition-[width] duration-motion-emphasis ease-interaction motion-reduce:transition-none"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
       </div>
 
-      <section aria-labelledby="steps-heading">
-        <h2 id="steps-heading" className="text-section-title text-ink">
+      <Band tone="white" padding="tight" aria-labelledby="steps-heading">
+        <h2 id="steps-heading" className="sr-only">
           {t.questionnaire.stepsHeading}
         </h2>
-        <ol role="list" className="mt-5 grid grid-cols-2 gap-x-6 sm:grid-cols-3 xl:grid-cols-6">
+        <ol role="list" className="-mx-2 flex flex-wrap gap-1">
           {groupedQuestions.map((group, index) => {
             const answeredCount = group.questions.filter(
               (question) => currentAnswers[question.id]
@@ -347,17 +351,17 @@ export default function QuestionnairePage() {
             const isCurrent = index === currentStepIndex;
 
             return (
-              <li key={group.dimension.id} className="border-t border-hairline">
+              <li key={group.dimension.id}>
                 <button
                   type="button"
                   onClick={() => changeStep(index)}
                   aria-current={isCurrent ? "step" : undefined}
-                  className={`interaction-step -mt-px flex w-full items-center gap-3 border-t-2 py-4 text-left transition-colors duration-motion-standard ease-interaction motion-reduce:transition-none ${
+                  className={`interaction-step flex items-center gap-3 rounded-pill py-2 pl-2 pr-4 text-left transition-colors duration-motion-standard ease-interaction motion-reduce:transition-none ${
                     isCurrent
-                      ? "border-accent-warm text-ink"
+                      ? "bg-surface-selected text-ink"
                       : isComplete
-                        ? "border-transparent text-ink hover:border-ink/20"
-                        : "border-transparent text-ink/70 hover:border-ink/20 hover:text-ink"
+                        ? "text-ink hover:bg-canvas"
+                        : "text-ink/65 hover:bg-canvas hover:text-ink"
                   }`}
                 >
                   <DimensionProgressRing
@@ -366,9 +370,8 @@ export default function QuestionnairePage() {
                     isComplete={isComplete}
                   />
                   <span className="min-w-0">
-                    <span className="block text-eyebrow">{t.questionnaire.step(index + 1)}</span>
-                    <span className="mt-1 block text-body-sm font-semibold">{group.dimension.label}</span>
-                    <span className="mt-1 block text-label text-ink/65">
+                    <span className="block text-body-sm font-semibold leading-tight">{group.dimension.label}</span>
+                    <span className="mt-0.5 block text-label text-ink/60">
                       {isComplete ? (
                         t.questionnaire.done
                       ) : (
@@ -384,64 +387,67 @@ export default function QuestionnairePage() {
             );
           })}
         </ol>
-      </section>
+      </Band>
 
       {currentGroup ? (
-        <section ref={stepSectionRef} className="scroll-mt-24 border-t border-hairline pt-6 sm:pt-8">
-          <DimensionIntroHeader
-            dimension={currentGroup.dimension}
-            guidingQuestion={t.questionnaire.guiding[currentGroup.dimension.id]}
-            eyebrow={t.questionnaire.currentDimension}
-            headingRef={introHeadingRef}
-          />
-
-          <div className="mt-8 divide-y divide-hairline border-t border-hairline">
-            {currentGroup.questions.map((question) => (
-              <QuestionCard
-                key={question.id}
-                question={question}
-                value={currentAnswers[question.id]}
-                onChange={handleChange}
-                numberLabel={t.questionnaire.questionOf(questionNumbers.get(question.id) ?? 0, questions.length)}
-                isActive={question.id === activeQuestionId}
+        <Band ref={stepSectionRef} className="scroll-mt-28">
+          <OffsetGrid
+            aside={
+              <DimensionIntroHeader
+                dimension={currentGroup.dimension}
+                guidingQuestion={t.questionnaire.guiding[currentGroup.dimension.id]}
+                eyebrow={t.questionnaire.currentDimension}
+                headingRef={introHeadingRef}
               />
-            ))}
-          </div>
-        </section>
+            }
+          >
+            <div className="space-y-12">
+              {currentGroup.questions.map((question) => (
+                <QuestionCard
+                  key={question.id}
+                  question={question}
+                  value={currentAnswers[question.id]}
+                  onChange={handleChange}
+                  numberLabel={t.questionnaire.questionOf(questionNumbers.get(question.id) ?? 0, questions.length)}
+                  isActive={question.id === activeQuestionId}
+                />
+              ))}
+            </div>
+          </OffsetGrid>
+        </Band>
       ) : null}
 
-      <div
-        ref={footerRef}
-        className="flex flex-col gap-3 border-t border-hairline pt-6 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <QuietLink href="/" className="-mx-2 self-center sm:self-auto">
-          {t.questionnaire.backHome}
-        </QuietLink>
+      <Band ref={footerRef} tone="white" padding="tight" as="div">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <QuietLink href="/" className="-mx-2 self-center sm:self-auto">
+            {t.questionnaire.backHome}
+          </QuietLink>
 
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
-          {isLastStep && !canContinue ? (
-            <p className="text-center text-label text-ink/60 sm:mr-2 sm:text-right">
-              {t.questionnaire.remaining(questions.length - completedCount)}
-            </p>
-          ) : null}
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
+            {isLastStep && !canContinue ? (
+              <p className="text-center text-label text-ink/60 sm:mr-2 sm:text-right">
+                {t.questionnaire.remaining(questions.length - completedCount)}
+              </p>
+            ) : null}
 
-          {/* Always present, so the pair does not jump between steps. */}
-          <SecondaryButton onClick={() => changeStep(currentStepIndex - 1)} disabled={isFirstStep} className="px-5">
-            {t.questionnaire.previous}
-          </SecondaryButton>
+            {/* Always present, so the pair does not jump between steps. */}
+            <SecondaryButton onClick={() => changeStep(currentStepIndex - 1)} disabled={isFirstStep} className="px-5">
+              {t.questionnaire.previous}
+            </SecondaryButton>
 
-          {isLastStep ? (
-            <PrimaryButton onClick={handleSave} disabled={!canContinue} className="w-full sm:w-auto">
-              {t.questionnaire.saveContinue}
-            </PrimaryButton>
-          ) : (
-            <PrimaryButton type="button" onClick={() => changeStep(currentStepIndex + 1)} className="w-full sm:w-auto">
-              {nextGroup ? t.questionnaire.nextStep(nextGroup.dimension.label) : t.questionnaire.next}
-              <ArrowRight aria-hidden="true" className="ml-2 h-4 w-4 shrink-0" strokeWidth={2} />
-            </PrimaryButton>
-          )}
+            {isLastStep ? (
+              <PrimaryButton onClick={handleSave} disabled={!canContinue} className="w-full sm:w-auto">
+                {t.questionnaire.saveContinue}
+              </PrimaryButton>
+            ) : (
+              <PrimaryButton type="button" onClick={() => changeStep(currentStepIndex + 1)} className="w-full sm:w-auto">
+                {nextGroup ? t.questionnaire.nextStep(nextGroup.dimension.label) : t.questionnaire.next}
+                <ArrowRight aria-hidden="true" className="ml-2 h-4 w-4 shrink-0" strokeWidth={2} />
+              </PrimaryButton>
+            )}
+          </div>
         </div>
-      </div>
+      </Band>
     </>
   );
 }

@@ -92,9 +92,12 @@ export function TopNav() {
   return (
     <header
       className={
-        isHome
-          ? "absolute left-0 top-0 z-30 w-full border-b border-surface-strong/10 bg-transparent"
-          : "border-b border-surface-strong/60 bg-surface-strong/85 backdrop-blur"
+        // No rule under the header: on the home page it floats over the
+        // hero, elsewhere it is the first white band. The colours ease
+        // between the two so a navigation reads as one frame.
+        `transition-colors duration-motion-emphasis ease-interaction motion-reduce:transition-none ${
+          isHome ? "absolute left-0 top-0 z-30 w-full bg-transparent" : "bg-surface-strong"
+        }`
       }
     >
       <div className="mx-auto w-full max-w-6xl px-page-gutter py-4">
@@ -121,9 +124,7 @@ export function TopNav() {
 
         <nav
           aria-label={t.nav.primary}
-          className={`-mx-1 mt-3 flex items-center gap-4 overflow-x-auto px-1 pb-1 pt-3 md:hidden ${
-            isHome ? "border-t border-surface-strong/10" : "border-t border-ink/10"
-          }`}
+          className="-mx-1 mt-2 flex items-center gap-4 overflow-x-auto px-1 pb-1 pt-1 md:hidden"
         >
           <NavLinks pathname={pathname} isHome={isHome} isUnlocked={isUnlocked} t={t} />
         </nav>
