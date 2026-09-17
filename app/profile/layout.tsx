@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "My profile",
-  description:
-    "Your local profile and decision history, saved only on this device and never sent anywhere."
+  title: "Your profile",
+  description: "Your name and your saved decisions, kept only on this device."
 };
 
 export default function ProfileLayout({ children }: { children: ReactNode }) {

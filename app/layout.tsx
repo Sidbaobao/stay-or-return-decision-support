@@ -49,7 +49,7 @@ const serif = Newsreader({
 });
 
 const siteDescription =
-  "A decision-support tool that helps Chinese international students think through whether to stay in the US or return to China.";
+  "Stay in the US or go back to China? Twenty-four plain questions, your own priorities, and a clear read on which way you lean and why. Nothing leaves your browser.";
 
 export const metadata: Metadata = {
   title: {

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Weights",
-  description: "Set how much each of the six decision dimensions influences the final result."
+  title: "Priorities",
+  description: "Say which parts of your life count for more, and watch the result follow."
 };
 
 export default function WeightsLayout({ children }: { children: ReactNode }) {

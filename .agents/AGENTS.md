@@ -149,11 +149,23 @@ blues).
   (`.text-eyebrow`) are sentence case; never set text in capitals or
   add wide tracking. Do not reintroduce Fraunces, Inter or a CJK sans
   web font.
-- Keep copy concise and human. Avoid AI-tells: repeated
-  "heading + paragraph + three symmetric bullets" structures,
-  filler phrases ("In conclusion", "It's worth noting", "Overall"),
-  uniform information density. Vary rhythm; point out the key
-  message; let visuals carry information.
+- Voice: a friend who has thought about this properly. Conclusion
+  first, then the reason, then what to do. Read it aloud; if you
+  would not say it to someone's face, rewrite it. Call things what
+  a person calls them (work, money, the visa, family, daily life,
+  the next ten years), never what a spreadsheet calls them. Doubt
+  goes into a specific number or a specific answer, never a
+  disclaimer. No slogans, no metaphors, no capitals. Questions ask
+  one thing; options are things you would actually say. English
+  and Chinese are written natively, never translated from each
+  other. Avoid AI-tells: symmetric bullets, filler ("In
+  conclusion", "It's worth noting"), uniform density.
+- Dimensions have a `label` for headings and rows and a `phrase` for
+  the inside of a sentence ("the visa situation"). Each option that
+  pushes one way carries a `reason` (a clause after "you said");
+  the result page and the memo quote the reader's own answers
+  through `lib/reasons.ts` instead of naming dimensions. Prose
+  rounds scores to whole points; tables keep one decimal.
 - The site is bilingual (EN/中文). Every user-facing string lives in
   `lib/i18n/en.ts` with its Chinese twin in `lib/i18n/zh.ts` (same
   shape, enforced by the type); question and dimension copy lives in

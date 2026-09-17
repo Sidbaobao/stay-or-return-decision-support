@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  title: "Results",
-  description:
-    "The weighted comparison of staying in the US versus returning to China, with key drivers and confidence."
+  title: "Result",
+  description: "Which way you lean, what is behind it, and what would change it."
 };
 
 export default function ResultsLayout({ children }: { children: ReactNode }) {
