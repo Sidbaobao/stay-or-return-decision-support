@@ -1,6 +1,7 @@
 import { HeroSection } from "@/components/home/hero-section";
 import { HomeClosing, HowItWorks } from "@/components/home/how-it-works";
 import { TwoPathsVideoSection } from "@/components/home/two-paths-video-section";
+import { DecorativeBoundary } from "@/components/ui/decorative-boundary";
 
 export default function HomePage() {
   return (
@@ -19,7 +20,9 @@ export default function HomePage() {
 
         <div className="mx-auto flex w-full max-w-6xl flex-col">
           <HowItWorks />
-          <TwoPathsVideoSection />
+          <DecorativeBoundary>
+            <TwoPathsVideoSection />
+          </DecorativeBoundary>
           <HomeClosing />
         </div>
       </section>

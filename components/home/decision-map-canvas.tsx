@@ -25,6 +25,10 @@ const FRAME_UNIT = 1000 / 60;
 // A pause (hidden tab, hero scrolled away) must not become one giant step.
 const MAX_FRAME_STEP = FRAME_UNIT * 4;
 const POINTER_RADIUS = 220;
+// A finger covers less of a phone screen than a cursor covers a desktop.
+const TOUCH_POINTER_RADIUS = 150;
+// The WebGL minimum is 1; every real GPU allows far more.
+const FALLBACK_MAX_POINT_SIZE = 64;
 const RIPPLE_RING_WIDTH = 92;
 const MAX_RIPPLE_WAKES = 6;
 const GLOW_THRESHOLD = 0.86;
@@ -370,7 +374,19 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string) 
   return shader;
 }
 
+// Any failure here means "no WebGL": the caller falls back or leaves the
+// hero's plain ground. A decorative background must never throw into
+// React and take the page down.
 function createRenderer(canvas: HTMLCanvasElement): Renderer | null {
+  try {
+    return createWebGLRenderer(canvas);
+  } catch (error) {
+    console.error("Hero field renderer failed:", error);
+    return null;
+  }
+}
+
+function createWebGLRenderer(canvas: HTMLCanvasElement): Renderer | null {
   // A decorative background: never a reason to wake a discrete GPU.
   const gl = canvas.getContext("webgl", {
     alpha: false,
@@ -380,7 +396,10 @@ function createRenderer(canvas: HTMLCanvasElement): Renderer | null {
     premultipliedAlpha: true
   });
 
-  if (!gl) {
+  // A context can be lost the moment it is created (a phone browser
+  // with many tabs open, a GPU under memory pressure); every query on
+  // it then answers null. The restore event rebuilds everything later.
+  if (!gl || gl.isContextLost()) {
     return null;
   }
 
@@ -428,10 +447,10 @@ function createRenderer(canvas: HTMLCanvasElement): Renderer | null {
   const dprLocation = gl.getUniformLocation(program, "u_dpr");
   const modeLocation = gl.getUniformLocation(program, "u_mode");
   const maxPointSizeLocation = gl.getUniformLocation(program, "u_maxPointSize");
-  const pointSizeRange = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE) as Float32Array;
+  const pointSizeRange = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE) as Float32Array | null;
   const floatBytes = Float32Array.BYTES_PER_ELEMENT;
 
-  gl.uniform1f(maxPointSizeLocation, pointSizeRange[1]);
+  gl.uniform1f(maxPointSizeLocation, pointSizeRange ? pointSizeRange[1] : FALLBACK_MAX_POINT_SIZE);
   gl.disable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE);
@@ -529,7 +548,6 @@ export function DecisionMapCanvas() {
     }
 
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const finePointerQuery = window.matchMedia("(pointer: fine)");
 
     let renderer = createRenderer(canvas);
     let field: Field | null = null;
@@ -544,7 +562,10 @@ export function DecisionMapCanvas() {
     let isContextLost = false;
     let canvasRect = canvas.getBoundingClientRect();
 
+    // Fed by the mouse or pen through pointer events and by a finger through
+    // touch events; the physics does not care which.
     const pointer = { x: 0, y: 0, movementX: 0, movementY: 0, active: false };
+    let pointerRadius = POINTER_RADIUS;
 
     // Ripple wakes left by pointer movement, newest first.
     const wakeX = new Float32Array(MAX_RIPPLE_WAKES);
@@ -556,7 +577,13 @@ export function DecisionMapCanvas() {
     let wakeCount = 0;
     let lastWakeTime = -Infinity;
 
-    const canUseCursor = () => finePointerQuery.matches && canvas.clientWidth >= 640;
+    // The finger lifted or the cursor left: no more pushing, but the rings
+    // already on the water keep spreading.
+    const releaseCursor = () => {
+      pointer.active = false;
+      pointer.movementX = 0;
+      pointer.movementY = 0;
+    };
 
     const resetCursorState = () => {
       pointer.active = false;
@@ -587,7 +614,7 @@ export function DecisionMapCanvas() {
     };
 
     const applyCursorForces = (current: Field, frameScale: number) => {
-      if (!pointer.active || !canUseCursor()) {
+      if (!pointer.active) {
         return;
       }
 
@@ -596,14 +623,14 @@ export function DecisionMapCanvas() {
       const pointerSpeed = Math.min(pointerDistance, 64);
       const moveX = pointerDistance > 0 ? pointer.movementX / pointerDistance : 0;
       const moveY = pointerDistance > 0 ? pointer.movementY / pointerDistance : 0;
-      const radiusSquared = POINTER_RADIUS * POINTER_RADIUS;
+      const radiusSquared = pointerRadius * pointerRadius;
 
       if (pointerDistance > 2.5 && flowTime - lastWakeTime >= WAKE_INTERVAL) {
         lastWakeTime = flowTime;
         pushWake(pointer.x, pointer.y, moveX, moveY, clamp(pointerSpeed / 44, 0.42, 1));
       }
 
-      forEachNearby(current.grid, pointer.x, pointer.y, POINTER_RADIUS + 48, (i) => {
+      forEachNearby(current.grid, pointer.x, pointer.y, pointerRadius + 48, (i) => {
         const dx = x[i] - pointer.x;
         const dy = y[i] - pointer.y;
         const distanceSquared = dx * dx + dy * dy;
@@ -613,7 +640,7 @@ export function DecisionMapCanvas() {
         }
 
         const distance = Math.sqrt(distanceSquared);
-        const proximity = 1 - distance / POINTER_RADIUS;
+        const proximity = 1 - distance / pointerRadius;
         const eased = proximity * proximity * (3 - 2 * proximity);
         const push = eased * responsiveness[i] * 8.6 * frameScale;
         const wake = proximity * pointerSpeed * responsiveness[i] * 0.22 * frameScale;
@@ -627,7 +654,7 @@ export function DecisionMapCanvas() {
     };
 
     const applyRippleWakes = (current: Field, frameScale: number) => {
-      if (wakeCount === 0 || !canUseCursor()) {
+      if (wakeCount === 0) {
         return;
       }
 
@@ -826,6 +853,7 @@ export function DecisionMapCanvas() {
 
       stopAnimation();
       dpr = nextDpr;
+      pointerRadius = width < 640 ? TOUCH_POINTER_RADIUS : POINTER_RADIUS;
       field = createField(width, height);
       resetCursorState();
       lastFrameTime = 0;
@@ -857,29 +885,66 @@ export function DecisionMapCanvas() {
       }
     };
 
-    const handlePointerMove = (event: PointerEvent) => {
-      if (reducedMotion || !canUseCursor()) {
-        return;
-      }
-
+    // True when the point lies on the hero; the cursor state then follows it.
+    const moveCursorTo = (clientX: number, clientY: number) => {
       if (
-        event.clientX < canvasRect.left ||
-        event.clientX > canvasRect.right ||
-        event.clientY < canvasRect.top ||
-        event.clientY > canvasRect.bottom
+        clientX < canvasRect.left ||
+        clientX > canvasRect.right ||
+        clientY < canvasRect.top ||
+        clientY > canvasRect.bottom
       ) {
-        resetCursorState();
-        return;
+        releaseCursor();
+        return false;
       }
 
-      const nextX = event.clientX - canvasRect.left;
-      const nextY = event.clientY - canvasRect.top;
+      const nextX = clientX - canvasRect.left;
+      const nextY = clientY - canvasRect.top;
 
       pointer.movementX = pointer.active ? nextX - pointer.x : 0;
       pointer.movementY = pointer.active ? nextY - pointer.y : 0;
       pointer.x = nextX;
       pointer.y = nextY;
       pointer.active = true;
+
+      return true;
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      // A finger arrives through the touch events below, which keep
+      // firing while the page scrolls under it; its pointer events stop
+      // the moment the browser takes the gesture as a scroll.
+      if (reducedMotion || event.pointerType === "touch") {
+        return;
+      }
+
+      moveCursorTo(event.clientX, event.clientY);
+    };
+
+    // Passive, so the page scrolls as it always did; the field simply
+    // follows the finger. A tap leaves one ring.
+    const handleTouchStart = (event: TouchEvent) => {
+      const touch = event.touches[0];
+
+      if (reducedMotion || !touch) {
+        return;
+      }
+
+      releaseCursor();
+
+      if (moveCursorTo(touch.clientX, touch.clientY)) {
+        lastWakeTime = flowTime;
+        pushWake(pointer.x, pointer.y, 0, 0, 0.8);
+      }
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const touch = event.touches[0];
+
+      if (reducedMotion || !touch) {
+        return;
+      }
+
+      moveCursorTo(touch.clientX, touch.clientY);
     };
 
     const refreshRect = () => {
@@ -918,8 +983,14 @@ export function DecisionMapCanvas() {
             { threshold: [0, VISIBLE_RATIO_TO_ANIMATE] }
           );
 
-    resize();
-    updateMotionPreference();
+    try {
+      resize();
+      updateMotionPreference();
+    } catch (error) {
+      console.error("Hero field could not start:", error);
+      stopAnimation();
+      renderer = null;
+    }
 
     viewObserver?.observe(canvas);
     sizeObserver?.observe(canvas);
@@ -929,6 +1000,10 @@ export function DecisionMapCanvas() {
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerleave", resetCursorState);
     window.addEventListener("blur", resetCursorState);
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchend", releaseCursor);
+    window.addEventListener("touchcancel", releaseCursor);
     motionQuery.addEventListener("change", updateMotionPreference);
     canvas.addEventListener("webglcontextlost", handleContextLost);
     canvas.addEventListener("webglcontextrestored", handleContextRestored);
@@ -942,6 +1017,10 @@ export function DecisionMapCanvas() {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerleave", resetCursorState);
       window.removeEventListener("blur", resetCursorState);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", releaseCursor);
+      window.removeEventListener("touchcancel", releaseCursor);
       motionQuery.removeEventListener("change", updateMotionPreference);
       canvas.removeEventListener("webglcontextlost", handleContextLost);
       canvas.removeEventListener("webglcontextrestored", handleContextRestored);

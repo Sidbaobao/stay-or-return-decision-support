@@ -85,11 +85,23 @@ export function useLocalizedTitle(title: string | null) {
     apply();
 
     // Next.js writes its own (English) <title> again once its metadata
-    // boundary hydrates, and on every client-side navigation. Watch the
-    // head and put the reader's language back whenever that happens.
-    const observer = new MutationObserver(apply);
+    // boundary hydrates, on every client-side navigation, and when a
+    // segment's error page renders (that one lands in the body, not the
+    // head). Watch the whole document, react only to changes that touch a
+    // <title>, and put the reader's language back.
+    const isTitle = (node: Node | null) =>
+      node !== null && (node.nodeType === Node.TEXT_NODE ? node.parentElement : (node as Element))?.tagName === "TITLE";
+    const observer = new MutationObserver((records) => {
+      const touchesTitle = records.some(
+        (record) => isTitle(record.target) || Array.from(record.addedNodes).some(isTitle)
+      );
 
-    observer.observe(document.head, { childList: true, subtree: true, characterData: true });
+      if (touchesTitle) {
+        apply();
+      }
+    });
+
+    observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
 
     return () => observer.disconnect();
   }, [title, t, isResolved]);
