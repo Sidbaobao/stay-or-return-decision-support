@@ -69,7 +69,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
         <span className="text-eyebrow mt-4 inline-flex rounded-pill border border-hairline-strong bg-surface-strong/55 px-3 py-1.5 text-ink/65">
           {memo.confidence[report.confidence]}
         </span>
-        <p className="mt-5 text-body-lg text-ink/80">{report.lead}</p>
+        <p className="memo-prose mt-5 text-ink/80">{report.lead}</p>
       </section>
 
       <section
@@ -164,7 +164,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           </h2>
           <ul className="mt-4 space-y-3">
             {report.whatWouldChange.map((item) => (
-              <li key={item} className="border-l border-ink/20 pl-4 text-body-sm text-ink/75">
+              <li key={item} className="memo-prose border-l border-ink/20 pl-4 text-ink/75">
                 {item}
               </li>
             ))}
@@ -178,7 +178,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           <h2 id="before-heading" className="font-serif text-card-title text-ink">
             {memo.beforeDeciding}
           </h2>
-          <ol className="mt-4 list-decimal space-y-3 pl-5 text-body-sm text-ink/75 marker:text-ink/45">
+          <ol className="memo-prose mt-4 list-decimal space-y-3 pl-5 text-ink/75 marker:text-ink/45">
             {report.beforeDeciding.map((item) => (
               <li key={item} className="pl-1">
                 {item}

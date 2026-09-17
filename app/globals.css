@@ -76,27 +76,29 @@
   --motion-duration-reveal-long: 800ms;
   --motion-ease-reveal: cubic-bezier(0.3, 1.28, 0.44, 1);
 
-  /* Typography — fluid modular scale (~major third at desktop, larger jump to display) */
-  --text-display: clamp(2.75rem, 1.9rem + 3.6vw, 4.5rem);
-  --leading-display: 1.02;
-  --tracking-display: -0.02em;
-  --text-page-title: clamp(2.25rem, 1.8rem + 1.9vw, 3.25rem);
-  --leading-page-title: 1.06;
-  --tracking-page-title: -0.015em;
-  --text-section-title: clamp(1.625rem, 1.45rem + 0.75vw, 2rem);
-  --leading-section-title: 1.16;
-  --tracking-section-title: -0.01em;
-  --text-card-title: 1.25rem;
+  /* Typography. Headings in a text serif at weight 500, sizes that stay
+     close to reading sizes (display 40 to 56px, never a poster), body
+     17px. Small labels are sentence case; nothing is set in capitals. */
+  --text-display: clamp(2.5rem, 1.95rem + 2.2vw, 3.5rem);
+  --leading-display: 1.08;
+  --tracking-display: -0.01em;
+  --text-page-title: clamp(2rem, 1.7rem + 1.2vw, 2.75rem);
+  --leading-page-title: 1.12;
+  --tracking-page-title: -0.005em;
+  --text-section-title: clamp(1.5rem, 1.4rem + 0.5vw, 1.75rem);
+  --leading-section-title: 1.25;
+  --tracking-section-title: 0;
+  --text-card-title: 1.3125rem;
   --leading-card-title: 1.35;
-  --text-body-lg: 1.125rem;
-  --leading-body-lg: 1.65;
-  --text-body: 1rem;
-  --leading-body: 1.6;
-  --text-body-sm: 0.875rem;
-  --leading-body-sm: 1.55;
-  --text-label: 0.75rem;
-  --leading-label: 1.35;
-  --tracking-eyebrow: 0.14em;
+  --text-body-lg: 1.1875rem;
+  --leading-body-lg: 1.55;
+  --text-body: 1.0625rem;
+  --leading-body: 1.55;
+  --text-body-sm: 0.9375rem;
+  --leading-body-sm: 1.5;
+  --text-label: 0.8125rem;
+  --leading-label: 1.4;
+  --tracking-eyebrow: 0.01em;
 
 }
 
@@ -142,12 +144,20 @@ input[type="range"] {
 }
 
 @layer components {
+  /* A small label above a heading, in sentence case: the copy decides
+     its own capitals. */
   .text-eyebrow {
     font-size: var(--text-label);
     font-weight: 600;
     line-height: var(--leading-label);
     letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
+  }
+
+  /* The memo reads like a document: its prose is set in the serif. */
+  .memo-prose {
+    font-family: var(--font-serif), Georgia, serif;
+    font-size: 1.125rem;
+    line-height: 1.6;
   }
 
   .interaction-primary {
@@ -588,9 +598,8 @@ input[type="range"] {
 
 /* Locale: the boot script in app/layout.tsx marks a Chinese reader's
    document before first paint, and the provider lifts the veil once the
-   page is rendered in Chinese, so no English flashes through. Chinese
-   glyphs fall through Inter/Fraunces to Noto (loaded on demand) and then
-   to the system CJK faces. */
+   page is rendered in Chinese, so no English flashes through. The
+   Chinese font rules follow below. */
 html[data-locale="zh"]:not([data-hydrated]) body {
   visibility: hidden;
   /* Release valve: if hydration never comes (a stale chunk, a script
@@ -604,26 +613,60 @@ html[data-locale="zh"]:not([data-hydrated]) body {
   }
 }
 
+/* Chinese runs entirely in the system faces, headings included, at the
+   weights those faces carry well (PingFang Semibold, YaHei Bold). Only
+   the memo's prose takes the self-hosted serif. Lines are taller: CJK
+   needs the air. */
 html[data-locale="zh"] body,
-html[data-locale="zh"] .font-sans {
-  font-family: var(--font-inter), var(--font-noto-sans), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-}
-
+html[data-locale="zh"] .font-sans,
 html[data-locale="zh"] :is(h1, h2, h3, h4, h5, h6),
 html[data-locale="zh"] .font-serif {
-  font-family: var(--font-fraunces), var(--font-noto-serif), "Songti SC", "STSong", "SimSun", serif;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans CJK SC", sans-serif;
 }
 
-/* Latin display tracking is negative; CJK wants none. Eyebrows keep a
-   little air. */
 html[data-locale="zh"] .text-display,
 html[data-locale="zh"] .text-page-title,
-html[data-locale="zh"] .text-section-title {
+html[data-locale="zh"] .text-section-title,
+html[data-locale="zh"] .text-card-title {
+  font-weight: 600;
   letter-spacing: 0;
 }
 
+html[data-locale="zh"] .text-display {
+  line-height: 1.25;
+}
+
+html[data-locale="zh"] .text-page-title {
+  line-height: 1.3;
+}
+
+html[data-locale="zh"] .text-section-title {
+  line-height: 1.4;
+}
+
+html[data-locale="zh"] .text-card-title {
+  line-height: 1.5;
+}
+
+html[data-locale="zh"] body,
+html[data-locale="zh"] .text-body,
+html[data-locale="zh"] .text-body-sm {
+  line-height: 1.75;
+}
+
+html[data-locale="zh"] .text-body-lg {
+  line-height: 1.7;
+}
+
 html[data-locale="zh"] .text-eyebrow {
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
+}
+
+html[data-locale="zh"] .memo-prose {
+  font-family: var(--font-noto-serif), "Songti SC", "STSong", "SimSun", serif;
+  font-weight: 500;
+  line-height: 1.9;
 }
 
 @keyframes interaction-disclosure-reveal {

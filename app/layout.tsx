@@ -1,25 +1,20 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Fraunces, Inter, Noto_Sans_SC, Noto_Serif_SC } from "next/font/google";
+import { Newsreader, Noto_Serif_SC, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/layout/app-shell";
 import { CHINESE_LANGUAGE_PATTERN } from "@/lib/i18n";
 import { LocaleProvider } from "@/lib/i18n/provider";
 import { STORAGE_KEYS } from "@/lib/storage/local-store";
 
-// Chinese faces, self-hosted like Inter and Fraunces so no reader ever
-// contacts a font CDN. Google serves them sliced by unicode range and
-// next/font keeps the slices, so a page only fetches the ranges it shows;
-// nothing is preloaded, and the English stacks never reference them.
-const notoSans = Noto_Sans_SC({
-  weight: ["400", "500", "600"],
-  variable: "--font-noto-sans",
-  display: "swap",
-  preload: false
-});
-
+// Chinese runs in the system faces (PingFang, Hiragino, YaHei), as every
+// major Chinese site does. The one web face it loads is a serif for the
+// memo's prose, self-hosted so no reader contacts a font CDN; Google
+// serves it sliced by unicode range and next/font keeps the slices, so a
+// page only fetches the ranges it shows. Nothing is preloaded, and the
+// English stacks never reference it.
 const notoSerif = Noto_Serif_SC({
-  weight: ["600", "700"],
+  weight: ["500"],
   variable: "--font-noto-serif",
   display: "swap",
   preload: false
@@ -36,16 +31,20 @@ const localeBootScript = `(function(){try{var s=localStorage.getItem(${JSON.stri
   CHINESE_LANGUAGE_PATTERN.source
 )},"i").test(navigator.language||"");if(zh){var r=document.documentElement;r.setAttribute("data-locale","zh");r.lang="zh-CN";}}catch(e){}})();`;
 
-const inter = Inter({
+// English: a text serif made for reading on screens for headings and the
+// memo, a humanist sans for everything else. Both variable; the serif
+// carries its optical-size axis so small and large sizes are cut
+// differently.
+const sans = Source_Sans_3({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-sans",
   display: "swap"
 });
 
-const fraunces = Fraunces({
+const serif = Newsreader({
   subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-fraunces",
+  axes: ["opsz"],
+  variable: "--font-serif",
   display: "swap"
 });
 
@@ -78,7 +77,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${fraunces.variable} ${notoSans.variable} ${notoSerif.variable}`}
+      className={`${sans.variable} ${serif.variable} ${notoSerif.variable}`}
     >
       <head>
         <script id="locale-boot" dangerouslySetInnerHTML={{ __html: localeBootScript }} />

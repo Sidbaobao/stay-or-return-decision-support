@@ -140,7 +140,15 @@ blues).
 
 ## Content & copy
 
-- Headings use Fraunces (serif); body/UI uses Inter (sans).
+- Type: English headings and the memo's prose in Newsreader (a text
+  serif, weight 500, optical sizes on), everything else in Source Sans 3.
+  Chinese runs in the system faces (PingFang / Hiragino / YaHei) for
+  headings and body alike, weight 600 for headings, taller lines; only
+  the memo's prose (`.memo-prose`) takes the self-hosted Noto Serif SC
+  500. Display sizes stay near reading sizes (40 to 56px). Small labels
+  (`.text-eyebrow`) are sentence case; never set text in capitals or
+  add wide tracking. Do not reintroduce Fraunces, Inter or a CJK sans
+  web font.
 - Keep copy concise and human. Avoid AI-tells: repeated
   "heading + paragraph + three symmetric bullets" structures,
   filler phrases ("In conclusion", "It's worth noting", "Overall"),
