@@ -8,9 +8,11 @@ import { ComponentPropsWithoutRef, ElementType, forwardRef, ReactNode } from "re
 type BandTone = "canvas" | "white" | "warm";
 type BandPadding = "default" | "tight" | "header" | "none";
 
+// On the night the three tones are three depths: the canvas, a raised
+// band a shade lighter, and a warm band with a little red in its black.
 const toneClassName: Record<BandTone, string> = {
   canvas: "",
-  white: "bg-surface-strong",
+  white: "bg-surface",
   warm: "bg-surface-warm"
 };
 

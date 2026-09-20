@@ -40,7 +40,7 @@ export default function ErrorPage({ error }: ErrorPageProps) {
       </div>
       <details className="mx-auto mt-10 text-label text-ink/60">
         <summary className="cursor-pointer">{t.appError.details}</summary>
-        <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-words rounded-control bg-surface-strong/60 p-3 text-left font-mono">
+        <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-words rounded-control bg-surface-raised p-3 text-left font-mono">
           {error.name}: {error.message}
           {error.digest ? `\n${error.digest}` : ""}
         </pre>

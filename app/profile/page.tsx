@@ -126,7 +126,7 @@ export default function ProfilePage() {
                   maxLength={NICKNAME_MAX_LENGTH}
                   onChange={(event) => setNicknameDraft(event.target.value)}
                   placeholder={t.profile.placeholder}
-                  className="interaction-field min-h-11 w-full rounded-control border border-border bg-surface-strong px-3.5 py-2 text-body text-ink placeholder:text-ink/40"
+                  className="interaction-field min-h-11 w-full rounded-control border border-border bg-surface-raised px-3.5 py-2 text-body text-ink placeholder:text-ink/40"
                 />
                 <SecondaryButton type="submit" className="shrink-0">
                   {t.profile.save}

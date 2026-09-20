@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { defaultWeights } from "@/data/dimensions";
 import { usePrerequisiteGuard } from "@/lib/guards";
+import { scoreDecision } from "@/lib/scoring";
 import { saveWeights, STORAGE_KEYS, subscribeToStorageKey } from "@/lib/storage";
 import { readRunStatus } from "@/lib/run-state";
 import { useContent } from "@/lib/i18n/content";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
-import { Weights } from "@/types";
+import { Answers, Weights } from "@/types";
 import { Band } from "@/components/ui/band";
 import { PageHeader } from "@/components/ui/page-header";
+import { DecisionBalance } from "@/components/results/decision-balance";
 import { WeightBubbleCluster } from "@/components/weights/weight-bubble-cluster";
 import { getWeightTotal } from "@/components/weights/weight-bubble-utils";
 import { PrimaryButton } from "@/components/ui/primary-button";
@@ -24,6 +26,7 @@ export default function WeightsPage() {
   const { dimensions } = useContent();
   useLocalizedTitle(t.titles.weights);
   const [weights, setWeights] = useState<Weights>(defaultWeights);
+  const [answers, setAnswers] = useState<Answers>({});
   const [totalBudget, setTotalBudget] = useState(getWeightTotal(defaultWeights, dimensions.map((dimension) => dimension.id)));
   const [isHydrated, setIsHydrated] = useState(false);
   // Mirrors what is on screen, so the storage listener can tell an external
@@ -37,8 +40,10 @@ export default function WeightsPage() {
   }, [weights]);
 
   useEffect(() => {
-    const adoptStoredWeights = () => {
-      const stored = readRunStatus().state.weights;
+    const adoptStoredRun = () => {
+      const status = readRunStatus();
+      setAnswers(status.answers);
+      const stored = status.state.weights;
       const current = weightsRef.current;
       const isSameAsLocal = dimensions.every(
         (dimension) => stored[dimension.id] === current[dimension.id]
@@ -56,13 +61,13 @@ export default function WeightsPage() {
       setTotalBudget(getWeightTotal(stored, dimensions.map((dimension) => dimension.id)));
     };
 
-    adoptStoredWeights();
+    adoptStoredRun();
     setIsHydrated(true);
 
     // Follow the store, so "Reset current run" (or another tab) puts the
     // cluster back to its defaults instead of leaving stale priorities on
     // screen.
-    return subscribeToStorageKey(STORAGE_KEYS.currentRun, adoptStoredWeights);
+    return subscribeToStorageKey(STORAGE_KEYS.currentRun, adoptStoredRun);
     // The dimension ids never change; only their labels do with the locale.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -80,6 +85,13 @@ export default function WeightsPage() {
 
     return () => window.clearTimeout(timeoutId);
   }, [isHydrated, weights]);
+
+  // The result, scored live from the answers and the priorities on screen,
+  // so a bubble dragged bigger moves the marker at once.
+  const liveResult = useMemo(
+    () => (Object.keys(answers).length > 0 ? scoreDecision(answers, weights) : null),
+    [answers, weights]
+  );
 
   const handleWeightsChange = (next: Weights) => {
     hasUserEditedRef.current = true;
@@ -107,19 +119,30 @@ export default function WeightsPage() {
     <>
       <Band padding="header">
         <PageHeader
-          eyebrow={t.weights.eyebrow}
           title={t.weights.title}
           description={t.weights.description}
           actions={<ResetProgressButton onBeforeReset={flushPendingWeights} />}
         />
       </Band>
 
-      <Band padding="none" className="pb-band pt-4">
+      <Band padding="none" className="pb-band pt-6">
         <WeightBubbleCluster
           dimensions={dimensions}
           weights={weights}
           totalBudget={totalBudget}
           onChange={handleWeightsChange}
+          aside={
+            liveResult ? (
+              <div className="rounded-card bg-surface-raised/70 p-5 shadow-soft sm:p-6">
+                <DecisionBalance
+                  difference={liveResult.weightedTotals.difference}
+                  recommendedScenario={liveResult.recommendedScenario}
+                  isRevealed
+                  mode="live"
+                />
+              </div>
+            ) : null
+          }
         />
       </Band>
 

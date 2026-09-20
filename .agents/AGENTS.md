@@ -38,7 +38,8 @@ Tone across the product: calm, warm, trustworthy, Qatchup-like.
   Bearer-gated GET).
 - `components/` — home/, questionnaire/, weights/, results/,
   report/, profile/, share/, layout/, ui/.
-- `data/` — questions.ts, dimensions.ts.
+- `data/` — questions.ts, dimensions.ts, factors.ts (the home page's
+  chips, each pointing at a question), with .zh twins.
 - `lib/` — scoring.ts, storage.ts (all localStorage), guards.ts,
   report.ts, share.ts (link codec), stats-client.ts, utils.ts,
   server/ (Redis REST wrapper — server only).
@@ -107,12 +108,22 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
 - Stay / US path: blue `#3C5CCF`
 - Return / China path: red `#D72638`
 - Warm accent: coral `#D96C4A`
-- Home dark hero exception: `#070D18`. Two files draw colors directly
-  because a canvas (2D or WebGL) cannot read CSS custom properties, and
-  both are off-limits to styling tasks:
-  `components/home/decision-map-canvas.tsx` (the two path colors + hero
-  background) and `components/weights/*` (three per-dimension bubble
-  hues).
+- The site is graphite: every page shares the home hero's night. Canvas
+  `11 15 23`, raised surface `16 21 31`, ink `242 239 232`, the path
+  colours lifted for dark ground (stay `108 132 255`, return
+  `255 92 106`), a warm coral accent, and six part hues
+  (`--color-dim-<id>`) used by the questionnaire rail, the priority
+  bubbles and the home page chips. The memo is the one sheet of paper:
+  `.decision-memo` re-declares the same token names in paper values, so
+  everything inside it reads its usual tokens and prints on white. One
+  file still draws hex directly because a WebGL canvas cannot read CSS
+  custom properties: `components/home/decision-map-canvas.tsx` (the two
+  canonical path colours and the hero background), off-limits to styling
+  tasks. Depth on the night comes from a lighter tone or `shadow-soft`
+  (darkness below, a hairline of light on top) and from glows in a
+  part's hue, never from grey drop shadows. The body carries a faint dot
+  grid and two glows (`--pattern-dots`, `--gradient-page-atmosphere`);
+  the header is opaque so the grid never shows through it.
 - Separation: no rules and no boxes. A page is a stack of full-width
   bands (`components/ui/band.tsx`) in three tones (canvas, white, warm);
   two tones meeting is the only edge. Inside a band, blocks are
@@ -133,9 +144,19 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
   page's bands rise into place (`.app-main > *`, staggered, off under
   reduced motion). Pages that wait for stored state render nothing until
   ready, so the rise happens when the content is real.
-The whole site shares one warm, cohesive palette. Do not reintroduce
-retired colors (orange `#F97316`, teal `#0F8B8D`, the old competing
-blues).
+- Motion, one idea per page, all off under reduced motion: the header's
+  underline slides between pages (`.nav-indicator`); the questionnaire's
+  answer highlight slides to the chosen answer (`.seg-thumb`), the open
+  question carries a pulsing dot, the keys 1, 2, 3 answer it, and a fresh
+  answer scrolls the next question into view; the priority bubbles repack
+  and glow, and the result's scale follows them live (`DecisionBalance`
+  in `live` mode); the result's number counts up (`CountUp`), its bars
+  grow in order, and a row under the pointer unfolds the reader's own
+  answer; the memo's lines arrive one after another (`.memo-lines`); the
+  home page's chips drift in three rows (`.flow-row`) and pause under the
+  pointer, each opening its question (`/questionnaire#question-<id>`).
+Do not reintroduce the cream page background, retired colors (orange
+`#F97316`, teal `#0F8B8D`, the old competing blues) or grey shadows.
 
 ## Workflow rules
 
@@ -161,10 +182,13 @@ blues).
   Chinese runs in the system faces (PingFang / Hiragino / YaHei) for
   headings and body alike, weight 600 for headings, taller lines; only
   the memo's prose (`.memo-prose`) takes the self-hosted Noto Serif SC
-  500. Display sizes stay near reading sizes (40 to 56px). Small labels
-  (`.text-eyebrow`) are sentence case; never set text in capitals or
-  add wide tracking. Do not reintroduce Fraunces, Inter or a CJK sans
-  web font.
+  500. Numbers, indexes and counters (question numbers, part numbers,
+  scores, dates in lists) are set in JetBrains Mono through `.num`, with
+  tabular figures. Display runs 40 to 68px with the tracking pulled in
+  (-0.025em); one poster number per page (`.text-hero-number`, up to
+  128px) is the only thing bigger. Small labels (`.text-eyebrow`) are
+  sentence case; never set text in capitals or add wide tracking. Do not
+  reintroduce Fraunces, Inter or a CJK sans web font.
 - Voice: complete, ordinary sentences, the way a person would put it
   in a message to a friend. Model the sentence shapes on GOV.UK, NHS
   and flomo's help pages: 10 to 20 words (15 to 30 characters in

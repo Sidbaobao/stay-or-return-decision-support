@@ -85,6 +85,8 @@ export const en = {
   home: {
     heroTitle: "Should you stay in the US or go back to China?",
     heroFacts: ["24 questions", "About 20 minutes", "Nothing leaves your browser"],
+    flowAria: "The things this decision turns on",
+    factorQuestion: (index: number) => `Question ${index}`,
     howItWorks: "How it works",
     steps: [
       {
@@ -146,6 +148,7 @@ export const en = {
     title: "The questions",
     answered: (count: number, total: number) => `${count} of ${total} answered`,
     stepsHeading: "The six parts",
+    keysHint: "Press 1, 2 or 3 to answer the open question",
     step: (index: number) => `Part ${index}`,
     done: "Done",
     ofCount: (count: number, total: number) => `${count} of ${total}`,
@@ -203,6 +206,7 @@ export const en = {
     hook: (phrase: string, reason: string | null): string[] =>
       reason ? [`The biggest reason is ${phrase}`, `You said ${reason}`] : [`The biggest reason is ${phrase}`],
     hookNone: ["No single part stands out yet"],
+    youSaid: (reason: string) => `You said ${reason}`,
     confidence: "How clear it is",
     confidenceLevel: { low: "Not very", medium: "Fairly", high: "Very" } satisfies Record<ConfidenceLevel, string>,
     confidenceAria: (level: string) => `${level} clear`,

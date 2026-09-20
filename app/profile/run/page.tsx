@@ -6,7 +6,9 @@ import { History } from "lucide-react";
 import { scoreDecision } from "@/lib/scoring";
 import { getRunHistoryEntry, QUESTIONS_VERSION } from "@/lib/storage";
 import { formatDate } from "@/lib/i18n";
+import { useContent } from "@/lib/i18n/content";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
+import { strongestReason } from "@/lib/reasons";
 import { DecisionBalance } from "@/components/results/decision-balance";
 import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
 import { MiniBalance } from "@/components/profile/mini-balance";
@@ -19,6 +21,7 @@ function RunSnapshotContent() {
   const searchParams = useSearchParams();
   const snapshotId = searchParams.get("id") ?? "";
   const { t, locale } = useLocale();
+  const { questions } = useContent();
   useLocalizedTitle(t.titles.snapshot);
   const [entry, setEntry] = useState<HistoryEntry | null>(null);
   const [isMissing, setIsMissing] = useState(false);
@@ -110,7 +113,7 @@ function RunSnapshotContent() {
                 {t.snapshot.pastHeadline(entry.direction, entry.confidence, entry.difference)}
               </h1>
               <div className="mt-5 flex flex-wrap items-center gap-3">
-                <span className="rounded-pill bg-surface-strong/80 px-3 py-1.5 text-eyebrow text-ink/65">
+                <span className="rounded-pill bg-surface-selected px-3 py-1.5 text-eyebrow text-ink/65">
                   {t.snapshot.confidence(t.results.confidenceLevel[entry.confidence])}
                 </span>
                 <MiniBalance direction={entry.direction} difference={entry.difference} />
@@ -141,6 +144,7 @@ function RunSnapshotContent() {
             <DimensionLeanRows
               contributions={snapshotResult.contributions}
               uncertainDimensionIds={snapshotResult.uncertainDimensions}
+              reasonFor={(dimensionId, scenario) => strongestReason(questions, entry.answers, dimensionId, scenario)}
             />
           </OffsetGrid>
         </Band>

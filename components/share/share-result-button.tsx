@@ -74,7 +74,7 @@ export function ShareResultButton({ answers, weights }: ShareResultButtonProps) 
             readOnly
             value={shareUrl}
             onFocus={(event) => event.target.select()}
-            className="mt-1.5 w-full rounded-control border border-border bg-surface-strong px-3 py-2 text-body-sm text-ink/80 interaction-field"
+            className="interaction-field mt-1.5 w-full rounded-control border border-border bg-surface-raised px-3 py-2 text-body-sm text-ink/80"
           />
         </div>
       ) : null}

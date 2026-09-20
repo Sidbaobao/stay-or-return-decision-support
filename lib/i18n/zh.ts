@@ -65,6 +65,8 @@ export const zh: Dictionary = {
   home: {
     heroTitle: "留在美国，还是回国？",
     heroFacts: ["24 道题", "大概 20 分钟", "所有内容只在你的浏览器里"],
+    flowAria: "这个决定会牵扯到的事",
+    factorQuestion: (index) => `第 ${index} 题`,
     howItWorks: "怎么用",
     steps: [
       {
@@ -126,6 +128,7 @@ export const zh: Dictionary = {
     title: "题目",
     answered: (count, total) => `已答 ${count} / ${total}`,
     stepsHeading: "六个部分",
+    keysHint: "按 1、2 或 3 可以回答当前这道题",
     step: (index) => `第 ${index} 部分`,
     done: "已完成",
     ofCount: (count, total) => `${count} / ${total}`,
@@ -182,6 +185,7 @@ export const zh: Dictionary = {
     },
     hook: (phrase, reason) => (reason ? [`最主要的原因是${phrase}`, `你说过，${reason}`] : [`最主要的原因是${phrase}`]),
     hookNone: ["目前没有哪个部分特别突出"],
+    youSaid: (reason) => `你说过，${reason}`,
     confidence: "有多明确",
     confidenceLevel: { low: "不太明确", medium: "比较明确", high: "很明确" },
     confidenceAria: (level) => level,

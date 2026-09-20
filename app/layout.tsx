@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Newsreader, Noto_Serif_SC, Source_Sans_3 } from "next/font/google";
+import { JetBrains_Mono, Newsreader, Noto_Serif_SC, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/layout/app-shell";
 import { CHINESE_LANGUAGE_PATTERN } from "@/lib/i18n";
@@ -48,6 +48,15 @@ const serif = Newsreader({
   display: "swap"
 });
 
+// Numbers, indexes and counters: one mono face across the site, so a
+// score, a question number and a date line up and read as measurements.
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+  display: "swap"
+});
+
 const siteDescription =
   "Should you stay in the US or go back to China? Answer 24 questions about your situation and see which way you lean, what the main reasons are, and what would change the answer";
 
@@ -77,7 +86,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${sans.variable} ${serif.variable} ${notoSerif.variable}`}
+      className={`${sans.variable} ${serif.variable} ${notoSerif.variable} ${mono.variable}`}
     >
       <head>
         <script id="locale-boot" dangerouslySetInnerHTML={{ __html: localeBootScript }} />

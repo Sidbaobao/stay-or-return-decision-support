@@ -42,11 +42,11 @@ function HistoryRow({ entry, index, onDelete }: HistoryRowProps) {
 
   return (
     <li
-      className="reveal-row grid gap-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+      className="reveal-row group -mx-3 grid gap-3 rounded-tile px-3 py-3 transition-colors duration-motion-standard ease-interaction hover:bg-surface-raised/60 motion-reduce:transition-none sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
       style={{ animationDelay: `${index * 40}ms` }}
     >
       <div className="min-w-0">
-        <p className="text-label text-ink/65">{formatDate(locale, entry.completedAt)}</p>
+        <p className="num text-label text-ink/55">{formatDate(locale, entry.completedAt)}</p>
 
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
           <p className="text-body font-medium" style={{ color: accent }}>
@@ -69,7 +69,7 @@ function HistoryRow({ entry, index, onDelete }: HistoryRowProps) {
         ) : null}
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-1 gap-y-1 sm:justify-end">
+      <div className="row-actions flex flex-wrap items-center gap-x-1 gap-y-1 sm:justify-end">
         {isConfirmingDelete ? (
           <InlineConfirm
             prompt={t.history.removePrompt}
