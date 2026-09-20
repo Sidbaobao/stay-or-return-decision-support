@@ -148,6 +148,11 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
   there is one, never a small centred block in a dark field. The memo
   sheet keeps a column of actions beside it on a wide screen instead of
   stretching across the whole page.
+- The result page and the memo never show the same chart. The result
+  (and a shared result, a saved decision) is the quick read: the two
+  shares of one bar (`SplitBar`) and the six parts as tiles with rings
+  (`PartTiles`), each ring the share of that part's points on its leading
+  side. The memo keeps the ranked bars and the analysis in words.
 - Alignment varies with the layout, on purpose: the hero and the home
   page's closing line centred; page headers, questions, rows and prose
   left; a band with one action puts the words left and the control

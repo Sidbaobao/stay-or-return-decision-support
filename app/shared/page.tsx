@@ -7,8 +7,8 @@ import { useRevealOnReady } from "@/lib/run-state";
 import { useContent } from "@/lib/i18n/content";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { strongestReason } from "@/lib/reasons";
-import { DecisionBalance } from "@/components/results/decision-balance";
-import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
+import { PartTiles } from "@/components/results/part-tiles";
+import { SplitBar } from "@/components/results/split-bar";
 import { VerdictHeader } from "@/components/results/verdict-header";
 import { Band, OffsetGrid } from "@/components/ui/band";
 import { PrimaryButtonLink } from "@/components/ui/primary-button";
@@ -112,20 +112,22 @@ export default function SharedResultPage() {
       </Band>
 
       <Band tone="white">
-        <OffsetGrid
-          aside={
-            <div className="lg:sticky lg:top-8">
-              <p className="num text-label text-ink/45">{t.results.keyDrivers}</p>
-              <h2 className="mt-2 text-section-title text-ink">{t.results.wherePulls}</h2>
-              <div className="mt-8 max-w-sm">
-                <DecisionBalance difference={difference} recommendedScenario={direction} isRevealed={isRevealed} />
-              </div>
-            </div>
-          }
-        >
-          <DimensionLeanRows
+        <OffsetGrid aside={<h2 className="text-section-title text-ink">{t.results.splitHeading}</h2>}>
+          <SplitBar
+            stay={sharedResult.weightedTotals.stay_us}
+            goBack={sharedResult.weightedTotals.return_china}
+            isRevealed={isRevealed}
+          />
+        </OffsetGrid>
+      </Band>
+
+      <Band>
+        <OffsetGrid aside={<h2 className="text-section-title text-ink">{t.results.partsHeading}</h2>}>
+          <PartTiles
             contributions={sharedResult.contributions}
+            normalized={sharedResult.normalizedByDimension}
             uncertainDimensionIds={sharedResult.uncertainDimensions}
+            isRevealed={isRevealed}
             reasonFor={(dimensionId, scenario) => strongestReason(questions, decoded.answers, dimensionId, scenario)}
           />
         </OffsetGrid>

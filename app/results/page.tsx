@@ -12,8 +12,8 @@ import {
   useScoredRun
 } from "@/lib/run-state";
 import { useLocalProfile } from "@/lib/use-local-profile";
-import { DecisionBalance } from "@/components/results/decision-balance";
-import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
+import { PartTiles } from "@/components/results/part-tiles";
+import { SplitBar } from "@/components/results/split-bar";
 import { dimensionIcons } from "@/components/results/dimension-icons";
 import { VerdictHeader } from "@/components/results/verdict-header";
 import { useContent } from "@/lib/i18n/content";
@@ -130,28 +130,38 @@ export default function ResultsPage() {
         </VerdictHeader>
       </Band>
 
+      {/* The quick read: the two shares, then the six parts as rings. The
+          memo keeps the ranked bars and the analysis. */}
       <Band tone="white">
+        <OffsetGrid aside={<h2 className="text-section-title text-ink">{t.results.splitHeading}</h2>}>
+          <SplitBar
+            stay={scoringResult.weightedTotals.stay_us}
+            goBack={scoringResult.weightedTotals.return_china}
+            isRevealed={isRevealed}
+          />
+        </OffsetGrid>
+      </Band>
+
+      <Band>
         <OffsetGrid
           aside={
             <div className="lg:sticky lg:top-8">
-              <p className="num text-label text-ink/45">{t.results.keyDrivers}</p>
-              <h2 className="mt-2 text-section-title text-ink">{t.results.wherePulls}</h2>
-              <div className="mt-8 max-w-sm">
-                <DecisionBalance difference={difference} recommendedScenario={direction} isRevealed={isRevealed} />
+              <h2 className="text-section-title text-ink">{t.results.partsHeading}</h2>
+              <div className="mt-5 space-y-1 text-body-sm text-ink/60">
+                {weightSensitivityLines.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
               </div>
             </div>
           }
         >
-          <DimensionLeanRows
+          <PartTiles
             contributions={scoringResult.contributions}
+            normalized={scoringResult.normalizedByDimension}
             uncertainDimensionIds={scoringResult.uncertainDimensions}
+            isRevealed={isRevealed}
             reasonFor={reasonFor}
           />
-          <div className="mt-8 space-y-1 text-body-sm text-ink/65">
-            {weightSensitivityLines.map((line) => (
-              <p key={line}>{line}</p>
-            ))}
-          </div>
         </OffsetGrid>
       </Band>
 

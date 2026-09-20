@@ -8,8 +8,8 @@ import { formatDate } from "@/lib/i18n";
 import { useContent } from "@/lib/i18n/content";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { strongestReason } from "@/lib/reasons";
-import { DecisionBalance } from "@/components/results/decision-balance";
-import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
+import { PartTiles } from "@/components/results/part-tiles";
+import { SplitBar } from "@/components/results/split-bar";
 import { VerdictHeader } from "@/components/results/verdict-header";
 import { RestoreRunButton } from "@/components/profile/restore-run-button";
 import { Band, OffsetGrid } from "@/components/ui/band";
@@ -103,26 +103,36 @@ function RunSnapshotContent() {
       </Band>
 
       {snapshotResult ? (
-        <Band tone="white">
-          <OffsetGrid
-            aside={
-              <div className="lg:sticky lg:top-8">
-                <p className="num text-label text-ink/45">{t.snapshot.keyDrivers}</p>
-                <h2 className="mt-2 text-section-title text-ink">{t.snapshot.wherePulled}</h2>
-                <p className="num mt-3 text-label text-ink/45">{t.snapshot.asOf(completedDate)}</p>
-                <div className="mt-8 max-w-sm">
-                  <DecisionBalance difference={difference} recommendedScenario={direction} isRevealed />
+        <>
+          <Band tone="white">
+            <OffsetGrid aside={<h2 className="text-section-title text-ink">{t.results.splitHeading}</h2>}>
+              <SplitBar
+                stay={snapshotResult.weightedTotals.stay_us}
+                goBack={snapshotResult.weightedTotals.return_china}
+                isRevealed
+              />
+            </OffsetGrid>
+          </Band>
+
+          <Band>
+            <OffsetGrid
+              aside={
+                <div>
+                  <h2 className="text-section-title text-ink">{t.results.partsHeading}</h2>
+                  <p className="num mt-3 text-label text-ink/45">{t.snapshot.asOf(completedDate)}</p>
                 </div>
-              </div>
-            }
-          >
-            <DimensionLeanRows
-              contributions={snapshotResult.contributions}
-              uncertainDimensionIds={snapshotResult.uncertainDimensions}
-              reasonFor={(dimensionId, scenario) => strongestReason(questions, entry.answers, dimensionId, scenario)}
-            />
-          </OffsetGrid>
-        </Band>
+              }
+            >
+              <PartTiles
+                contributions={snapshotResult.contributions}
+                normalized={snapshotResult.normalizedByDimension}
+                uncertainDimensionIds={snapshotResult.uncertainDimensions}
+                isRevealed
+                reasonFor={(dimensionId, scenario) => strongestReason(questions, entry.answers, dimensionId, scenario)}
+              />
+            </OffsetGrid>
+          </Band>
+        </>
       ) : null}
     </>
   );
