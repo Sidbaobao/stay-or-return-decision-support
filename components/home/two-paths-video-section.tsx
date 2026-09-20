@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { PrimaryButtonLink } from "@/components/ui/primary-button";
 import { useLocale } from "@/lib/i18n/provider";
 
 type VideoPanelProps = {
@@ -149,9 +148,6 @@ export function TwoPathsVideoSection() {
         />
       </div>
 
-      <div className="mt-8 flex justify-center">
-        <PrimaryButtonLink href="/questionnaire">{t.cta.start}</PrimaryButtonLink>
-      </div>
     </section>
   );
 }
