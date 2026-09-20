@@ -18,7 +18,7 @@ export default function HomePage() {
           style={{ backgroundImage: "var(--gradient-home-atmosphere)" }}
         />
 
-        <div className="mx-auto flex w-full max-w-6xl flex-col">
+        <div className="mx-auto flex w-full max-w-site flex-col">
           <HowItWorks />
           <DecorativeBoundary>
             <TwoPathsVideoSection />

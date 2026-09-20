@@ -55,6 +55,8 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
   const [isSettled, setIsSettled] = useState(false);
   const [isPortrait, setIsPortrait] = useState(false);
   const [frameWidth, setFrameWidth] = useState(0);
+  // The root size steps up on wide screens; the thresholds follow it.
+  const [remPx, setRemPx] = useState(16);
   const frameRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -79,6 +81,7 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
     }
 
     const observer = new ResizeObserver((entries) => setFrameWidth(entries[0]?.contentRect.width ?? 0));
+    setRemPx(parseFloat(getComputedStyle(document.documentElement).fontSize) || 16);
     observer.observe(frame);
     return () => observer.disconnect();
   }, []);
@@ -148,8 +151,8 @@ export function WeightBubbleCluster({ dimensions, weights, totalBudget, onChange
           const canIncrease = canIncreaseWeight(weights, dimensionId, dimensionIds);
           const canDecrease = canDecreaseWeight(weights, dimensionId);
           const radiusOnScreen = node.r * scale;
-          const isCompact = radiusOnScreen < COMPACT_RADIUS_PX;
-          const showsIcon = radiusOnScreen >= ICONLESS_RADIUS_PX;
+          const isCompact = radiusOnScreen < COMPACT_RADIUS_PX * (remPx / 16);
+          const showsIcon = radiusOnScreen >= ICONLESS_RADIUS_PX * (remPx / 16);
 
           return (
             <div

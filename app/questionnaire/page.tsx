@@ -318,7 +318,7 @@ export default function QuestionnairePage() {
       {/* Sticks under the header: the count in the mono face and a line
           that fills, with a little light on its tip. */}
       <div className="glass-bar sticky top-0 z-20 w-full shadow-stuck">
-        <div className="mx-auto w-full max-w-6xl px-page-gutter py-3">
+        <div className="mx-auto w-full max-w-site px-page-gutter py-3">
           <div className="flex items-baseline justify-between gap-4 text-label">
             <p className="num">
               <span className="text-ink">{padIndex(completedCount)}</span>

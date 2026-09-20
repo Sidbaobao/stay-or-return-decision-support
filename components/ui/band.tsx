@@ -45,7 +45,7 @@ export const Band = forwardRef<HTMLElement, BandProps>(function Band(
       className={`w-full ${toneClassName[tone]} ${paddingClassName[padding]} ${className}`.replace(/\s+/g, " ").trim()}
       {...rest}
     >
-      <div className={`mx-auto w-full max-w-6xl px-page-gutter ${innerClassName}`.trim()}>{children}</div>
+      <div className={`mx-auto w-full max-w-site px-page-gutter ${innerClassName}`.trim()}>{children}</div>
     </Tag>
   );
 });

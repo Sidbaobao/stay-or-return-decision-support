@@ -51,6 +51,9 @@ const config: Config = {
         "dim-lifestyle": "rgb(var(--color-dim-lifestyle) / <alpha-value>)",
         "dim-long_term": "rgb(var(--color-dim-long_term) / <alpha-value>)"
       },
+      maxWidth: {
+        site: "var(--width-site)"
+      },
       borderRadius: {
         control: "var(--radius-control)",
         tile: "var(--radius-tile)",

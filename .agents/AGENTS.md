@@ -124,6 +124,10 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
   part's hue, never from grey drop shadows. The body carries a faint dot
   grid and two glows (`--pattern-dots`, `--gradient-page-atmosphere`);
   the header is opaque so the grid never shows through it.
+- Wide screens get a bigger page, not a wider gutter: the root font size
+  steps up at 1536, 1800 and 2200px (17.5, 19, 20.5px) and the column
+  (`--width-site`, `max-w-site`) widens to 80rem, so every page grows in
+  proportion. Every size stays in rem; never fix a desktop size in px.
 - Separation: no rules and no boxes. A page is a stack of full-width
   bands (`components/ui/band.tsx`) in three tones (canvas, white, warm);
   two tones meeting is the only edge. Inside a band, blocks are
@@ -153,8 +157,13 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
   in `live` mode); the result's number counts up (`CountUp`), its bars
   grow in order, and a row under the pointer unfolds the reader's own
   answer; the memo's lines arrive one after another (`.memo-lines`); the
-  home page's chips drift in three rows (`.flow-row`) and pause under the
+  home page's words drift in three rows (`.flow-row`) and pause under the
   pointer, each opening its question (`/questionnaire#question-<id>`).
+- The home page's words are type, never chips: three weights
+  (`data/factors.ts`), a big serif word in its part's hue, a semibold word
+  and a small quiet one, on one baseline, a hue dot on the bigger two, four
+  copies per row so the loop has no seam on a wide screen. The hero's
+  question is the one heading set at `.text-hero-title`.
 Do not reintroduce the cream page background, retired colors (orange
 `#F97316`, teal `#0F8B8D`, the old competing blues) or grey shadows.
 
