@@ -165,17 +165,19 @@ blues).
   (`.text-eyebrow`) are sentence case; never set text in capitals or
   add wide tracking. Do not reintroduce Fraunces, Inter or a CJK sans
   web font.
-- Voice: a friend who has thought about this properly. Conclusion
-  first, then the reason, then what to do. Read it aloud; if you
-  would not say it to someone's face, rewrite it. Call things what
-  a person calls them (work, money, the visa, family, daily life,
-  the next ten years), never what a spreadsheet calls them. Doubt
-  goes into a specific number or a specific answer, never a
-  disclaimer. No slogans, no metaphors, no capitals. Questions ask
-  one thing; options are things you would actually say. English
+- Voice: complete, ordinary sentences, the way a person would put it
+  in a message to a friend. Model the sentence shapes on GOV.UK, NHS
+  and flomo's help pages: 10 to 20 words (15 to 30 characters in
+  Chinese), one idea each, "may", "probably" and "usually" where they
+  are true. Never a fragment for effect ("Not by a mile, but
+  clearly."), never a slogan, never a metaphor, never a clever
+  heading. Headings are plain labels ("Your result", "What matters
+  most to you"). Everyday words: job, rent, visa, parents; 找工作、
+  房租、签证、爸妈. Conclusion first, then the reason, then what to
+  do. Questions ask one thing; options are plain answers. English
   and Chinese are written natively, never translated from each
-  other. Avoid AI-tells: symmetric bullets, filler ("In
-  conclusion", "It's worth noting"), uniform density.
+  other. Before shipping, read every string aloud; if it sounds like
+  a website talking rather than a person, rewrite it.
 - Dimensions have a `label` for headings and rows and a `phrase` for
   the inside of a sentence ("the visa situation"). Each option that
   pushes one way carries a `reason` (a clause after "you said");

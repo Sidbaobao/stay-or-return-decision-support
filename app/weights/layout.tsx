@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Priorities",
-  description: "Say which parts of your life count for more, and watch the result follow."
+  description: "Say which parts of your life should count for more. The result changes with them."
 };
 
 export default function WeightsLayout({ children }: { children: ReactNode }) {

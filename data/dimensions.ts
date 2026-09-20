@@ -2,7 +2,8 @@ import { Dimension, DimensionId, Weights } from "@/types";
 
 // The six parts of the decision, named the way a person names them.
 // `label` heads a section or a row; `shortLabel` fits a bubble on a phone
-// (one word); `phrase` sits inside a sentence.
+// (one word); `phrase` sits inside a sentence ("The biggest reasons are
+// your visa and your family").
 export const dimensions: Dimension[] = [
   {
     id: "career",
@@ -20,13 +21,13 @@ export const dimensions: Dimension[] = [
     id: "immigration",
     label: "Visa",
     shortLabel: "Visa",
-    phrase: "the visa situation"
+    phrase: "your visa"
   },
   {
     id: "family_emotion",
     label: "Family",
     shortLabel: "Family",
-    phrase: "family"
+    phrase: "your family"
   },
   {
     id: "lifestyle",
@@ -36,9 +37,9 @@ export const dimensions: Dimension[] = [
   },
   {
     id: "long_term",
-    label: "Ten years out",
+    label: "Long term",
     shortLabel: "Future",
-    phrase: "the next ten years"
+    phrase: "the long term"
   }
 ];
 
