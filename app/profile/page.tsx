@@ -9,6 +9,7 @@ import { QuietButton } from "@/components/ui/quiet-button";
 import { InlineConfirm, useConfirmFocus } from "@/components/ui/inline-confirm";
 import { HistoryList } from "@/components/profile/history-list";
 import { getMonogram, profileAccentStyles } from "@/components/profile/profile-utils";
+import { CountUp } from "@/components/results/count-up";
 import {
   buildLocalDataExport,
   clearLocalProfileAndHistory,
@@ -99,78 +100,86 @@ export default function ProfilePage() {
         />
       </Band>
 
+      {/* Who you are on the left; how much you have decided on the right,
+          as the page's one number. */}
       <Band aria-labelledby="identity-heading">
         <h2 id="identity-heading" className="sr-only">
           {t.profile.identity}
         </h2>
 
-        <div className="grid gap-6 sm:grid-cols-[4rem_minmax(0,1fr)] sm:gap-8">
-          <span
-            aria-hidden="true"
-            className="flex h-16 w-16 items-center justify-center rounded-pill text-2xl font-semibold"
-            style={{ backgroundColor: accent.background, color: accent.color }}
-          >
-            {monogram ?? <User className="h-7 w-7" strokeWidth={1.6} />}
-          </span>
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start lg:gap-16">
+          <div className="grid gap-6 sm:grid-cols-[5rem_minmax(0,1fr)] sm:gap-8">
+            <span
+              aria-hidden="true"
+              className="flex h-20 w-20 items-center justify-center rounded-pill text-3xl font-semibold"
+              style={{ backgroundColor: accent.background, color: accent.color }}
+            >
+              {monogram ?? <User className="h-8 w-8" strokeWidth={1.6} />}
+            </span>
 
-          <div className="min-w-0 space-y-6">
-            <form onSubmit={handleNicknameSubmit} className="max-w-md">
-              <label htmlFor="profile-nickname" className="text-body-sm font-medium text-ink/70">
-                {t.profile.nickname} <span className="font-normal text-ink/50">{t.profile.optional}</span>
-              </label>
-              <div className="mt-2 flex gap-2">
-                <input
-                  id="profile-nickname"
-                  type="text"
-                  value={nicknameDraft}
-                  maxLength={NICKNAME_MAX_LENGTH}
-                  onChange={(event) => setNicknameDraft(event.target.value)}
-                  placeholder={t.profile.placeholder}
-                  className="interaction-field min-h-11 w-full rounded-control border border-border bg-surface-raised px-3.5 py-2 text-body text-ink placeholder:text-ink/40"
-                />
-                <SecondaryButton type="submit" className="shrink-0">
-                  {t.profile.save}
-                </SecondaryButton>
-              </div>
-              <p aria-live="polite" className="mt-2 min-h-5 text-label text-ink/65">
-                {savedNotice ? t.profile.saved : ""}
-              </p>
-            </form>
+            <div className="min-w-0 space-y-6">
+              <form onSubmit={handleNicknameSubmit}>
+                <label htmlFor="profile-nickname" className="text-body-sm font-medium text-ink/70">
+                  {t.profile.nickname} <span className="font-normal text-ink/50">{t.profile.optional}</span>
+                </label>
+                <div className="mt-2 flex gap-2">
+                  <input
+                    id="profile-nickname"
+                    type="text"
+                    value={nicknameDraft}
+                    maxLength={NICKNAME_MAX_LENGTH}
+                    onChange={(event) => setNicknameDraft(event.target.value)}
+                    placeholder={t.profile.placeholder}
+                    className="interaction-field min-h-11 w-full rounded-control border border-border bg-surface-raised px-3.5 py-2 text-body text-ink placeholder:text-ink/40"
+                  />
+                  <SecondaryButton type="submit" className="shrink-0">
+                    {t.profile.save}
+                  </SecondaryButton>
+                </div>
+                <p aria-live="polite" className="mt-2 min-h-5 text-label text-ink/65">
+                  {savedNotice ? t.profile.saved : ""}
+                </p>
+              </form>
 
-            <fieldset>
-              <legend className="text-body-sm font-medium text-ink/70">{t.profile.accent}</legend>
-              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-3">
-                {accentOrder.map((accentId) => {
-                  const option = profileAccentStyles[accentId];
+              <fieldset>
+                <legend className="text-body-sm font-medium text-ink/70">{t.profile.accent}</legend>
+                <div className="mt-3 flex flex-wrap gap-x-6 gap-y-3">
+                  {accentOrder.map((accentId) => {
+                    const option = profileAccentStyles[accentId];
 
-                  return (
-                    <label
-                      key={accentId}
-                      className="inline-flex cursor-pointer items-center gap-2.5 text-sm text-ink/65 transition-colors duration-motion-standard ease-interaction has-[:checked]:font-medium has-[:checked]:text-ink motion-reduce:transition-none"
-                    >
-                      <input
-                        type="radio"
-                        name="profile-accent"
-                        value={accentId}
-                        checked={profile.accentId === accentId}
-                        onChange={() => handleAccentChange(accentId)}
-                        className="peer sr-only"
-                      />
-                      <span
-                        aria-hidden="true"
-                        className="h-6 w-6 rounded-pill ring-offset-2 ring-offset-canvas transition-shadow duration-motion-standard ease-interaction peer-checked:ring-2 peer-checked:ring-ink/40 peer-focus-visible:ring-2 peer-focus-visible:ring-action-primary/70 motion-reduce:transition-none"
-                        style={{ backgroundColor: option.color }}
-                      />
-                      {t.profile.accents[accentId]}
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
+                    return (
+                      <label
+                        key={accentId}
+                        className="inline-flex cursor-pointer items-center gap-2.5 text-sm text-ink/65 transition-colors duration-motion-standard ease-interaction has-[:checked]:font-medium has-[:checked]:text-ink motion-reduce:transition-none"
+                      >
+                        <input
+                          type="radio"
+                          name="profile-accent"
+                          value={accentId}
+                          checked={profile.accentId === accentId}
+                          onChange={() => handleAccentChange(accentId)}
+                          className="peer sr-only"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="h-6 w-6 rounded-pill ring-offset-2 ring-offset-canvas transition-shadow duration-motion-standard ease-interaction peer-checked:ring-2 peer-checked:ring-ink/40 peer-focus-visible:ring-2 peer-focus-visible:ring-action-primary/70 motion-reduce:transition-none"
+                          style={{ backgroundColor: option.color }}
+                        />
+                        {t.profile.accents[accentId]}
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            </div>
+          </div>
 
-            <p className="text-body-sm text-ink/65">
-              {t.profile.created(formatDate(locale, profile.createdAt), decisionsCount)}
+          <div className="lg:text-right">
+            <p className="num text-hero-number text-ink">
+              <CountUp value={decisionsCount} />
             </p>
+            <p className="mt-3 text-body text-ink/60">{t.profile.decisionsLabel(decisionsCount)}</p>
+            <p className="num mt-1 text-label text-ink/45">{t.profile.sinceDate(formatDate(locale, profile.createdAt))}</p>
           </div>
         </div>
       </Band>
@@ -180,7 +189,7 @@ export default function ProfilePage() {
       <Band tone="warm" as="aside" aria-labelledby="privacy-heading">
         <OffsetGrid
           aside={
-            <h2 id="privacy-heading" className="flex items-center gap-2 font-serif text-section-title text-ink">
+            <h2 id="privacy-heading" className="flex items-center gap-2 text-section-title text-ink">
               <ShieldCheck aria-hidden="true" className="h-5 w-5 shrink-0 text-ink-accent" strokeWidth={1.8} />
               {t.profile.privacyTitle}
             </h2>
@@ -217,18 +226,16 @@ export default function ProfilePage() {
       </Band>
 
       <Band aria-labelledby="history-heading">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-eyebrow text-ink-accent">{t.profile.historyEyebrow}</p>
-            {/* Focus target after the last history row is deleted. */}
-            <h2
-              id="history-heading"
-              tabIndex={-1}
-              className="mt-2 font-serif text-section-title text-ink outline-none"
-            >
-              {t.profile.historyTitle}
-            </h2>
-          </div>
+        <div>
+          <p className="num text-label text-ink/45">{t.profile.historyEyebrow}</p>
+          {/* Focus target after the last history row is deleted. */}
+          <h2
+            id="history-heading"
+            tabIndex={-1}
+            className="mt-2 text-section-title text-ink outline-none"
+          >
+            {t.profile.historyTitle}
+          </h2>
         </div>
 
         <div className="mt-8">

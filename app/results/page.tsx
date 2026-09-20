@@ -12,10 +12,10 @@ import {
   useScoredRun
 } from "@/lib/run-state";
 import { useLocalProfile } from "@/lib/use-local-profile";
-import { CountUp } from "@/components/results/count-up";
 import { DecisionBalance } from "@/components/results/decision-balance";
 import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
 import { dimensionIcons } from "@/components/results/dimension-icons";
+import { VerdictHeader } from "@/components/results/verdict-header";
 import { useContent } from "@/lib/i18n/content";
 import { strongestReason } from "@/lib/reasons";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
@@ -69,12 +69,10 @@ export default function ResultsPage() {
     return null;
   }
 
-  const isStayRecommended = scoringResult.recommendedScenario === "stay_us";
-  const accentToken = isStayRecommended ? "--color-path-stay" : "--color-path-return";
+  const direction = scoringResult.recommendedScenario;
+  const accentToken = direction === "stay_us" ? "--color-path-stay" : "--color-path-return";
   const accentColor = `rgb(var(${accentToken}))`;
   const accentAt = (alpha: number) => `rgb(var(${accentToken}) / ${alpha})`;
-  const confidenceSteps =
-    scoringResult.confidence === "low" ? 1 : scoringResult.confidence === "medium" ? 2 : 3;
   const { currentTotalGap, totalPotentialShift, couldFlip } = scoringResult.weightFlipAnalysis;
   const difference = scoringResult.weightedTotals.difference;
   // Whole points in prose; the rows below keep a decimal.
@@ -85,11 +83,7 @@ export default function ResultsPage() {
     : totalPotentialShift === 0
       ? t.results.sensitivityNoShift(gapText)
       : t.results.sensitivityCannotFlip(gapText, shiftText);
-  const conclusionHeadline = t.results.headline(
-    scoringResult.recommendedScenario,
-    scoringResult.confidence,
-    difference
-  );
+  const conclusionHeadline = t.results.headline(direction, scoringResult.confidence, difference);
 
   const topContribution = getTopContribution(scoringResult);
   const TopContributionIcon = topContribution
@@ -103,79 +97,37 @@ export default function ResultsPage() {
         reasonFor(topContribution.dimensionId, topContribution.weightedGap < 0 ? "return_china" : "stay_us")
       )
     : t.results.hookNone;
-  const revealClassName = `transition-all duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-    isRevealed ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-  }`;
 
   return (
     <>
-      {/* The verdict: words on the left, the one number on the right. */}
       <Band>
-        <div className={`grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-end lg:gap-16 ${revealClassName}`}>
-          <div>
-            <p className="num text-label text-ink/45">
+        <VerdictHeader
+          eyebrow={
+            <>
               <span style={{ color: accentColor }}>03</span> · {t.results.confidence} ·{" "}
               {t.results.confidenceLevel[scoringResult.confidence]}
-            </p>
-            <h1 className="mt-4 text-display" style={{ color: accentColor }}>
-              {conclusionHeadline}
-            </h1>
-
-            <div
-              className={`mt-7 flex items-start gap-3 transition-all delay-200 duration-500 motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
-                isRevealed ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
-              }`}
+            </>
+          }
+          headline={conclusionHeadline}
+          direction={direction}
+          difference={difference}
+          confidence={scoringResult.confidence}
+          isRevealed={isRevealed}
+        >
+          <div className="flex items-start gap-3">
+            <span
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-tile"
+              style={{ backgroundColor: accentAt(0.14), color: accentColor }}
             >
-              <span
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-tile"
-                style={{ backgroundColor: accentAt(0.14), color: accentColor }}
-              >
-                <TopContributionIcon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
-              </span>
-              <div className="space-y-1 pt-1.5 text-body-lg text-ink/75">
-                {conclusionHook.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
-              </div>
+              <TopContributionIcon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+            </span>
+            <div className="space-y-1 pt-1.5 text-body-lg text-ink/75">
+              {conclusionHook.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
             </div>
           </div>
-
-          <div className="lg:text-right">
-            <p
-              className={`num text-hero-number ${isStayRecommended ? "text-gradient-stay" : "text-gradient-return"}`}
-              style={{ filter: `drop-shadow(0 0 32px ${accentAt(0.35)})` }}
-            >
-              <CountUp value={difference} signed />
-              <span className="sr-only">{t.results.srLean(scoringResult.recommendedScenario, difference)}</span>
-            </p>
-            <p className="mt-3 text-body text-ink/60">{t.results.leans(scoringResult.recommendedScenario)}</p>
-
-            <div
-              className="mt-8 flex gap-1.5 lg:ml-auto lg:max-w-[14rem]"
-              role="img"
-              aria-label={t.results.confidenceAria(t.results.confidenceLevel[scoringResult.confidence])}
-            >
-              {[1, 2, 3].map((step) => {
-                const isFilled = step <= confidenceSteps;
-
-                return (
-                  <span key={step} className="h-1.5 flex-1 overflow-hidden rounded-pill bg-result-confidence-track">
-                    <span
-                      className={`block h-full origin-left rounded-pill transition-transform duration-500 ease-out motion-reduce:scale-x-100 motion-reduce:transition-none ${
-                        isFilled && isRevealed ? "scale-x-100" : "scale-x-0"
-                      }`}
-                      style={{
-                        backgroundColor: isFilled ? accentColor : "transparent",
-                        boxShadow: isFilled ? `0 0 10px ${accentAt(0.6)}` : undefined,
-                        transitionDelay: `${400 + step * 110}ms`
-                      }}
-                    />
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        </VerdictHeader>
       </Band>
 
       <Band tone="white">
@@ -185,11 +137,7 @@ export default function ResultsPage() {
               <p className="num text-label text-ink/45">{t.results.keyDrivers}</p>
               <h2 className="mt-2 text-section-title text-ink">{t.results.wherePulls}</h2>
               <div className="mt-8 max-w-sm">
-                <DecisionBalance
-                  difference={difference}
-                  recommendedScenario={scoringResult.recommendedScenario}
-                  isRevealed={isRevealed}
-                />
+                <DecisionBalance difference={difference} recommendedScenario={direction} isRevealed={isRevealed} />
               </div>
             </div>
           }

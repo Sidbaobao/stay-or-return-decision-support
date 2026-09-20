@@ -259,6 +259,7 @@ export const zh: Dictionary = {
     beforeDeciding: "决定之前",
     backResults: "回到结果",
     changeAnswers: "修改答案",
+    print: "打印",
     disclaimer: ["这份备忘录只是整理了你自己的答案", "不是法律、财务或移民建议"],
 
     leadBalanced: "总体来看，你的答案在留下和回国之间持平",
@@ -336,7 +337,8 @@ export const zh: Dictionary = {
     saved: "已保存",
     accent: "颜色",
     accents: { warm: "珊瑚色", stay: "蓝色", return: "红色" },
-    created: (date, count) => `${date}起使用 · 已保存 ${count} 个决定`,
+    sinceDate: (date) => `${date}起使用`,
+    decisionsLabel: () => "已保存的决定",
     privacyTitle: "所有内容都只在这台设备上",
     privacyBody: ["你的名字和记录只保存在这台设备的这个浏览器里", "没有账号，没有云端，也没有同步"],
     privacyFlip: "想保留一份的话，可以导出",

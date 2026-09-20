@@ -140,6 +140,14 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
   sheet, both by shadow, not border. Elevation: `shadow-subtle` on a
   surface, `shadow-soft` on a page's lead block, `shadow-stuck` under a
   sticky bar.
+- A page's first band pairs the words on the left with its one number on
+  the right: the result, a shared result and a saved decision use
+  `VerdictHeader`; the questions carry their count; the profile its number
+  of decisions. Short pages (404, an error, a broken link) sit in the
+  upper part of a tall band with a large title and their number where
+  there is one, never a small centred block in a dark field. The memo
+  sheet keeps a column of actions beside it on a wide screen instead of
+  stretching across the whole page.
 - Alignment varies with the layout, on purpose: the hero and the home
   page's closing line centred; page headers, questions, rows and prose
   left; a band with one action puts the words left and the control
@@ -192,8 +200,10 @@ Do not reintroduce the cream page background, retired colors (orange
   headings and body alike, weight 600 for headings, taller lines; only
   the memo's prose (`.memo-prose`) takes the self-hosted Noto Serif SC
   500. Numbers, indexes and counters (question numbers, part numbers,
-  scores, dates in lists) are set in JetBrains Mono through `.num`, with
-  tabular figures. Display runs 40 to 68px with the tracking pulled in
+  scores, dates in lists) are set through `.num` in the system's own face
+  with tabular figures: SF Pro on Apple devices (apple.com's numbers),
+  Segoe UI on Windows, Roboto on Android. No mono face anywhere; the
+  owner dislikes coder digits, and SF Pro itself may not be self-hosted. Display runs 40 to 68px with the tracking pulled in
   (-0.025em); one poster number per page (`.text-hero-number`, up to
   128px) is the only thing bigger. Small labels (`.text-eyebrow`) are
   sentence case; never set text in capitals or add wide tracking. Do not

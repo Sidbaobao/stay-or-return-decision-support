@@ -906,9 +906,12 @@ html {
 }
 
 @layer components {
-  /* Numbers and indexes: the mono face, figures that line up. */
+  /* Numbers, indexes and counters: the system's own face, which is SF Pro
+     on a Mac or an iPhone (what apple.com sets its numbers in), Segoe UI on
+     Windows and Roboto on Android. Figures line up in columns. */
   .num {
-    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
   }

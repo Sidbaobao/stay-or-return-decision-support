@@ -287,6 +287,7 @@ export const en = {
     beforeDeciding: "Before you decide",
     backResults: "Back to the result",
     changeAnswers: "Change an answer",
+    print: "Print",
     disclaimer: ["This memo only organises your own answers", "It is not legal, financial or immigration advice"],
 
     // ---- lines the generator composes from the run's numbers, one sentence each
@@ -382,8 +383,8 @@ export const en = {
     saved: "Saved",
     accent: "Colour",
     accents: { warm: "Coral", stay: "Blue", return: "Red" } satisfies Record<"warm" | "stay" | "return", string>,
-    created: (date: string, count: number) =>
-      `Since ${date} · ${count === 1 ? "1 decision saved" : `${count} decisions saved`}`,
+    sinceDate: (date: string) => `Since ${date}`,
+    decisionsLabel: (count: number): string => (count === 1 ? "decision saved" : "decisions saved"),
     privacyTitle: "Everything stays on this device",
     privacyBody: [
       "Your name and your history are only saved in this browser on this device",

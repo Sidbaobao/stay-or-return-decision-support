@@ -306,12 +306,18 @@ export default function QuestionnairePage() {
   return (
     <>
       <Band padding="header">
-        <div className="flex items-end justify-between gap-4">
+        <div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
           <h1 tabIndex={-1} className="text-page-title text-ink outline-none">
             {t.questionnaire.title}
             <span className="sr-only">{t.questionnaire.keysHint}</span>
           </h1>
-          <ResetProgressButton />
+          <div className="flex flex-col items-start gap-3 sm:items-end">
+            <p aria-hidden="true" className="num text-display leading-none text-ink">
+              {padIndex(completedCount)}
+              <span className="text-ink/30"> / {questions.length}</span>
+            </p>
+            <ResetProgressButton />
+          </div>
         </div>
       </Band>
 
