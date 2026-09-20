@@ -9,6 +9,9 @@ type DecisionBalanceProps = {
   difference: number;
   recommendedScenario: ScenarioId;
   isRevealed: boolean;
+  // "live" follows a value that is still changing (the priorities page):
+  // short transitions, no reveal delay, no count-up.
+  mode?: "reveal" | "live";
 };
 
 function formatScore(value: number) {
@@ -64,8 +67,9 @@ function AnimatedNumber({ value, delay = 0 }: AnimatedNumberProps) {
   );
 }
 
-export function DecisionBalance({ difference, recommendedScenario, isRevealed }: DecisionBalanceProps) {
+export function DecisionBalance({ difference, recommendedScenario, isRevealed, mode = "reveal" }: DecisionBalanceProps) {
   const { t } = useLocale();
+  const isLive = mode === "live";
   const isTied = difference === 0;
   const isStayLeading = !isTied && recommendedScenario === "stay_us";
   const leaderLabel = t.balance.leader[recommendedScenario];
@@ -108,9 +112,11 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
 
             {!isTied ? (
               <div
-                className={`absolute inset-y-0 transition-[width] duration-motion-reveal ease-out delay-[350ms] motion-reduce:transition-none ${
-                  isStayLeading ? "right-1/2 rounded-l-pill" : "left-1/2 rounded-r-pill"
-                }`}
+                className={`absolute inset-y-0 motion-reduce:transition-none ${
+                  isLive
+                    ? "transition-[width] duration-motion-standard ease-interaction"
+                    : "transition-[width] duration-motion-reveal ease-out delay-[350ms]"
+                } ${isStayLeading ? "right-1/2 rounded-l-pill" : "left-1/2 rounded-r-pill"}`}
                 style={{ width: `${fillWidth}%`, backgroundImage: fillGradient }}
               />
             ) : null}
@@ -118,7 +124,11 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
             <div className="absolute left-1/2 top-1/2 h-5 w-px -translate-x-1/2 -translate-y-1/2 bg-ink/25" />
 
             <div
-              className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-pill border-2 bg-surface transition-[left] duration-motion-reveal-long ease-reveal delay-[250ms] motion-reduce:transition-none"
+              className={`absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-pill border-2 bg-ink motion-reduce:transition-none ${
+                isLive
+                  ? "transition-[left] duration-motion-standard ease-interaction"
+                  : "transition-[left] duration-motion-reveal-long ease-reveal delay-[250ms]"
+              }`}
               style={{
                 left: `${revealedPosition}%`,
                 borderColor: isTied ? "rgb(var(--color-ink) / 0.35)" : accent,
@@ -140,8 +150,8 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
           ) : (
             <>
               {t.balance.leadsBy}{" "}
-              <span className="font-semibold" style={{ color: accent }}>
-                <AnimatedNumber value={difference} delay={300} />
+              <span className="num font-semibold" style={{ color: accent }}>
+                {isLive ? formatScore(difference) : <AnimatedNumber value={difference} delay={300} />}
               </span>{" "}
               {t.balance.points}
             </>

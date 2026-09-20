@@ -2,41 +2,23 @@
 
 import { RefObject, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ArrowRight,
-  Briefcase,
-  HeartHandshake,
-  Scale,
-  Sprout,
-  Stamp,
-  Sun,
-  type LucideIcon
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { usePrerequisiteGuard } from "@/lib/guards";
 import { filterAnswersToCurrent, saveAnswers, STORAGE_KEYS, subscribeToStorageKey } from "@/lib/storage";
 import { readRunStatus } from "@/lib/run-state";
 import { useContent } from "@/lib/i18n/content";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
-import { Answers, Dimension, DimensionId, Question } from "@/types";
-import { Band, OffsetGrid } from "@/components/ui/band";
-import { PageHeader } from "@/components/ui/page-header";
+import { Answers, Dimension, Question } from "@/types";
+import { Band } from "@/components/ui/band";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { ResetProgressButton } from "@/components/ui/reset-progress-button";
 import { QuietLink } from "@/components/ui/quiet-button";
-import { QuestionCard, questionElementId } from "@/components/questionnaire/question-card";
+import { PartRail } from "@/components/questionnaire/part-rail";
+import { padIndex, QuestionCard, questionElementId } from "@/components/questionnaire/question-card";
 
-const dimensionIcons: Record<DimensionId, LucideIcon> = {
-  career: Briefcase,
-  salary_cost: Scale,
-  immigration: Stamp,
-  family_emotion: HeartHandshake,
-  lifestyle: Sun,
-  long_term: Sprout
-};
-
-// Lets the selection paint before the page moves on to the next question.
-const SCROLL_AFTER_ANSWER_MS = 220;
+// Lets the highlight slide before the page moves on to the next question.
+const SCROLL_AFTER_ANSWER_MS = 260;
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -46,100 +28,38 @@ function scrollToElement(element: HTMLElement | null, block: ScrollLogicalPositi
   element?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block });
 }
 
-type DimensionProgressRingProps = {
-  answeredCount: number;
-  totalCount: number;
-  isComplete: boolean;
-};
+// A key press answers the open question unless the reader is typing.
+function isTypingTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
 
-function DimensionProgressRing({ answeredCount, totalCount, isComplete }: DimensionProgressRingProps) {
-  const size = 40;
-  const strokeWidth = 3;
-  const center = size / 2;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const progressRatio = totalCount === 0 ? 0 : answeredCount / totalCount;
-  const dashOffset = circumference * (1 - progressRatio);
+  if (target.isContentEditable || target.tagName === "TEXTAREA" || target.tagName === "SELECT") {
+    return true;
+  }
 
-  return (
-    <div aria-hidden="true" className="relative shrink-0">
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        aria-hidden="true"
-      >
-        <circle
-          cx={center}
-          cy={center}
-          r={radius}
-          fill={isComplete ? "rgb(var(--color-action-primary))" : "transparent"}
-          stroke="rgb(var(--color-progress-track))"
-          strokeWidth={strokeWidth}
-        />
-        <circle
-          cx={center}
-          cy={center}
-          r={radius}
-          fill="transparent"
-          stroke="rgb(var(--color-action-primary))"
-          strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          strokeDashoffset={dashOffset}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${center} ${center})`}
-          className="transition-[stroke-dashoffset] duration-motion-emphasis ease-interaction motion-reduce:transition-none"
-        />
-        {isComplete ? (
-          <path
-            d={`M ${center - 8} ${center + 1} L ${center - 2} ${center + 7} L ${
-              center + 10
-            } ${center - 8}`}
-            fill="none"
-            stroke="rgb(var(--color-surface-strong))"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="3"
-          />
-        ) : (
-          <text
-            x={center}
-            y={center + 4}
-            textAnchor="middle"
-            className="fill-ink text-[10px] font-semibold"
-          >
-            {answeredCount}/{totalCount}
-          </text>
-        )}
-      </svg>
-    </div>
-  );
+  return target.tagName === "INPUT" && (target as HTMLInputElement).type !== "radio";
 }
 
 type DimensionIntroHeaderProps = {
   dimension: Dimension;
-  guidingQuestion: string;
-  eyebrow: string;
+  index: number;
+  total: number;
   headingRef: RefObject<HTMLHeadingElement | null>;
 };
 
-function DimensionIntroHeader({ dimension, guidingQuestion, eyebrow, headingRef }: DimensionIntroHeaderProps) {
-  const Icon = dimensionIcons[dimension.id];
-
-  // The heading column of the step: stays in view on wide screens while
-  // the questions scroll past it.
+function DimensionIntroHeader({ dimension, index, total, headingRef }: DimensionIntroHeaderProps) {
   return (
-    <div className="lg:sticky lg:top-28">
-      <p className="flex items-center gap-2 text-eyebrow text-ink-accent">
-        <Icon aria-hidden="true" strokeWidth={1.8} className="h-5 w-5 text-accent-warm" />
-        {eyebrow}
+    <div>
+      <p className="num text-label" style={{ color: `rgb(var(--color-dim-${dimension.id}))` }}>
+        {padIndex(index + 1)}
+        <span className="text-ink/35"> / {padIndex(total)}</span>
       </p>
       {/* Focus lands here after a step change, so keyboard and screen
           reader users arrive with the new questions. */}
-      <h2 ref={headingRef} tabIndex={-1} className="mt-2 font-serif text-page-title text-ink outline-none">
+      <h2 ref={headingRef} tabIndex={-1} className="mt-2 text-display text-ink outline-none">
         {dimension.label}
       </h2>
-      <p className="mt-4 font-serif text-card-title text-ink/70">{guidingQuestion}</p>
     </div>
   );
 }
@@ -177,6 +97,9 @@ export default function QuestionnairePage() {
   // Set by the reader's own step changes only; a run cleared or restored in
   // another tab must not scroll this one.
   const shouldScrollToStepRef = useRef(false);
+  // A link into one question (#question-<id>, from the home page's word
+  // flow) opens its part and scrolls to it once the part is on screen.
+  const pendingQuestionRef = useRef<string | null>(null);
 
   useEffect(() => {
     const adoptStoredAnswers = () => {
@@ -200,7 +123,7 @@ export default function QuestionnairePage() {
         return;
       }
 
-      if (Object.keys(current).length === 0) {
+      if (Object.keys(current).length === 0 && !pendingQuestionRef.current) {
         const firstIncompleteIndex = groupedRef.current.findIndex((group) =>
           group.questions.some((question) => !stored[question.id])
         );
@@ -208,6 +131,20 @@ export default function QuestionnairePage() {
         setCurrentStepIndex(firstIncompleteIndex === -1 ? 0 : firstIncompleteIndex);
       }
     };
+
+    const match = window.location.hash.match(/^#question-(.+)$/);
+
+    if (match) {
+      const questionId = decodeURIComponent(match[1]);
+      const index = groupedRef.current.findIndex((group) =>
+        group.questions.some((question) => question.id === questionId)
+      );
+
+      if (index !== -1) {
+        pendingQuestionRef.current = questionId;
+        setCurrentStepIndex(index);
+      }
+    }
 
     adoptStoredAnswers();
 
@@ -227,8 +164,7 @@ export default function QuestionnairePage() {
   );
 
   // After a step change the reader asked for, the new dimension's questions
-  // come up to the top and focus travels with them. Without this the page
-  // stayed scrolled to the footer and the new questions sat out of view.
+  // come up to the top and focus travels with them.
   useEffect(() => {
     if (!shouldScrollToStepRef.current) {
       return;
@@ -239,6 +175,25 @@ export default function QuestionnairePage() {
     introHeadingRef.current?.focus({ preventScroll: true });
   }, [currentStepIndex]);
 
+  useEffect(() => {
+    const questionId = pendingQuestionRef.current;
+
+    if (!isReady || !questionId) {
+      return;
+    }
+
+    const element = document.getElementById(questionElementId(questionId));
+
+    if (!element) {
+      return;
+    }
+
+    pendingQuestionRef.current = null;
+    const frameId = window.requestAnimationFrame(() => scrollToElement(element, "center"));
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [isReady, currentStepIndex]);
+
   const currentAnswers = filterAnswersToCurrent(answers, questions);
   const completedCount = Object.keys(currentAnswers).length;
   const canContinue = completedCount === questions.length;
@@ -247,7 +202,7 @@ export default function QuestionnairePage() {
   const nextGroup = groupedQuestions[currentStepIndex + 1];
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === groupedQuestions.length - 1;
-  const activeQuestionId = currentGroup?.questions.find((question) => !currentAnswers[question.id])?.id;
+  const activeQuestion = currentGroup?.questions.find((question) => !currentAnswers[question.id]);
 
   const changeStep = (index: number) => {
     const nextIndex = Math.min(Math.max(index, 0), groupedQuestions.length - 1);
@@ -262,9 +217,8 @@ export default function QuestionnairePage() {
     setCurrentStepIndex(nextIndex);
   };
 
-  // Persist on every choice: previously only "Save and continue" wrote to
-  // storage, and that button stays disabled until all 24 are answered, so a
-  // refresh or a nav click mid-questionnaire lost every answer.
+  // Persist on every choice: a refresh or a nav click mid-questionnaire
+  // must never lose an answer.
   const handleChange = (questionId: string, optionId: string) => {
     const isNewAnswer = !currentAnswers[questionId];
     const nextAnswers = { ...answers, [questionId]: optionId };
@@ -294,12 +248,45 @@ export default function QuestionnairePage() {
       scrollTimerRef.current = null;
 
       if (nextOpen) {
-        scrollToElement(document.getElementById(questionElementId(nextOpen.id)), "start");
+        scrollToElement(document.getElementById(questionElementId(nextOpen.id)), "center");
       } else {
         scrollToElement(footerRef.current, "end");
       }
     }, SCROLL_AFTER_ANSWER_MS);
   };
+
+  // The keys 1, 2 and 3 answer the open question.
+  const activeQuestionRef = useRef(activeQuestion);
+  activeQuestionRef.current = activeQuestion;
+  const handleChangeRef = useRef(handleChange);
+  handleChangeRef.current = handleChange;
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey || isTypingTarget(event.target)) {
+        return;
+      }
+
+      const choice = Number(event.key);
+      const question = activeQuestionRef.current;
+
+      if (!(choice >= 1 && choice <= 3) || !question) {
+        return;
+      }
+
+      const option = question.options[choice - 1];
+
+      if (!option) {
+        return;
+      }
+
+      event.preventDefault();
+      handleChangeRef.current(question.id, option.id);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   const handleSave = () => {
     saveAnswers(currentAnswers);
@@ -310,112 +297,84 @@ export default function QuestionnairePage() {
     return null;
   }
 
+  const railGroups = groupedQuestions.map((group) => ({
+    dimension: group.dimension,
+    answeredCount: group.questions.filter((question) => currentAnswers[question.id]).length,
+    totalCount: group.questions.length
+  }));
+
   return (
     <>
       <Band padding="header">
-        <PageHeader eyebrow={t.questionnaire.eyebrow} title={t.questionnaire.title} actions={<ResetProgressButton />} />
+        <div className="flex items-end justify-between gap-4">
+          <h1 tabIndex={-1} className="text-page-title text-ink outline-none">
+            {t.questionnaire.title}
+            <span className="sr-only">{t.questionnaire.keysHint}</span>
+          </h1>
+          <ResetProgressButton />
+        </div>
       </Band>
 
-      {/* Sticks under the header; a soft shadow instead of a rule. */}
-      <div className="sticky top-0 z-20 w-full bg-canvas/95 shadow-stuck backdrop-blur">
+      {/* Sticks under the header: the count in the mono face and a line
+          that fills, with a little light on its tip. */}
+      <div className="glass-bar sticky top-0 z-20 w-full shadow-stuck">
         <div className="mx-auto w-full max-w-6xl px-page-gutter py-3">
-          <div className="mb-2 flex items-baseline justify-between gap-4 text-label">
-            <p className="shrink-0 font-medium text-ink/70">
-              {t.questionnaire.answered(completedCount, questions.length)}
+          <div className="flex items-baseline justify-between gap-4 text-label">
+            <p className="num">
+              <span className="text-ink">{padIndex(completedCount)}</span>
+              <span className="text-ink/40"> / {questions.length}</span>
+              <span className="sr-only">{t.questionnaire.answeredSuffix}</span>
             </p>
             {currentGroup ? (
-              <p className="min-w-0 truncate text-ink/60">
-                {t.questionnaire.stepOf(currentStepIndex + 1, groupedQuestions.length)} · {currentGroup.dimension.label}
+              <p className="min-w-0 truncate text-ink/55">
+                <span className="num">{padIndex(currentStepIndex + 1)}</span> · {currentGroup.dimension.label}
               </p>
             ) : null}
           </div>
-          <div className="h-1 rounded-pill bg-action-primary/10">
+          <div className="mt-2 h-0.5 rounded-pill bg-progress-track">
             <div
-              className="h-1 rounded-pill bg-action-primary transition-[width] duration-motion-emphasis ease-interaction motion-reduce:transition-none"
-              style={{ width: `${progressPercent}%` }}
+              className="h-0.5 rounded-pill bg-action-primary transition-[width] duration-motion-slide ease-slide motion-reduce:transition-none"
+              style={{ width: `${progressPercent}%`, boxShadow: "0 0 14px rgb(var(--color-action-primary) / 0.7)" }}
             />
           </div>
         </div>
       </div>
 
-      <Band tone="white" padding="tight" aria-labelledby="steps-heading">
-        <h2 id="steps-heading" className="sr-only">
-          {t.questionnaire.stepsHeading}
-        </h2>
-        <ol role="list" className="-mx-2 flex flex-wrap gap-1">
-          {groupedQuestions.map((group, index) => {
-            const answeredCount = group.questions.filter(
-              (question) => currentAnswers[question.id]
-            ).length;
-            const isComplete = answeredCount === group.questions.length;
-            const isCurrent = index === currentStepIndex;
+      <Band ref={stepSectionRef} className="scroll-mt-20">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-16">
+          <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
+            <h2 id="steps-heading" className="sr-only">
+              {t.questionnaire.stepsHeading}
+            </h2>
+            <PartRail groups={railGroups} currentIndex={currentStepIndex} onSelect={changeStep} />
+          </div>
 
-            return (
-              <li key={group.dimension.id}>
-                <button
-                  type="button"
-                  onClick={() => changeStep(index)}
-                  aria-current={isCurrent ? "step" : undefined}
-                  className={`interaction-step flex items-center gap-3 rounded-pill py-2 pl-2 pr-4 text-left transition-colors duration-motion-standard ease-interaction motion-reduce:transition-none ${
-                    isCurrent
-                      ? "bg-surface-selected text-ink"
-                      : isComplete
-                        ? "text-ink hover:bg-canvas"
-                        : "text-ink/65 hover:bg-canvas hover:text-ink"
-                  }`}
-                >
-                  <DimensionProgressRing
-                    answeredCount={answeredCount}
-                    totalCount={group.questions.length}
-                    isComplete={isComplete}
-                  />
-                  <span className="min-w-0">
-                    <span className="block text-body-sm font-semibold leading-tight">{group.dimension.label}</span>
-                    <span className="mt-0.5 block text-label text-ink/60">
-                      {isComplete ? (
-                        t.questionnaire.done
-                      ) : (
-                        <>
-                          {t.questionnaire.ofCount(answeredCount, group.questions.length)}
-                          <span className="sr-only">{t.questionnaire.answeredSuffix}</span>
-                        </>
-                      )}
-                    </span>
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-      </Band>
-
-      {currentGroup ? (
-        <Band ref={stepSectionRef} className="scroll-mt-28">
-          <OffsetGrid
-            aside={
+          {currentGroup ? (
+            <div className="min-w-0">
               <DimensionIntroHeader
                 dimension={currentGroup.dimension}
-                guidingQuestion={t.questionnaire.guiding[currentGroup.dimension.id]}
-                eyebrow={t.questionnaire.currentDimension}
+                index={currentStepIndex}
+                total={groupedQuestions.length}
                 headingRef={introHeadingRef}
               />
-            }
-          >
-            <div className="space-y-12">
-              {currentGroup.questions.map((question) => (
-                <QuestionCard
-                  key={question.id}
-                  question={question}
-                  value={currentAnswers[question.id]}
-                  onChange={handleChange}
-                  numberLabel={t.questionnaire.questionOf(questionNumbers.get(question.id) ?? 0, questions.length)}
-                  isActive={question.id === activeQuestionId}
-                />
-              ))}
+
+              <div className="mt-10 space-y-14">
+                {currentGroup.questions.map((question) => (
+                  <QuestionCard
+                    key={question.id}
+                    question={question}
+                    value={currentAnswers[question.id]}
+                    onChange={handleChange}
+                    number={questionNumbers.get(question.id) ?? 0}
+                    numberLabel={t.questionnaire.questionOf(questionNumbers.get(question.id) ?? 0, questions.length)}
+                    isActive={question.id === activeQuestion?.id}
+                  />
+                ))}
+              </div>
             </div>
-          </OffsetGrid>
-        </Band>
-      ) : null}
+          ) : null}
+        </div>
+      </Band>
 
       <Band ref={footerRef} tone="white" padding="tight" as="div">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -425,7 +384,7 @@ export default function QuestionnairePage() {
 
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
             {isLastStep && !canContinue ? (
-              <p className="text-center text-label text-ink/60 sm:mr-2 sm:text-right">
+              <p className="num text-center text-label text-ink/55 sm:mr-2 sm:text-right">
                 {t.questionnaire.remaining(questions.length - completedCount)}
               </p>
             ) : null}

@@ -69,9 +69,11 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
         <span className="text-eyebrow mt-4 inline-flex rounded-pill bg-surface-strong/80 px-3 py-1.5 text-ink/65">
           {memo.confidence[report.confidence]}
         </span>
-        <div className="memo-prose mt-5 space-y-2 text-ink/80">
-          {report.lead.map((line) => (
-            <p key={line}>{line}</p>
+        <div className="memo-prose memo-lines mt-5 space-y-2 text-ink/80">
+          {report.lead.map((line, index) => (
+            <p key={line} style={{ animationDelay: `${160 + index * 110}ms` }}>
+              {line}
+            </p>
           ))}
         </div>
       </section>
@@ -165,9 +167,9 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           <h2 id="change-heading" className="font-serif text-card-title text-ink">
             {memo.whatWouldChange}
           </h2>
-          <ul className="mt-4 space-y-3">
-            {report.whatWouldChange.map((item) => (
-              <li key={item.join(" ")} className="memo-prose space-y-1 text-ink/75">
+          <ul className="memo-lines mt-4 space-y-3">
+            {report.whatWouldChange.map((item, index) => (
+              <li key={item.join(" ")} className="memo-prose space-y-1 text-ink/75" style={{ animationDelay: `${700 + index * 120}ms` }}>
                 {item.map((line) => (
                   <p key={line}>{line}</p>
                 ))}
@@ -183,9 +185,9 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           <h2 id="before-heading" className="font-serif text-card-title text-ink">
             {memo.beforeDeciding}
           </h2>
-          <ol className="memo-prose mt-4 list-decimal space-y-3 pl-5 text-ink/75 marker:text-ink/45">
-            {report.beforeDeciding.map((item) => (
-              <li key={item.join(" ")} className="space-y-1 pl-1">
+          <ol className="memo-prose memo-lines mt-4 list-decimal space-y-3 pl-5 text-ink/75 marker:text-ink/45">
+            {report.beforeDeciding.map((item, index) => (
+              <li key={item.join(" ")} className="space-y-1 pl-1" style={{ animationDelay: `${900 + index * 120}ms` }}>
                 {item.map((line) => (
                   <p key={line}>{line}</p>
                 ))}

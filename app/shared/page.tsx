@@ -5,7 +5,9 @@ import { Link2 } from "lucide-react";
 import { scoreDecision } from "@/lib/scoring";
 import { decodeSharePayload, DecodedShare } from "@/lib/share";
 import { useRevealOnReady } from "@/lib/run-state";
+import { useContent } from "@/lib/i18n/content";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
+import { strongestReason } from "@/lib/reasons";
 import { DecisionBalance } from "@/components/results/decision-balance";
 import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
 import { Band, OffsetGrid } from "@/components/ui/band";
@@ -35,6 +37,7 @@ function ErrorCard({ title, body, cta }: { title: string; body: string[]; cta: s
 
 export default function SharedResultPage() {
   const { t } = useLocale();
+  const { questions } = useContent();
   useLocalizedTitle(t.titles.shared);
   const [decoded, setDecoded] = useState<DecodedShare | null>(null);
 
@@ -120,6 +123,7 @@ export default function SharedResultPage() {
           <DimensionLeanRows
             contributions={sharedResult.contributions}
             uncertainDimensionIds={sharedResult.uncertainDimensions}
+            reasonFor={(dimensionId, scenario) => strongestReason(questions, decoded.answers, dimensionId, scenario)}
           />
         </OffsetGrid>
       </Band>

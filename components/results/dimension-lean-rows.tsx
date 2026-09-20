@@ -1,23 +1,29 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { dimensionIcons } from "@/components/results/dimension-icons";
+import { padIndex } from "@/components/questionnaire/question-card";
 import { useContent } from "@/lib/i18n/content";
 import { useLocale } from "@/lib/i18n/provider";
-import { DimensionContribution, DimensionId } from "@/types";
+import { DimensionContribution, DimensionId, ScenarioId } from "@/types";
 
 type DimensionLeanRowsProps = {
   contributions: DimensionContribution[];
   uncertainDimensionIds: DimensionId[];
+  // The answer behind a part's lean, quoted when the reader opens the row.
+  reasonFor?: (dimensionId: DimensionId, scenario: ScenarioId) => string | null;
 };
 
 const MIN_SHARED_SCALE = 20;
 
-export function DimensionLeanRows({ contributions, uncertainDimensionIds }: DimensionLeanRowsProps) {
+// Six rows ranked by pull: index, name, which way, a thin bar from the
+// centre, the weighted number. A row under the pointer (or opened with a
+// tap) unfolds the reader's own answer beneath its bar.
+export function DimensionLeanRows({ contributions, uncertainDimensionIds, reasonFor }: DimensionLeanRowsProps) {
   const { t } = useLocale();
   const { dimensionLabel } = useContent();
   const listRef = useRef<HTMLUListElement | null>(null);
   const [isInView, setIsInView] = useState(false);
+  const [openId, setOpenId] = useState<DimensionId | null>(null);
 
   useEffect(() => {
     const list = listRef.current;
@@ -60,94 +66,110 @@ export function DimensionLeanRows({ contributions, uncertainDimensionIds }: Dime
   );
 
   return (
-    <div>
-      <ul ref={listRef} className="space-y-7">
-        {rankedContributions.map((contribution, index) => {
-          const Icon = dimensionIcons[contribution.dimensionId];
-          const isBalanced = contribution.favoredScenario === "tie";
-          const supportsStay = contribution.favoredScenario === "stay_us";
-          const isStillClose = uncertainDimensionIds.includes(contribution.dimensionId);
-          const isTopDriver = index === 0 && Math.abs(contribution.weightedGap) > 0;
+    <ul ref={listRef} className="-mx-3 space-y-1">
+      {rankedContributions.map((contribution, index) => {
+        const isBalanced = contribution.favoredScenario === "tie";
+        const supportsStay = contribution.favoredScenario === "stay_us";
+        const scenario: ScenarioId = supportsStay ? "stay_us" : "return_china";
+        const isStillClose = uncertainDimensionIds.includes(contribution.dimensionId);
+        const isTopDriver = index === 0 && Math.abs(contribution.weightedGap) > 0;
+        const accent = supportsStay ? "rgb(var(--color-path-stay))" : "rgb(var(--color-path-return))";
+        const directionLabel = isBalanced ? t.results.balanced : t.results.leans(scenario);
+        const barWidth = (Math.abs(contribution.rawGap) / sharedScale) * 50;
+        const quote = !isBalanced && reasonFor ? reasonFor(contribution.dimensionId, scenario) : null;
+        const isOpen = openId === contribution.dimensionId;
+        const label = dimensionLabel(contribution.dimensionId);
 
-          const accent = supportsStay ? "rgb(var(--color-path-stay))" : "rgb(var(--color-path-return))";
-          const directionLabel = isBalanced
-            ? t.results.balanced
-            : t.results.leans(supportsStay ? "stay_us" : "return_china");
-          const barWidth = (Math.abs(contribution.rawGap) / sharedScale) * 50;
-
-          return (
-            <li
-              key={contribution.dimensionId}
-              className={`grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 transition-all duration-500 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center ${
-                isInView ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
-              }`}
-              style={{ transitionDelay: `${index * 80}ms` }}
-            >
-              <span
-                className="flex h-9 w-9 items-center justify-center"
-                style={{ color: isBalanced ? "rgb(var(--color-ink) / 0.45)" : accent }}
-              >
-                <Icon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
+        return (
+          <li
+            key={contribution.dimensionId}
+            className={`group rounded-tile px-3 py-3 transition-all duration-500 ease-out hover:bg-surface-raised/60 motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none ${
+              isInView ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+            }`}
+            style={{ transitionDelay: `${index * 70}ms` }}
+          >
+            <div className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-baseline gap-x-3">
+              <span aria-hidden="true" className="num text-[0.6875rem] text-ink/40">
+                {padIndex(index + 1)}
               </span>
 
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <p className="text-body font-medium text-ink">
-                    {dimensionLabel(contribution.dimensionId)}
-                    <span className="sr-only">
-                      {isBalanced
-                        ? t.results.srBalanced
-                        : t.results.srLean(supportsStay ? "stay_us" : "return_china", Math.abs(contribution.rawGap))}
-                    </span>
-                  </p>
-                  <span className="text-label font-medium" style={{ color: isBalanced ? undefined : accent }}>
-                    {directionLabel}
+              <div className="flex min-w-0 flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                {quote ? (
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    onClick={() => setOpenId(isOpen ? null : contribution.dimensionId)}
+                    className="interaction-quiet -mx-1 rounded-control px-1 text-body font-medium text-ink"
+                  >
+                    {label}
+                  </button>
+                ) : (
+                  <p className="text-body font-medium text-ink">{label}</p>
+                )}
+                <span className="sr-only">
+                  {isBalanced ? t.results.srBalanced : t.results.srLean(scenario, Math.abs(contribution.rawGap))}
+                </span>
+                <span className="text-label font-medium" style={{ color: isBalanced ? undefined : accent }}>
+                  {directionLabel}
+                </span>
+                {isTopDriver ? (
+                  <span
+                    className="rounded-pill px-2 py-0.5 text-[0.6875rem] font-medium"
+                    style={{
+                      backgroundColor: supportsStay
+                        ? "rgb(var(--color-path-stay) / 0.14)"
+                        : "rgb(var(--color-path-return) / 0.14)",
+                      color: accent
+                    }}
+                  >
+                    {t.results.topDriver}
                   </span>
-                  <span className="ml-auto flex items-center gap-1.5">
-                    {isTopDriver ? (
-                      <span
-                        className="rounded-pill px-2.5 py-1 text-label font-medium"
-                        style={{
-                          backgroundColor: supportsStay
-                            ? "rgb(var(--color-path-stay) / 0.09)"
-                            : "rgb(var(--color-path-return) / 0.09)",
-                          color: accent
-                        }}
-                      >
-                        {t.results.topDriver}
-                      </span>
-                    ) : null}
-                    {isStillClose ? (
-                      <span className="rounded-pill bg-ink/5 px-2.5 py-1 text-label text-ink/65">
-                        {t.results.stillClose}
-                      </span>
-                    ) : null}
+                ) : null}
+                {isStillClose ? (
+                  <span className="rounded-pill bg-ink/10 px-2 py-0.5 text-[0.6875rem] text-ink/65">
+                    {t.results.stillClose}
                   </span>
-                </div>
-
-                <div aria-hidden="true" className="relative mt-3 h-2.5 rounded-pill bg-result-driver-track">
-                  {!isBalanced ? (
-                    <div
-                      className={`absolute inset-y-0 transition-transform duration-motion-reveal ease-out motion-reduce:scale-x-100 motion-reduce:transition-none ${
-                        supportsStay
-                          ? "right-1/2 origin-right rounded-l-pill bg-path-stay"
-                          : "left-1/2 origin-left rounded-r-pill bg-path-return"
-                      } ${isInView ? "scale-x-100" : "scale-x-0"}`}
-                      style={{ width: `${barWidth}%`, transitionDelay: `${150 + index * 80}ms` }}
-                    />
-                  ) : null}
-                  <div className="absolute left-1/2 top-1/2 h-4 w-px -translate-x-1/2 -translate-y-1/2 bg-ink/20" />
-                </div>
+                ) : null}
               </div>
 
-              <p className="col-start-2 text-body-sm font-semibold tabular-nums text-ink sm:col-start-auto sm:text-right">
+              <p className="num text-body-sm text-ink/80">
                 {Math.abs(contribution.weightedGap).toFixed(1)}
                 <span className="sr-only"> {t.results.weightedPull}</span>
               </p>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+            </div>
+
+            <div aria-hidden="true" className="relative ml-[2.25rem] mt-2.5 h-1.5 rounded-pill bg-result-driver-track">
+              {!isBalanced ? (
+                <div
+                  className={`absolute inset-y-0 transition-transform duration-motion-reveal ease-out motion-reduce:scale-x-100 motion-reduce:transition-none ${
+                    supportsStay
+                      ? "right-1/2 origin-right rounded-l-pill bg-path-stay"
+                      : "left-1/2 origin-left rounded-r-pill bg-path-return"
+                  } ${isInView ? "scale-x-100" : "scale-x-0"}`}
+                  style={{
+                    width: `${barWidth}%`,
+                    transitionDelay: `${150 + index * 70}ms`,
+                    boxShadow: `0 0 12px ${supportsStay ? "rgb(var(--color-path-stay) / 0.55)" : "rgb(var(--color-path-return) / 0.55)"}`
+                  }}
+                />
+              ) : null}
+              <div className="absolute left-1/2 top-1/2 h-3.5 w-px -translate-x-1/2 -translate-y-1/2 bg-ink/25" />
+            </div>
+
+            {quote ? (
+              <div
+                className={`ml-[2.25rem] grid transition-[grid-template-rows] duration-motion-slide ease-slide motion-reduce:transition-none ${
+                  isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr] group-focus-within:grid-rows-[1fr] group-hover:grid-rows-[1fr]"
+                }`}
+              >
+                <p className="overflow-hidden text-body-sm text-ink/65">
+                  <span className="block pt-2.5">{t.results.youSaid(quote)}</span>
+                </p>
+              </div>
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
   );
 }

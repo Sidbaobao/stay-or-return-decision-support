@@ -3,31 +3,42 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
-  /* Color primitives and semantic roles */
-  --color-canvas: 248 245 239;
-  --color-surface: 255 250 242;
-  --color-surface-selected: 255 243 236;
-  --color-surface-raised: 255 253 248;
-  --color-surface-warm: 248 239 228;
+  /* Graphite: the home page's night carried through every page. Values are
+     RGB triplets so Tailwind can add an alpha. The memo sheet re-declares
+     the same names in paper tones (.decision-memo, below). */
+  --color-canvas: 11 15 23;
+  --color-surface: 16 21 31;
+  --color-surface-selected: 30 37 52;
+  --color-surface-raised: 21 27 39;
+  --color-surface-warm: 24 21 28;
   --color-surface-strong: 255 255 255;
-  --color-ink: 19 34 56;
-  --color-text-muted: 98 93 85;
-  --color-border: 234 223 206;
+  --color-ink: 242 239 232;
+  --color-text-muted: 142 147 156;
+  --color-border: 46 53 66;
   /* Hairlines divide content inside a surface; --color-border outlines one. */
-  --color-hairline: 230 222 210;
-  --color-hairline-strong: 220 211 199;
-  --color-progress-track: 232 225 213;
-  --color-result-confidence-track: 231 221 208;
-  --color-result-driver-track: 238 229 217;
-  --color-action-primary: 60 92 207;
-  --color-action-primary-hover: 48 76 176;
-  --color-path-stay: 60 92 207;
-  --color-path-return: 215 38 56;
-  --color-accent-warm: 217 108 74;
-  --color-ink-accent: 178 74 43;
+  --color-hairline: 36 42 54;
+  --color-hairline-strong: 50 57 70;
+  --color-progress-track: 34 40 53;
+  --color-result-confidence-track: 34 40 53;
+  --color-result-driver-track: 38 44 58;
+  --color-action-primary: 86 114 255;
+  --color-action-primary-hover: 110 134 255;
+  /* The two path colours, lifted so they read as text on the night. The
+     hero canvas keeps the canonical hex; the bubbles use the lifted set. */
+  --color-path-stay: 108 132 255;
+  --color-path-return: 255 92 106;
+  --color-accent-warm: 240 164 135;
+  --color-ink-accent: 240 164 135;
   --color-hero: 7 13 24;
+  /* The six parts, one hue each: the rail, the chips and the bubbles. */
+  --color-dim-career: 108 132 255;
+  --color-dim-salary_cost: 255 92 106;
+  --color-dim-immigration: 96 176 255;
+  --color-dim-family_emotion: 240 164 135;
+  --color-dim-lifestyle: 232 168 64;
+  --color-dim-long_term: 122 196 120;
 
   --gradient-hero-vignette: radial-gradient(
     circle at center,
@@ -39,6 +50,11 @@
     radial-gradient(circle at 8% 18%, rgb(var(--color-path-stay) / 0.16), transparent 30rem),
     radial-gradient(circle at 92% 55%, rgb(var(--color-path-return) / 0.12), transparent 28rem),
     radial-gradient(circle at 42% 88%, rgb(var(--color-path-stay) / 0.08), transparent 34rem);
+  /* Every other page: two faint glows and a dot grid over the night. */
+  --gradient-page-atmosphere:
+    radial-gradient(circle at 10% 0%, rgb(var(--color-path-stay) / 0.14), transparent 30rem),
+    radial-gradient(circle at 90% 100%, rgb(var(--color-path-return) / 0.1), transparent 34rem);
+  --pattern-dots: radial-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1.3px);
 
   /* Shape */
   --radius-control: 0.75rem;
@@ -56,16 +72,16 @@
   --space-feature: 1.5rem;
   --space-band: clamp(2.5rem, 4vw, 4rem);
 
-  /* Elevation — two levels: subtle on any surface, soft on a page's lead block. */
-  --shadow-subtle: 0 1px 2px rgb(var(--color-ink) / 0.05);
-  --shadow-soft: 0 16px 40px rgb(var(--color-ink) / 0.08);
-  /* Alias kept only for components/weights/*, which styling tasks may not edit. */
+  /* Elevation on the night: depth comes from darkness under a block and a
+     hairline of light along its top edge, never from a grey drop shadow. */
+  --shadow-subtle: 0 1px 2px rgb(0 0 0 / 0.35);
+  --shadow-soft: 0 24px 64px rgb(0 0 0 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.05);
   --shadow-legacy-sm: var(--shadow-subtle);
-  --shadow-interaction-primary: 0 8px 20px rgb(var(--color-action-primary) / 0.2),
-    inset 0 1px 0 rgb(255 255 255 / 0.16);
-  --shadow-interaction-primary-hover: 0 14px 32px rgb(var(--color-action-primary) / 0.28),
-    inset 0 1px 0 rgb(255 255 255 / 0.2);
-  --shadow-interaction-primary-pressed: 0 4px 12px rgb(var(--color-action-primary) / 0.18),
+  --shadow-interaction-primary: 0 8px 24px rgb(var(--color-action-primary) / 0.28),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
+  --shadow-interaction-primary-hover: 0 14px 36px rgb(var(--color-action-primary) / 0.4),
+    inset 0 1px 0 rgb(255 255 255 / 0.22);
+  --shadow-interaction-primary-pressed: 0 4px 12px rgb(var(--color-action-primary) / 0.22),
     inset 0 1px 0 rgb(255 255 255 / 0.12);
 
   /* Interaction motion */
@@ -73,23 +89,26 @@
   --motion-duration-standard: 180ms;
   --motion-duration-emphasis: 240ms;
   --motion-ease-interaction: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Things that slide from one place to another: a highlight, an indicator. */
+  --motion-duration-slide: 420ms;
+  --motion-ease-slide: cubic-bezier(0.32, 0.72, 0, 1);
   /* Result reveal: bars grow and the balance marker settles with a small overshoot. */
   --motion-duration-reveal: 650ms;
   --motion-duration-reveal-long: 800ms;
   --motion-ease-reveal: cubic-bezier(0.3, 1.28, 0.44, 1);
 
-  /* Typography. Headings in a text serif at weight 500, sizes that stay
-     close to reading sizes (display 40 to 56px, never a poster), body
-     17px. Small labels are sentence case; nothing is set in capitals. */
-  --text-display: clamp(2.5rem, 1.95rem + 2.2vw, 3.5rem);
-  --leading-display: 1.08;
-  --tracking-display: -0.01em;
-  --text-page-title: clamp(2rem, 1.7rem + 1.2vw, 2.75rem);
-  --leading-page-title: 1.12;
-  --tracking-page-title: -0.005em;
+  /* Typography. Headings in a text serif at weight 500 with the tracking
+     pulled in as they grow; one poster size for a page's single number;
+     body 17px. Small labels are sentence case; nothing is set in capitals. */
+  --text-display: clamp(2.5rem, 1.6rem + 3vw, 4.25rem);
+  --leading-display: 1.02;
+  --tracking-display: -0.025em;
+  --text-page-title: clamp(2rem, 1.6rem + 1.6vw, 3rem);
+  --leading-page-title: 1.08;
+  --tracking-page-title: -0.015em;
   --text-section-title: clamp(1.5rem, 1.4rem + 0.5vw, 1.75rem);
   --leading-section-title: 1.25;
-  --tracking-section-title: 0;
+  --tracking-section-title: -0.005em;
   --text-card-title: 1.3125rem;
   --leading-card-title: 1.35;
   --text-body-lg: 1.1875rem;
@@ -101,7 +120,8 @@
   --text-label: 0.8125rem;
   --leading-label: 1.4;
   --tracking-eyebrow: 0.01em;
-
+  --text-hero-number: clamp(4.5rem, 2.5rem + 7vw, 8rem);
+  --tracking-hero-number: -0.06em;
 }
 
 @media (min-width: 640px) {
@@ -127,9 +147,8 @@ body {
   @apply bg-canvas font-sans text-ink antialiased;
   font-size: var(--text-body);
   line-height: var(--leading-body);
-  background-image:
-    radial-gradient(circle at top left, rgb(var(--color-path-stay) / 0.1), transparent 24rem),
-    radial-gradient(circle at bottom right, rgb(var(--color-accent-warm) / 0.1), transparent 22rem);
+  background-image: var(--pattern-dots), var(--gradient-page-atmosphere);
+  background-size: 24px 24px, auto;
 }
 
 h1,
@@ -172,7 +191,7 @@ input[type="range"] {
 
   /* A bar that sticks carries a soft shadow instead of a rule. */
   .shadow-stuck {
-    box-shadow: 0 8px 24px -12px rgb(var(--color-ink) / 0.18);
+    box-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.65);
   }
 
   /* The memo reads like a document: its prose is set in the serif. */
@@ -598,7 +617,7 @@ input[type="range"] {
    into place one after another. Content that arrives later (a page
    that renders once its stored run is read) rises the same way. */
 .app-main > * {
-  animation: band-enter var(--motion-duration-reveal) var(--motion-ease-interaction) both;
+  animation: band-enter 700ms var(--motion-ease-interaction) both;
 }
 
 .app-main > :nth-child(2) {
@@ -620,7 +639,7 @@ input[type="range"] {
 @keyframes band-enter {
   from {
     opacity: 0;
-    transform: translateY(0.5rem);
+    transform: translateY(0.75rem);
   }
 
   to {
@@ -806,7 +825,7 @@ html[data-locale="zh"] .memo-prose {
   }
 
   body:has(.decision-memo) {
-    background: rgb(var(--color-surface-strong)) !important;
+    background: #fff !important;
   }
 
   body:has(.decision-memo) > div > header,
@@ -835,4 +854,330 @@ html[data-locale="zh"] .memo-prose {
     break-inside: avoid;
   }
 
+}
+
+/* ---------------------------------------------------------------------------
+   Graphite: what the night needs that the cream never did. Mono numerals,
+   glass, glows, a sliding highlight, a word flow, and the memo's paper. */
+
+html {
+  background: rgb(var(--color-canvas));
+}
+
+::selection {
+  background: rgb(var(--color-action-primary) / 0.45);
+}
+
+@layer components {
+  /* Numbers and indexes: the mono face, figures that line up. */
+  .num {
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  /* A page's one poster number. */
+  .text-hero-number {
+    font-size: var(--text-hero-number);
+    font-weight: 500;
+    line-height: 0.9;
+    letter-spacing: var(--tracking-hero-number);
+  }
+
+  .text-gradient-stay {
+    background-image: linear-gradient(135deg, rgb(var(--color-path-stay)) 0%, rgb(var(--color-dim-immigration)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .text-gradient-return {
+    background-image: linear-gradient(135deg, rgb(var(--color-path-return)) 0%, rgb(var(--color-accent-warm)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* A bar that lets the page show through. */
+  .glass-bar {
+    background-color: rgb(var(--color-canvas) / 0.72);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+
+  /* The header's underline slides from the page you left to the one you
+     are on; the nav measures the links and positions it. */
+  .nav-indicator {
+    position: absolute;
+    bottom: -0.35rem;
+    left: 0;
+    height: 2px;
+    border-radius: 2px;
+    background-color: rgb(var(--color-action-primary));
+    opacity: 0;
+    transition-duration: var(--motion-duration-slide);
+    transition-property: transform, width, opacity;
+    transition-timing-function: var(--motion-ease-slide);
+  }
+
+  .nav-indicator[data-ready="true"] {
+    opacity: 1;
+  }
+
+  /* Three answers in one track. The highlight is one element that slides
+     to the chosen answer instead of each answer lighting up on its own. */
+  .seg {
+    position: relative;
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: var(--radius-option);
+    background-color: rgb(var(--color-surface-raised) / 0.85);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+  }
+
+  .seg-thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: calc(var(--radius-option) - 0.25rem);
+    background-color: rgb(var(--color-surface-selected));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.1),
+      0 0 0 1px rgb(var(--color-accent-warm) / 0.45),
+      0 10px 30px rgb(0 0 0 / 0.4),
+      0 0 28px rgb(var(--color-accent-warm) / 0.18);
+    opacity: 0;
+    pointer-events: none;
+    transition-duration: var(--motion-duration-slide);
+    transition-property: transform, width, height, opacity;
+    transition-timing-function: var(--motion-ease-slide);
+  }
+
+  .seg-thumb[data-visible="true"] {
+    opacity: 1;
+  }
+
+  .seg-option {
+    position: relative;
+    z-index: 1;
+    border-radius: calc(var(--radius-option) - 0.25rem);
+    transition-duration: var(--motion-duration-standard);
+    transition-property: color, background-color;
+    transition-timing-function: var(--motion-ease-interaction);
+  }
+
+  /* The dot beside whatever is live: the open question, the current part. */
+  .pulse-dot {
+    position: relative;
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-pill);
+    background-color: rgb(var(--color-accent-warm));
+  }
+
+  .pulse-dot::before {
+    content: "";
+    position: absolute;
+    inset: -0.25rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgb(var(--color-accent-warm) / 0.7);
+    animation: pulse-ring 2s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+  }
+
+  /* Rows of words that drift across the hero. Each row holds its list
+     twice, so the loop has no seam; a pointer over the flow pauses it. */
+  .flow {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  }
+
+  .flow-row {
+    display: flex;
+    width: max-content;
+    gap: 0.625rem;
+    animation: flow-left var(--flow-duration, 70s) linear infinite;
+  }
+
+  .flow-row[data-direction="right"] {
+    animation-name: flow-right;
+  }
+
+  .flow:hover .flow-row,
+  .flow:focus-within .flow-row {
+    animation-play-state: paused;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    background-color: rgb(255 255 255 / 0.04);
+    color: rgb(var(--color-ink) / 0.8);
+    white-space: nowrap;
+    transition-duration: var(--motion-duration-standard);
+    transition-property: background-color, border-color, color, transform, box-shadow;
+    transition-timing-function: var(--motion-ease-interaction);
+  }
+
+  .chip:hover,
+  .chip:focus-visible {
+    border-color: rgb(255 255 255 / 0.45);
+    background-color: rgb(255 255 255 / 0.1);
+    color: rgb(var(--color-surface-strong));
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+    transform: translateY(-2px);
+  }
+
+  .chip:focus-visible {
+    outline: 2px solid rgb(var(--color-surface-strong));
+    outline-offset: 2px;
+  }
+
+  /* The tooltip a chip shows: the question it leads to. */
+  .chip-tip {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 0.6rem);
+    z-index: 5;
+    max-width: 22rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-control);
+    background-color: rgb(var(--color-ink));
+    color: rgb(var(--color-canvas));
+    font-size: var(--text-label);
+    line-height: 1.4;
+    white-space: normal;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+    transition-duration: var(--motion-duration-standard);
+    transition-property: opacity, transform;
+    transition-timing-function: var(--motion-ease-interaction);
+  }
+
+  .chip-wrap:hover .chip-tip,
+  .chip-wrap:focus-within .chip-tip {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Lines of the memo arrive one after another. */
+  .memo-lines > * {
+    animation: line-in 560ms var(--motion-ease-interaction) both;
+  }
+
+  /* Actions in a list row show when the row is under the pointer; devices
+     without a pointer see them always. */
+  @media (hover: hover) and (pointer: fine) {
+    .row-actions {
+      opacity: 0;
+      transition-duration: var(--motion-duration-standard);
+      transition-property: opacity;
+    }
+
+    .group:hover .row-actions,
+    .group:focus-within .row-actions {
+      opacity: 1;
+    }
+  }
+
+  /* The memo is a sheet of paper on the night: the same token names, the
+     paper values, so everything inside it keeps reading its tokens. */
+  .decision-memo {
+    color-scheme: light;
+    --color-canvas: 248 245 239;
+    --color-surface: 255 250 242;
+    --color-surface-selected: 255 243 236;
+    --color-surface-raised: 255 253 248;
+    --color-surface-warm: 248 239 228;
+    --color-surface-strong: 255 255 255;
+    --color-ink: 19 34 56;
+    --color-text-muted: 98 93 85;
+    --color-border: 234 223 206;
+    --color-hairline: 230 222 210;
+    --color-result-driver-track: 238 229 217;
+    --color-action-primary: 60 92 207;
+    --color-path-stay: 60 92 207;
+    --color-path-return: 215 38 56;
+    --color-accent-warm: 217 108 74;
+    --color-ink-accent: 178 74 43;
+    --shadow-soft: 0 40px 100px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.08);
+  }
+}
+
+@keyframes pulse-ring {
+  from {
+    opacity: 0.9;
+    transform: scale(0.6);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+@keyframes flow-left {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes flow-right {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@keyframes line-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-indicator,
+  .seg-thumb,
+  .seg-option,
+  .chip,
+  .chip-tip,
+  .row-actions {
+    transition-duration: 0.01ms !important;
+  }
+
+  .pulse-dot::before,
+  .memo-lines > * {
+    animation: none !important;
+  }
+
+  .flow-row {
+    animation: none !important;
+    width: auto;
+    flex-wrap: wrap;
+  }
+
+  .flow-row > [data-clone="true"] {
+    display: none;
+  }
+
+  .chip:hover,
+  .chip:focus-visible {
+    transform: none;
+  }
 }

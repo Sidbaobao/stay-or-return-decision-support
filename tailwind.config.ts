@@ -19,7 +19,8 @@ const config: Config = {
           "Microsoft YaHei",
           "sans-serif"
         ],
-        serif: ["var(--font-serif)", "Georgia", "serif"]
+        serif: ["var(--font-serif)", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"]
       },
       colors: {
         canvas: "rgb(var(--color-canvas) / <alpha-value>)",
@@ -42,7 +43,13 @@ const config: Config = {
         "path-return": "rgb(var(--color-path-return) / <alpha-value>)",
         "accent-warm": "rgb(var(--color-accent-warm) / <alpha-value>)",
         "ink-accent": "rgb(var(--color-ink-accent) / <alpha-value>)",
-        hero: "rgb(var(--color-hero) / <alpha-value>)"
+        hero: "rgb(var(--color-hero) / <alpha-value>)",
+        "dim-career": "rgb(var(--color-dim-career) / <alpha-value>)",
+        "dim-salary_cost": "rgb(var(--color-dim-salary_cost) / <alpha-value>)",
+        "dim-immigration": "rgb(var(--color-dim-immigration) / <alpha-value>)",
+        "dim-family_emotion": "rgb(var(--color-dim-family_emotion) / <alpha-value>)",
+        "dim-lifestyle": "rgb(var(--color-dim-lifestyle) / <alpha-value>)",
+        "dim-long_term": "rgb(var(--color-dim-long_term) / <alpha-value>)"
       },
       borderRadius: {
         control: "var(--radius-control)",
@@ -86,11 +93,13 @@ const config: Config = {
         "motion-standard": "var(--motion-duration-standard)",
         "motion-emphasis": "var(--motion-duration-emphasis)",
         "motion-reveal": "var(--motion-duration-reveal)",
-        "motion-reveal-long": "var(--motion-duration-reveal-long)"
+        "motion-reveal-long": "var(--motion-duration-reveal-long)",
+        "motion-slide": "var(--motion-duration-slide)"
       },
       transitionTimingFunction: {
         interaction: "var(--motion-ease-interaction)",
-        reveal: "var(--motion-ease-reveal)"
+        reveal: "var(--motion-ease-reveal)",
+        slide: "var(--motion-ease-slide)"
       },
       fontSize: {
         display: [
