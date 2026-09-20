@@ -20,7 +20,7 @@ const config: Config = {
           "sans-serif"
         ],
         serif: ["var(--font-serif)", "Georgia", "serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"]
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"]
       },
       colors: {
         canvas: "rgb(var(--color-canvas) / <alpha-value>)",
@@ -50,6 +50,9 @@ const config: Config = {
         "dim-family_emotion": "rgb(var(--color-dim-family_emotion) / <alpha-value>)",
         "dim-lifestyle": "rgb(var(--color-dim-lifestyle) / <alpha-value>)",
         "dim-long_term": "rgb(var(--color-dim-long_term) / <alpha-value>)"
+      },
+      maxWidth: {
+        site: "var(--width-site)"
       },
       borderRadius: {
         control: "var(--radius-control)",

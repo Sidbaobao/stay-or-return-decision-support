@@ -21,15 +21,15 @@ export function HeroSection() {
       <div className="absolute inset-0" style={{ backgroundImage: "var(--gradient-hero-vignette)" }} />
 
       <div className="relative z-10 flex min-h-[92svh] w-full flex-col justify-center pb-12 pt-28">
-        <div className="mx-auto w-full max-w-6xl px-page-gutter text-center">
-          <h1 className="text-balance text-display text-surface-strong">{t.home.heroTitle}</h1>
-          <ul className="num mt-6 flex flex-wrap justify-center gap-x-7 gap-y-2 text-label text-surface-strong/60">
+        <div className="mx-auto w-full max-w-site px-page-gutter text-center">
+          <h1 className="text-balance text-hero-title text-surface-strong">{t.home.heroTitle}</h1>
+          <ul className="num mt-7 flex flex-wrap justify-center gap-x-8 gap-y-2 text-body-sm text-surface-strong/60">
             {t.home.heroFacts.map((fact) => (
               <li key={fact}>{fact}</li>
             ))}
           </ul>
 
-          <div className="mt-8 flex w-full justify-center sm:w-auto">
+          <div className="mt-9 flex w-full justify-center sm:w-auto">
             <HomeProgressCta />
           </div>
         </div>

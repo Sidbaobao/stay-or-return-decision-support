@@ -6,23 +6,27 @@ import { PrimaryButtonLink } from "@/components/ui/primary-button";
 import { SecondaryButtonLink } from "@/components/ui/secondary-button";
 
 // Reached only when the middleware could not make sense of the path either.
-// Speaks the reader's language and puts the two useful pages one tap away.
+// The number is the page's one big thing; the two useful pages sit beside it.
 export default function NotFound() {
   const { t } = useLocale();
 
   useLocalizedTitle(t.notFound.title);
 
   return (
-    <Band as="div">
-    <section className="mx-auto py-8 text-center sm:py-16">
-      <p className="text-eyebrow text-ink-accent">404</p>
-      <h1 className="mt-3 font-serif text-page-title text-ink">{t.notFound.title}</h1>
-      <p className="mt-3 text-body text-ink/70">{t.notFound.body}</p>
-      <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <PrimaryButtonLink href="/">{t.notFound.home}</PrimaryButtonLink>
-        <SecondaryButtonLink href="/questionnaire">{t.notFound.start}</SecondaryButtonLink>
+    <Band as="div" className="flex min-h-[70svh] items-center">
+      <div className="grid gap-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center lg:gap-16">
+        <p aria-hidden="true" className="num text-hero-number text-gradient-stay">
+          404
+        </p>
+        <div>
+          <h1 className="text-display text-ink">{t.notFound.title}</h1>
+          <p className="mt-5 text-body-lg text-ink/65">{t.notFound.body}</p>
+          <div className="mt-9 flex flex-wrap gap-3">
+            <PrimaryButtonLink href="/">{t.notFound.home}</PrimaryButtonLink>
+            <SecondaryButtonLink href="/questionnaire">{t.notFound.start}</SecondaryButtonLink>
+          </div>
+        </div>
       </div>
-    </section>
     </Band>
   );
 }

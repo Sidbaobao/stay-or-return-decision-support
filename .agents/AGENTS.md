@@ -124,6 +124,10 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
   part's hue, never from grey drop shadows. The body carries a faint dot
   grid and two glows (`--pattern-dots`, `--gradient-page-atmosphere`);
   the header is opaque so the grid never shows through it.
+- Wide screens get a bigger page, not a wider gutter: the root font size
+  steps up at 1536, 1800 and 2200px (17.5, 19, 20.5px) and the column
+  (`--width-site`, `max-w-site`) widens to 80rem, so every page grows in
+  proportion. Every size stays in rem; never fix a desktop size in px.
 - Separation: no rules and no boxes. A page is a stack of full-width
   bands (`components/ui/band.tsx`) in three tones (canvas, white, warm);
   two tones meeting is the only edge. Inside a band, blocks are
@@ -136,6 +140,19 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
   sheet, both by shadow, not border. Elevation: `shadow-subtle` on a
   surface, `shadow-soft` on a page's lead block, `shadow-stuck` under a
   sticky bar.
+- A page's first band pairs the words on the left with its one number on
+  the right: the result, a shared result and a saved decision use
+  `VerdictHeader`; the questions carry their count; the profile its number
+  of decisions. Short pages (404, an error, a broken link) sit in the
+  upper part of a tall band with a large title and their number where
+  there is one, never a small centred block in a dark field. The memo
+  sheet keeps a column of actions beside it on a wide screen instead of
+  stretching across the whole page.
+- The result page and the memo never show the same chart. The result
+  (and a shared result, a saved decision) is the quick read: the two
+  shares of one bar (`SplitBar`) and the six parts as tiles with rings
+  (`PartTiles`), each ring the share of that part's points on its leading
+  side. The memo keeps the ranked bars and the analysis in words.
 - Alignment varies with the layout, on purpose: the hero and the home
   page's closing line centred; page headers, questions, rows and prose
   left; a band with one action puts the words left and the control
@@ -153,8 +170,13 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
   in `live` mode); the result's number counts up (`CountUp`), its bars
   grow in order, and a row under the pointer unfolds the reader's own
   answer; the memo's lines arrive one after another (`.memo-lines`); the
-  home page's chips drift in three rows (`.flow-row`) and pause under the
+  home page's words drift in three rows (`.flow-row`) and pause under the
   pointer, each opening its question (`/questionnaire#question-<id>`).
+- The home page's words are type, never chips: three weights
+  (`data/factors.ts`), a big serif word in its part's hue, a semibold word
+  and a small quiet one, on one baseline, a hue dot on the bigger two, four
+  copies per row so the loop has no seam on a wide screen. The hero's
+  question is the one heading set at `.text-hero-title`.
 Do not reintroduce the cream page background, retired colors (orange
 `#F97316`, teal `#0F8B8D`, the old competing blues) or grey shadows.
 
@@ -183,8 +205,10 @@ Do not reintroduce the cream page background, retired colors (orange
   headings and body alike, weight 600 for headings, taller lines; only
   the memo's prose (`.memo-prose`) takes the self-hosted Noto Serif SC
   500. Numbers, indexes and counters (question numbers, part numbers,
-  scores, dates in lists) are set in JetBrains Mono through `.num`, with
-  tabular figures. Display runs 40 to 68px with the tracking pulled in
+  scores, dates in lists) are set through `.num` in the system's own face
+  with tabular figures: SF Pro on Apple devices (apple.com's numbers),
+  Segoe UI on Windows, Roboto on Android. No mono face anywhere; the
+  owner dislikes coder digits, and SF Pro itself may not be self-hosted. Display runs 40 to 68px with the tracking pulled in
   (-0.025em); one poster number per page (`.text-hero-number`, up to
   128px) is the only thing bigger. Small labels (`.text-eyebrow`) are
   sentence case; never set text in capitals or add wide tracking. Do not

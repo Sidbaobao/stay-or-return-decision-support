@@ -151,7 +151,7 @@ export function TopNav() {
         }`
       }
     >
-      <div className="mx-auto w-full max-w-6xl px-page-gutter py-4">
+      <div className="mx-auto w-full max-w-site px-page-gutter py-4">
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/"

@@ -2,16 +2,15 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { History } from "lucide-react";
 import { scoreDecision } from "@/lib/scoring";
 import { getRunHistoryEntry, QUESTIONS_VERSION } from "@/lib/storage";
 import { formatDate } from "@/lib/i18n";
 import { useContent } from "@/lib/i18n/content";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { strongestReason } from "@/lib/reasons";
-import { DecisionBalance } from "@/components/results/decision-balance";
-import { DimensionLeanRows } from "@/components/results/dimension-lean-rows";
-import { MiniBalance } from "@/components/profile/mini-balance";
+import { PartTiles } from "@/components/results/part-tiles";
+import { SplitBar } from "@/components/results/split-bar";
+import { VerdictHeader } from "@/components/results/verdict-header";
 import { RestoreRunButton } from "@/components/profile/restore-run-button";
 import { Band, OffsetGrid } from "@/components/ui/band";
 import { QuietLink } from "@/components/ui/quiet-button";
@@ -49,16 +48,17 @@ function RunSnapshotContent() {
 
   if (isMissing) {
     return (
-      <Band as="div">
-        <section className="mx-auto py-8 text-center sm:py-16">
-          <p className="text-body text-ink/70">{t.snapshot.missingTitle}</p>
-          <p className="mt-2 text-body-sm text-ink/60">{t.snapshot.missingBody}</p>
-          <div className="mt-5">
-            <QuietLink href="/profile" tone="primary">
+      <Band as="div" className="flex min-h-[60svh] items-center">
+        <div>
+          <p className="num text-label text-ink/45">{t.titles.snapshot}</p>
+          <h1 className="mt-4 text-display text-ink">{t.snapshot.missingTitle}</h1>
+          <p className="mt-5 text-body-lg text-ink/65">{t.snapshot.missingBody}</p>
+          <div className="mt-9">
+            <QuietLink href="/profile" tone="primary" className="-mx-2">
               {t.snapshot.backProfile}
             </QuietLink>
           </div>
-        </section>
+        </div>
       </Band>
     );
   }
@@ -68,86 +68,71 @@ function RunSnapshotContent() {
   }
 
   const completedDate = formatDate(locale, entry.completedAt);
-  const accentColor =
-    entry.direction === "stay_us" ? "rgb(var(--color-path-stay))" : "rgb(var(--color-path-return))";
+  // A snapshot from an older set of questions keeps the direction, the
+  // confidence and the gap it showed at the time; nothing else can be shown.
+  const direction = snapshotResult ? snapshotResult.recommendedScenario : entry.direction;
+  const difference = snapshotResult ? snapshotResult.weightedTotals.difference : entry.difference;
+  const confidence = snapshotResult ? snapshotResult.confidence : entry.confidence;
+  const headline = snapshotResult
+    ? t.results.headline(direction, confidence, difference)
+    : t.snapshot.pastHeadline(entry.direction, entry.confidence, entry.difference);
 
   return (
     <>
-      <Band padding="header" as="div">
-        <div className="flex flex-wrap items-center justify-between gap-3 text-body-sm text-ink/65">
-          <p className="inline-flex items-center gap-2">
-            <History aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={1.8} />
-            {t.snapshot.eyebrow(completedDate)}
-          </p>
-          <QuietLink href="/profile" className="-mr-2">
-            {t.snapshot.backProfile}
-          </QuietLink>
-        </div>
-      </Band>
-
-      <Band padding="none" className="pb-band pt-2">
-        <section className="rounded-feature bg-surface p-6 shadow-soft sm:p-8">
-          <p className="text-eyebrow text-ink-accent">{t.titles.snapshot}</p>
-
-          {snapshotResult ? (
+      <Band>
+        <VerdictHeader
+          eyebrow={
             <>
-              <h1 className="mt-4 font-serif text-display" style={{ color: accentColor }}>
-                {t.results.headline(
-                  snapshotResult.recommendedScenario,
-                  snapshotResult.confidence,
-                  snapshotResult.weightedTotals.difference
-                )}
-              </h1>
-
-              <div className="mt-8 max-w-xl">
-                <DecisionBalance
-                  difference={snapshotResult.weightedTotals.difference}
-                  recommendedScenario={snapshotResult.recommendedScenario}
-                  isRevealed
-                />
-              </div>
+              {t.titles.snapshot} · {t.snapshot.eyebrow(completedDate)}
             </>
-          ) : (
-            <>
-              <h1 className="mt-4 font-serif text-display" style={{ color: accentColor }}>
-                {t.snapshot.pastHeadline(entry.direction, entry.confidence, entry.difference)}
-              </h1>
-              <div className="mt-5 flex flex-wrap items-center gap-3">
-                <span className="rounded-pill bg-surface-selected px-3 py-1.5 text-eyebrow text-ink/65">
-                  {t.snapshot.confidence(t.results.confidenceLevel[entry.confidence])}
-                </span>
-                <MiniBalance direction={entry.direction} difference={entry.difference} />
-                <span className="text-body-sm text-ink/65">{t.snapshot.gap(entry.difference)}</span>
-              </div>
-              <p className="mt-5 text-body-sm text-ink/65">{t.snapshot.earlierVersionBody}</p>
-            </>
-          )}
-
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-label text-ink/65">{t.snapshot.restoreNote}</p>
-            {isCurrentVersion ? <RestoreRunButton entry={entry} /> : null}
+          }
+          headline={headline}
+          direction={direction}
+          difference={difference}
+          confidence={confidence}
+          isRevealed
+          aside={isCurrentVersion ? <RestoreRunButton entry={entry} /> : null}
+        >
+          <div className="space-y-2 text-body-sm text-ink/65">
+            <p>{snapshotResult ? t.snapshot.restoreNote : t.snapshot.earlierVersionBody}</p>
+            <QuietLink href="/profile" className="-mx-2">
+              {t.snapshot.backProfile}
+            </QuietLink>
           </div>
-        </section>
+        </VerdictHeader>
       </Band>
 
       {snapshotResult ? (
-        <Band>
-          <OffsetGrid
-            aside={
-              <>
-                <p className="text-eyebrow text-ink-accent">{t.snapshot.keyDrivers}</p>
-                <h2 className="mt-2 font-serif text-section-title text-ink">{t.snapshot.wherePulled}</h2>
-                <p className="mt-3 text-body-sm text-ink/70">{t.snapshot.asOf(completedDate)}</p>
-              </>
-            }
-          >
-            <DimensionLeanRows
-              contributions={snapshotResult.contributions}
-              uncertainDimensionIds={snapshotResult.uncertainDimensions}
-              reasonFor={(dimensionId, scenario) => strongestReason(questions, entry.answers, dimensionId, scenario)}
-            />
-          </OffsetGrid>
-        </Band>
+        <>
+          <Band tone="white">
+            <OffsetGrid aside={<h2 className="text-section-title text-ink">{t.results.splitHeading}</h2>}>
+              <SplitBar
+                stay={snapshotResult.weightedTotals.stay_us}
+                goBack={snapshotResult.weightedTotals.return_china}
+                isRevealed
+              />
+            </OffsetGrid>
+          </Band>
+
+          <Band>
+            <OffsetGrid
+              aside={
+                <div>
+                  <h2 className="text-section-title text-ink">{t.results.partsHeading}</h2>
+                  <p className="num mt-3 text-label text-ink/45">{t.snapshot.asOf(completedDate)}</p>
+                </div>
+              }
+            >
+              <PartTiles
+                contributions={snapshotResult.contributions}
+                normalized={snapshotResult.normalizedByDimension}
+                uncertainDimensionIds={snapshotResult.uncertainDimensions}
+                isRevealed
+                reasonFor={(dimensionId, scenario) => strongestReason(questions, entry.answers, dimensionId, scenario)}
+              />
+            </OffsetGrid>
+          </Band>
+        </>
       ) : null}
     </>
   );
