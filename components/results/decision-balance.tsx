@@ -148,8 +148,6 @@ export function DecisionBalance({ difference, recommendedScenario, isRevealed }:
           )}
         </p>
       </div>
-
-      <p className="mt-4 text-center text-label text-ink/65">{t.balance.footnote}</p>
     </div>
   );
 }

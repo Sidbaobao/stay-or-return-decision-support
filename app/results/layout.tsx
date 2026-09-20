@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Result",
-  description: "Which way you lean, what is behind it, and what would change it."
+  description: "See which way you lean, what the main reasons are, and what would change the answer"
 };
 
 export default function ResultsLayout({ children }: { children: ReactNode }) {

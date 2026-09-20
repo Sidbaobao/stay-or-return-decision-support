@@ -9,12 +9,11 @@ import { DimensionContribution, DimensionId } from "@/types";
 type DimensionLeanRowsProps = {
   contributions: DimensionContribution[];
   uncertainDimensionIds: DimensionId[];
-  footnote?: string;
 };
 
 const MIN_SHARED_SCALE = 20;
 
-export function DimensionLeanRows({ contributions, uncertainDimensionIds, footnote }: DimensionLeanRowsProps) {
+export function DimensionLeanRows({ contributions, uncertainDimensionIds }: DimensionLeanRowsProps) {
   const { t } = useLocale();
   const { dimensionLabel } = useContent();
   const listRef = useRef<HTMLUListElement | null>(null);
@@ -149,8 +148,6 @@ export function DimensionLeanRows({ contributions, uncertainDimensionIds, footno
           );
         })}
       </ul>
-
-      <p className="mt-4 text-label text-ink/65">{footnote ?? t.results.footnote}</p>
     </div>
   );
 }

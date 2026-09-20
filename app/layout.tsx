@@ -49,7 +49,7 @@ const serif = Newsreader({
 });
 
 const siteDescription =
-  "Stay in the US or go back to China? Twenty-four plain questions, your own priorities, and a clear read on which way you lean and why. Nothing leaves your browser.";
+  "Should you stay in the US or go back to China? Answer 24 questions about your situation and see which way you lean, what the main reasons are, and what would change the answer";
 
 export const metadata: Metadata = {
   title: {

@@ -77,7 +77,7 @@ export default function ResultsPage() {
   // Whole points in prose; the rows below keep a decimal.
   const gapText = String(Math.round(currentTotalGap));
   const shiftText = String(Math.round(totalPotentialShift));
-  const weightSensitivitySentence = couldFlip
+  const weightSensitivityLines = couldFlip
     ? t.results.sensitivityCouldFlip(gapText, shiftText)
     : totalPotentialShift === 0
       ? t.results.sensitivityNoShift(gapText)
@@ -149,7 +149,11 @@ export default function ResultsPage() {
                 >
                   <TopContributionIcon aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
                 </span>
-                <p className="pt-1 text-body-lg text-ink/70">{conclusionHook}</p>
+                <div className="space-y-1 pt-1 text-body-lg text-ink/70">
+                  {conclusionHook.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -210,7 +214,11 @@ export default function ResultsPage() {
             contributions={scoringResult.contributions}
             uncertainDimensionIds={scoringResult.uncertainDimensions}
           />
-          <p className="mt-6 text-body-sm text-ink/70">{weightSensitivitySentence}</p>
+          <div className="mt-6 space-y-1 text-body-sm text-ink/70">
+            {weightSensitivityLines.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
         </OffsetGrid>
       </Band>
 
@@ -251,12 +259,9 @@ export default function ResultsPage() {
       </Band>
 
       <Band as="footer">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="font-serif text-section-title text-ink">{t.results.readMemo}</h2>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-            <SecondaryButtonLink href="/weights">{t.results.adjustWeights}</SecondaryButtonLink>
-            <PrimaryButtonLink href="/report">{t.results.openMemo}</PrimaryButtonLink>
-          </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+          <SecondaryButtonLink href="/weights">{t.results.adjustWeights}</SecondaryButtonLink>
+          <PrimaryButtonLink href="/report">{t.results.openMemo}</PrimaryButtonLink>
         </div>
       </Band>
     </>
