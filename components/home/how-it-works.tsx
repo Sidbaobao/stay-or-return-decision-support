@@ -12,10 +12,7 @@ export function HowItWorks() {
 
   return (
     <>
-      <div>
-        <p className="text-eyebrow text-accent-warm">{t.home.howItWorks}</p>
-        <h2 className="mt-3 text-page-title text-surface-strong">{t.home.threeSteps}</h2>
-      </div>
+      <h2 className="text-page-title text-surface-strong">{t.home.howItWorks}</h2>
 
       <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8 lg:gap-12">
         {t.home.steps.map((step, index) => {
@@ -42,13 +39,7 @@ export function HomeClosing() {
 
   return (
     <>
-      <div className="py-16 text-center lg:py-24">
-        <p className="mx-auto text-balance font-serif text-section-title text-surface-strong/90">
-          {t.home.closing}
-        </p>
-      </div>
-
-      <footer className="pt-2">
+      <footer className="pt-12 lg:pt-16">
         <p className="mx-auto text-center text-label text-surface-strong/70">{t.home.footer}</p>
       </footer>
     </>

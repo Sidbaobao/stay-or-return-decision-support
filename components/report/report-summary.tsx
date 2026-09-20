@@ -69,7 +69,11 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
         <span className="text-eyebrow mt-4 inline-flex rounded-pill bg-surface-strong/80 px-3 py-1.5 text-ink/65">
           {memo.confidence[report.confidence]}
         </span>
-        <p className="memo-prose mt-5 text-ink/80">{report.lead}</p>
+        <div className="memo-prose mt-5 space-y-2 text-ink/80">
+          {report.lead.map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+        </div>
       </section>
 
       <section
@@ -151,7 +155,6 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           </div>
         </div>
 
-        <p className="mt-3 text-label text-ink/65">{memo.barsNote}</p>
       </section>
 
       <div className="grid bg-canvas lg:grid-cols-2 lg:gap-x-6">
@@ -164,8 +167,10 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           </h2>
           <ul className="mt-4 space-y-3">
             {report.whatWouldChange.map((item) => (
-              <li key={item} className="memo-prose text-ink/75">
-                {item}
+              <li key={item.join(" ")} className="memo-prose space-y-1 text-ink/75">
+                {item.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
               </li>
             ))}
           </ul>
@@ -180,8 +185,10 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
           </h2>
           <ol className="memo-prose mt-4 list-decimal space-y-3 pl-5 text-ink/75 marker:text-ink/45">
             {report.beforeDeciding.map((item) => (
-              <li key={item} className="pl-1">
-                {item}
+              <li key={item.join(" ")} className="space-y-1 pl-1">
+                {item.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
               </li>
             ))}
           </ol>
@@ -189,7 +196,11 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
       </div>
 
       <footer className="memo-block px-memo-x py-memo-footer-y text-right sm:px-memo-x-sm lg:px-memo-x-lg">
-        <p className="text-label text-ink/65">{report.disclaimer}</p>
+        <div className="space-y-1 text-label text-ink/65">
+          {report.disclaimer.map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+        </div>
       </footer>
     </article>
   );

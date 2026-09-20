@@ -69,7 +69,7 @@ function NavLinks({ pathname, isHome, isUnlocked: hasCompletedQuestionnaire, t }
         role="link"
         aria-disabled="true"
         aria-current={isActive ? "page" : undefined}
-        aria-label={`${label}. ${t.nav.lockedReason}`}
+        aria-label={`${label}, ${t.nav.lockedReason}`}
         title={t.nav.lockedReason}
         className={`${baseClassName} cursor-not-allowed select-none ${
           isHome ? "text-surface-strong/35" : "text-ink/35"

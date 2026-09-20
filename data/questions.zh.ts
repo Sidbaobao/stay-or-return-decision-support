@@ -1,7 +1,7 @@
 // Chinese copy for data/questions.ts, keyed by question id and option id.
 // Ids and scores are not repeated here; the English file owns them.
 // `reasons` are the answers quoted back ("你说过，……") on the result page
-// and in the memo; balanced options have none.
+// and in the memo. Balanced options have none.
 
 type QuestionTranslation = {
   prompt: string;
@@ -119,7 +119,7 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     }
   },
   immigration_timeline_tolerance: {
-    prompt: "在美国安定下来可能要等好几年，而且没有确定的时间。你能接受吗？",
+    prompt: "在美国安定下来可能要等好几年，而且没有确定的时间，你能接受吗？",
     options: {
       immigration_timeline_tolerance_high: "能，我可以等",
       immigration_timeline_tolerance_balanced: "能等一段时间，但不能一直等",
@@ -131,7 +131,7 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     }
   },
   immigration_dependency_risk: {
-    prompt: "留在美国通常要好几件事同时顺利才行，比如工作、抽签和时间点。你能接受吗？",
+    prompt: "留在美国通常要好几件事同时顺利才行，比如工作、抽签和时间点，你能接受吗？",
     options: {
       immigration_dependency_risk_high_tolerance: "能，这个风险我愿意承担",
       immigration_dependency_risk_balanced: "不确定值不值得",
@@ -143,7 +143,7 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     }
   },
   immigration_constraint_acceptance: {
-    prompt: "你愿意让签证规则决定你多少事？比如做什么工作、住哪个城市、什么时候能回家。",
+    prompt: "你愿意让签证规则决定你多少事，比如做什么工作、住哪个城市、什么时候能回家？",
     options: {
       immigration_constraint_acceptance_high: "可以接受很多，只要这条路值得",
       immigration_constraint_acceptance_balanced: "一部分，但有限度",
@@ -277,9 +277,9 @@ export const questionsZh: Record<string, QuestionTranslation> = {
   long_term_reentry_cost: {
     prompt: "如果以后改变主意，哪边更难再回去？",
     options: {
-      long_term_reentry_cost_us: "美国。现在走了，以后很难再回来",
+      long_term_reentry_cost_us: "美国，现在走了以后很难再回来",
       long_term_reentry_cost_balanced: "差不多",
-      long_term_reentry_cost_china: "中国。现在走了，以后很难再回来"
+      long_term_reentry_cost_china: "中国，现在走了以后很难再回来"
     },
     reasons: {
       long_term_reentry_cost_us: "现在离开美国，以后很难再回来",

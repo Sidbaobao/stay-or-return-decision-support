@@ -63,10 +63,11 @@ export type RecommendationReport = {
   recommendedScenario: ScenarioId;
   confidence: ConfidenceLevel;
   isBalanced: boolean;
-  lead: string;
-  whatWouldChange: string[];
-  beforeDeciding: string[];
-  disclaimer: string;
+  // One sentence per line. An item in a list may take several lines.
+  lead: string[];
+  whatWouldChange: string[][];
+  beforeDeciding: string[][];
+  disclaimer: string[];
 };
 
 export type AppState = {

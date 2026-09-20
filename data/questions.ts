@@ -39,7 +39,7 @@ export const questions: Question[] = [
     options: [
       {
         id: "career_sponsorship_dependency_low",
-        label: "Not much. I have other options",
+        label: "Not much, I have other options",
         reason: "you have options in the US that don't depend on sponsorship",
         stay_us_score: 4,
         return_china_score: 2
@@ -251,7 +251,7 @@ export const questions: Question[] = [
   {
     id: "immigration_timeline_tolerance",
     dimensionId: "immigration",
-    prompt: "It could take years before you feel settled in the US, and there's no fixed date. How do you feel about that?",
+    prompt: "How do you feel about waiting years to feel settled in the US, with no fixed date?",
     options: [
       {
         id: "immigration_timeline_tolerance_high",
@@ -278,7 +278,7 @@ export const questions: Question[] = [
   {
     id: "immigration_dependency_risk",
     dimensionId: "immigration",
-    prompt: "Staying usually means several things have to work out at the same time, like the job, the lottery and the timing. Are you okay with that?",
+    prompt: "Are you okay with staying depending on several things working out at once, like the job, the lottery and the timing?",
     options: [
       {
         id: "immigration_dependency_risk_high_tolerance",
@@ -417,7 +417,7 @@ export const questions: Question[] = [
     options: [
       {
         id: "family_expectation_constraint_low",
-        label: "Not much. This is mostly my decision",
+        label: "Not much, this is mostly my decision",
         reason: "this is mostly your own decision",
         stay_us_score: 4,
         return_china_score: 2
@@ -430,7 +430,7 @@ export const questions: Question[] = [
       },
       {
         id: "family_expectation_constraint_high",
-        label: "A lot. Some options aren't really open to me",
+        label: "A lot, some options aren't really open to me",
         reason: "your family's expectations rule out some options for you",
         stay_us_score: 2,
         return_china_score: 4
@@ -606,7 +606,7 @@ export const questions: Question[] = [
     options: [
       {
         id: "long_term_reentry_cost_us",
-        label: "The US. If I leave now, it's hard to come back",
+        label: "The US, if I leave now it's hard to come back",
         reason: "leaving the US now would be hard to reverse",
         stay_us_score: 4,
         return_china_score: 2
@@ -619,7 +619,7 @@ export const questions: Question[] = [
       },
       {
         id: "long_term_reentry_cost_china",
-        label: "China. If I leave now, it's hard to come back",
+        label: "China, if I leave now it's hard to come back",
         reason: "leaving China now would be hard to reverse",
         stay_us_score: 2,
         return_china_score: 4

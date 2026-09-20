@@ -168,8 +168,8 @@ blues).
 - Voice: complete, ordinary sentences, the way a person would put it
   in a message to a friend. Model the sentence shapes on GOV.UK, NHS
   and flomo's help pages: 10 to 20 words (15 to 30 characters in
-  Chinese), one idea each, "may", "probably" and "usually" where they
-  are true. Never a fragment for effect ("Not by a mile, but
+  Chinese), one idea each, no full stop at the end, "may", "probably"
+  and "usually" where they are true. Never a fragment for effect ("Not by a mile, but
   clearly."), never a slogan, never a metaphor, never a clever
   heading. Headings are plain labels ("Your result", "What matters
   most to you"). Everyday words: job, rent, visa, parents; 找工作、
@@ -193,9 +193,15 @@ blues).
   user-facing string. The preference is a localStorage key like the rest
   of the app's state (`stay-or-return-locale-v1`); the switch lives on the
   home page.
-- Punctuation in user-facing text: no semicolons, no ellipses, no
-  dashes (en or zh). Split into sentences instead; commas and colons
-  are fine. Applies to composed sentences in the memo generator too.
+- Punctuation in user-facing text: no full stops (`.` or `。`), no
+  semicolons, no ellipses, no dashes (en or zh). Commas, colons and
+  question marks are fine. One sentence per line: a value that needs
+  two sentences is a list of lines (`string[]`) and the page shows each
+  on its own line. The memo generator returns lines the same way.
+- Say only what the page does not already show. No line explaining a
+  control the reader can see (how a bar works, what a slider does, that
+  a list is newest first), no closing line, no motto. If a reader would
+  know what to do without the sentence, delete the sentence.
 - A question is a prompt plus its options. No helper line under the
   prompt, no per-option notes.
 - Body text runs the full width of its column. There is no reading

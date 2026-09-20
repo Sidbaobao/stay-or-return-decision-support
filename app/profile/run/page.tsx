@@ -74,7 +74,7 @@ function RunSnapshotContent() {
         <div className="flex flex-wrap items-center justify-between gap-3 text-body-sm text-ink/65">
           <p className="inline-flex items-center gap-2">
             <History aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={1.8} />
-            {t.snapshot.intro(completedDate)}
+            {t.snapshot.eyebrow(completedDate)}
           </p>
           <QuietLink href="/profile" className="-mr-2">
             {t.snapshot.backProfile}
@@ -84,7 +84,7 @@ function RunSnapshotContent() {
 
       <Band padding="none" className="pb-band pt-2">
         <section className="rounded-feature bg-surface p-6 shadow-soft sm:p-8">
-          <p className="text-eyebrow text-ink-accent">{t.snapshot.eyebrow(completedDate)}</p>
+          <p className="text-eyebrow text-ink-accent">{t.titles.snapshot}</p>
 
           {snapshotResult ? (
             <>

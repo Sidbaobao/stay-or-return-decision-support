@@ -15,12 +15,16 @@ import { PrimaryButtonLink } from "@/components/ui/primary-button";
 // URL fragment (which browsers never send to any server) and recomputed
 // locally. It reads and writes nothing about the visitor's own run.
 
-function ErrorCard({ title, body, cta }: { title: string; body: string; cta: string }) {
+function ErrorCard({ title, body, cta }: { title: string; body: string[]; cta: string }) {
   return (
     <Band as="div">
       <section className="mx-auto py-8 text-center sm:py-16">
         <p className="font-serif text-card-title text-ink">{title}</p>
-        <p className="mx-auto mt-2 text-body-sm text-ink/65">{body}</p>
+        <div className="mx-auto mt-2 space-y-1 text-body-sm text-ink/65">
+          {body.map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+        </div>
         <div className="mt-6 flex justify-center">
           <PrimaryButtonLink href="/">{cta}</PrimaryButtonLink>
         </div>
@@ -116,7 +120,6 @@ export default function SharedResultPage() {
           <DimensionLeanRows
             contributions={sharedResult.contributions}
             uncertainDimensionIds={sharedResult.uncertainDimensions}
-            footnote={t.shared.footnote}
           />
         </OffsetGrid>
       </Band>

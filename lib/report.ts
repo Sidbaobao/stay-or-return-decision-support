@@ -6,8 +6,8 @@ import { Answers, DimensionContribution, RecommendationReport, ScenarioId, Scori
 // The memo says only what this run's numbers support: how far the answers
 // lean, which parts made the lead and which answers those were, what pulls
 // the other way, and what would change the result. The sentences live in
-// the dictionary for each language; this file decides which apply and
-// hands them the reader's own answers to quote.
+// the dictionary for each language, one sentence per line; this file decides
+// which apply and hands them the reader's own answers to quote.
 
 function byPull(left: DimensionContribution, right: DimensionContribution) {
   return Math.abs(right.weightedGap) - Math.abs(left.weightedGap);
@@ -52,7 +52,7 @@ export function buildRecommendationReport(
   const closePhrases = uncertainDimensions.map(phraseOf);
   const otherPath = t.otherPath[recommendedScenario];
 
-  // ---- the lead, in one paragraph
+  // ---- the lead, one sentence per line
   const lead: string[] = [];
 
   if (isBalanced) {
@@ -61,14 +61,14 @@ export function buildRecommendationReport(
     lead.push(t.leadBy(recommendedScenario, points(gap)));
 
     if (leadPhrases.length > 0) {
-      lead.push(t.carries(leadPhrases, leadReasons, againstPhrases[0] ?? null));
+      lead.push(...t.carries(leadPhrases, leadReasons, againstPhrases[0] ?? null));
     }
 
     lead.push(t.margin[confidence]);
   }
 
   // ---- what would change it
-  const whatWouldChange: string[] = [];
+  const whatWouldChange: string[][] = [];
 
   if (isBalanced) {
     whatWouldChange.push(t.levelPaths);
@@ -87,7 +87,7 @@ export function buildRecommendationReport(
   }
 
   // ---- before deciding
-  const beforeDeciding: string[] = [];
+  const beforeDeciding: string[][] = [];
 
   beforeDeciding.push(!isBalanced && leadPhrases.length > 0 ? t.planCompare(leadPhrases) : t.planCompareGeneric);
 
@@ -103,7 +103,7 @@ export function buildRecommendationReport(
     recommendedScenario,
     confidence,
     isBalanced,
-    lead: lead.join(t.sentenceSeparator),
+    lead,
     whatWouldChange,
     beforeDeciding,
     disclaimer: t.disclaimer

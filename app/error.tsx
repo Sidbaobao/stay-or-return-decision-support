@@ -27,7 +27,11 @@ export default function ErrorPage({ error }: ErrorPageProps) {
     <Band as="div">
     <section className="mx-auto py-8 text-center sm:py-16">
       <h1 className="font-serif text-page-title text-ink">{t.appError.title}</h1>
-      <p className="mt-3 text-body text-ink/70">{t.appError.body}</p>
+      <div className="mt-3 space-y-1 text-body text-ink/70">
+        {t.appError.body.map((line) => (
+          <p key={line}>{line}</p>
+        ))}
+      </div>
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <PrimaryButton type="button" onClick={() => window.location.reload()}>
           {t.appError.reload}

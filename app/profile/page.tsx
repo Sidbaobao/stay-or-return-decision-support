@@ -96,7 +96,6 @@ export default function ProfilePage() {
         <PageHeader
           eyebrow={t.profile.eyebrow}
           title={profile.nickname ? t.profile.titleWithName(profile.nickname) : t.profile.title}
-          description={t.profile.description}
         />
       </Band>
 
@@ -187,7 +186,11 @@ export default function ProfilePage() {
             </h2>
           }
         >
-          <p className="text-body text-ink/75">{t.profile.privacyBody}</p>
+          <div className="space-y-1 text-body text-ink/75">
+            {t.profile.privacyBody.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
           <p className="mt-3 text-body-sm text-ink/65">{t.profile.privacyFlip}</p>
 
           <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -226,7 +229,6 @@ export default function ProfilePage() {
               {t.profile.historyTitle}
             </h2>
           </div>
-          <p className="text-body-sm text-ink/70">{t.profile.newestFirst}</p>
         </div>
 
         <div className="mt-8">
