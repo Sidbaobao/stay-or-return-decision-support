@@ -12,6 +12,7 @@ import {
   useScoredRun
 } from "@/lib/run-state";
 import { useLocalProfile } from "@/lib/use-local-profile";
+import { DecisionBalance } from "@/components/results/decision-balance";
 import { PartTiles } from "@/components/results/part-tiles";
 import { SplitBar } from "@/components/results/split-bar";
 import { dimensionIcons } from "@/components/results/dimension-icons";
@@ -21,9 +22,8 @@ import { strongestReason } from "@/lib/reasons";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { ShareResultButton } from "@/components/share/share-result-button";
 import { Band, OffsetGrid } from "@/components/ui/band";
-import { PrimaryButtonLink } from "@/components/ui/primary-button";
 import { SecondaryButtonLink } from "@/components/ui/secondary-button";
-import { QuietButton } from "@/components/ui/quiet-button";
+import { QuietButton, QuietLink } from "@/components/ui/quiet-button";
 import { DimensionId, ScenarioId } from "@/types";
 
 export default function ResultsPage() {
@@ -75,7 +75,7 @@ export default function ResultsPage() {
   const accentAt = (alpha: number) => `rgb(var(${accentToken}) / ${alpha})`;
   const { currentTotalGap, totalPotentialShift, couldFlip } = scoringResult.weightFlipAnalysis;
   const difference = scoringResult.weightedTotals.difference;
-  // Whole points in prose; the rows below keep a decimal.
+  // Whole points in prose; the tiles keep their own percentages.
   const gapText = String(Math.round(currentTotalGap));
   const shiftText = String(Math.round(totalPotentialShift));
   const weightSensitivityLines = couldFlip
@@ -97,6 +97,18 @@ export default function ResultsPage() {
         reasonFor(topContribution.dimensionId, topContribution.weightedGap < 0 ? "return_china" : "stay_us")
       )
     : t.results.hookNone;
+
+  // The page's actions: in the heading column on a wide screen, in a row
+  // under the tiles on a phone.
+  const actions = (
+    <>
+      <ShareResultButton answers={status.answers} weights={status.state.weights} tone="primary" />
+      <SecondaryButtonLink href="/report">{t.results.openMemo}</SecondaryButtonLink>
+      <QuietLink href="/weights" className="-mx-2">
+        {t.results.adjustWeights}
+      </QuietLink>
+    </>
+  );
 
   return (
     <>
@@ -130,15 +142,29 @@ export default function ResultsPage() {
         </VerdictHeader>
       </Band>
 
-      {/* The quick read: the two shares, then the six parts as rings. The
-          memo keeps the ranked bars and the analysis. */}
+      {/* The quick read: the two shares with the scale beside them (it shows
+          the close zone the bar cannot), then the six parts as rings with
+          the page's actions beside them. The memo keeps the ranked bars
+          and the analysis. */}
       <Band tone="white">
-        <OffsetGrid aside={<h2 className="text-section-title text-ink">{t.results.splitHeading}</h2>}>
+        <OffsetGrid
+          aside={
+            <div>
+              <h2 className="text-section-title text-ink">{t.results.splitHeading}</h2>
+              <div className="mt-6 hidden lg:block">
+                <DecisionBalance difference={difference} recommendedScenario={direction} isRevealed={isRevealed} />
+              </div>
+            </div>
+          }
+        >
           <SplitBar
             stay={scoringResult.weightedTotals.stay_us}
             goBack={scoringResult.weightedTotals.return_china}
             isRevealed={isRevealed}
           />
+          <div className="mt-8 lg:hidden">
+            <DecisionBalance difference={difference} recommendedScenario={direction} isRevealed={isRevealed} />
+          </div>
         </OffsetGrid>
       </Band>
 
@@ -152,6 +178,7 @@ export default function ResultsPage() {
                   <p key={line}>{line}</p>
                 ))}
               </div>
+              <div className="mt-7 hidden flex-col items-start gap-3 lg:flex">{actions}</div>
             </div>
           }
         >
@@ -162,11 +189,12 @@ export default function ResultsPage() {
             isRevealed={isRevealed}
             reasonFor={reasonFor}
           />
+          <div className="mt-8 flex flex-wrap items-center gap-3 lg:hidden">{actions}</div>
         </OffsetGrid>
       </Band>
 
       {!profile || (!profile.nickname && !profile.nudgeDismissed) ? (
-        <Band padding="none" className="pb-band pt-band">
+        <Band padding="none" className="pb-band">
           <aside
             aria-label={t.results.nudgeAria}
             className="flex flex-col gap-4 rounded-card bg-surface-raised px-5 py-5 shadow-soft sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-6"
@@ -185,28 +213,6 @@ export default function ResultsPage() {
           </aside>
         </Band>
       ) : null}
-
-      {/* Sharing on its own warm band: words left, the control right. */}
-      <Band tone="warm" padding="tight" aria-labelledby="share-heading">
-        <div className="flex flex-col gap-4 py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
-          <div className="min-w-0">
-            <h2 id="share-heading" className="text-card-title text-ink">
-              {t.results.shareHeading}
-            </h2>
-            <p className="mt-1 text-body-sm text-ink/60">{t.results.shareBody}</p>
-          </div>
-          <div className="shrink-0">
-            <ShareResultButton answers={status.answers} weights={status.state.weights} />
-          </div>
-        </div>
-      </Band>
-
-      <Band as="footer">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-          <SecondaryButtonLink href="/weights">{t.results.adjustWeights}</SecondaryButtonLink>
-          <PrimaryButtonLink href="/report">{t.results.openMemo}</PrimaryButtonLink>
-        </div>
-      </Band>
     </>
   );
 }

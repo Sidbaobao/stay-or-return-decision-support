@@ -7,6 +7,7 @@ import { useRevealOnReady } from "@/lib/run-state";
 import { useContent } from "@/lib/i18n/content";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { strongestReason } from "@/lib/reasons";
+import { DecisionBalance } from "@/components/results/decision-balance";
 import { PartTiles } from "@/components/results/part-tiles";
 import { SplitBar } from "@/components/results/split-bar";
 import { VerdictHeader } from "@/components/results/verdict-header";
@@ -94,6 +95,18 @@ export default function SharedResultPage() {
   const direction = sharedResult.recommendedScenario;
   const difference = sharedResult.weightedTotals.difference;
 
+  // The way in for the reader: in the heading column on a wide screen,
+  // under the tiles on a phone.
+  const invitation = (
+    <>
+      <p className="text-body font-medium text-ink">{t.shared.cta}</p>
+      <p className="mt-1 text-body-sm text-ink/60">{t.shared.ctaBody}</p>
+      <div className="mt-5">
+        <PrimaryButtonLink href="/questionnaire">{t.shared.tryIt}</PrimaryButtonLink>
+      </div>
+    </>
+  );
+
   return (
     <>
       <Band>
@@ -112,17 +125,36 @@ export default function SharedResultPage() {
       </Band>
 
       <Band tone="white">
-        <OffsetGrid aside={<h2 className="text-section-title text-ink">{t.results.splitHeading}</h2>}>
+        <OffsetGrid
+          aside={
+            <div>
+              <h2 className="text-section-title text-ink">{t.results.splitHeading}</h2>
+              <div className="mt-6 hidden lg:block">
+                <DecisionBalance difference={difference} recommendedScenario={direction} isRevealed={isRevealed} />
+              </div>
+            </div>
+          }
+        >
           <SplitBar
             stay={sharedResult.weightedTotals.stay_us}
             goBack={sharedResult.weightedTotals.return_china}
             isRevealed={isRevealed}
           />
+          <div className="mt-8 lg:hidden">
+            <DecisionBalance difference={difference} recommendedScenario={direction} isRevealed={isRevealed} />
+          </div>
         </OffsetGrid>
       </Band>
 
       <Band>
-        <OffsetGrid aside={<h2 className="text-section-title text-ink">{t.results.partsHeading}</h2>}>
+        <OffsetGrid
+          aside={
+            <div className="lg:sticky lg:top-8">
+              <h2 className="text-section-title text-ink">{t.results.partsHeading}</h2>
+              <div className="mt-7 hidden lg:block">{invitation}</div>
+            </div>
+          }
+        >
           <PartTiles
             contributions={sharedResult.contributions}
             normalized={sharedResult.normalizedByDimension}
@@ -130,19 +162,8 @@ export default function SharedResultPage() {
             isRevealed={isRevealed}
             reasonFor={(dimensionId, scenario) => strongestReason(questions, decoded.answers, dimensionId, scenario)}
           />
+          <div className="mt-10 lg:hidden">{invitation}</div>
         </OffsetGrid>
-      </Band>
-
-      <Band tone="warm" as="footer">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-10">
-          <div className="min-w-0">
-            <h2 className="text-section-title text-ink">{t.shared.cta}</h2>
-            <p className="mt-2 text-body-sm text-ink/60">{t.shared.ctaBody}</p>
-          </div>
-          <div className="shrink-0">
-            <PrimaryButtonLink href="/questionnaire">{t.shared.tryIt}</PrimaryButtonLink>
-          </div>
-        </div>
       </Band>
     </>
   );

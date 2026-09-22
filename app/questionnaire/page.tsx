@@ -28,6 +28,18 @@ function scrollToElement(element: HTMLElement | null, block: ScrollLogicalPositi
   element?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block });
 }
 
+// Brings a question to the centre and puts focus on its first answer.
+function revealQuestion(questionId: string) {
+  const element = document.getElementById(questionElementId(questionId));
+
+  if (!element) {
+    return;
+  }
+
+  scrollToElement(element, "center");
+  element.querySelector<HTMLInputElement>('input[type="radio"]')?.focus({ preventScroll: true });
+}
+
 // A key press answers the open question unless the reader is typing.
 function isTypingTarget(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) {
@@ -189,7 +201,7 @@ export default function QuestionnairePage() {
     }
 
     pendingQuestionRef.current = null;
-    const frameId = window.requestAnimationFrame(() => scrollToElement(element, "center"));
+    const frameId = window.requestAnimationFrame(() => revealQuestion(questionId));
 
     return () => window.cancelAnimationFrame(frameId);
   }, [isReady, currentStepIndex]);
@@ -215,6 +227,27 @@ export default function QuestionnairePage() {
 
     shouldScrollToStepRef.current = true;
     setCurrentStepIndex(nextIndex);
+  };
+
+  // A dot on the rail: the question's part comes up if it is not the
+  // current one, then the question scrolls to the centre and its first
+  // answer takes focus.
+  const jumpToQuestion = (questionId: string) => {
+    const index = groupedQuestions.findIndex((group) =>
+      group.questions.some((question) => question.id === questionId)
+    );
+
+    if (index === -1) {
+      return;
+    }
+
+    if (index === currentStepIndex) {
+      revealQuestion(questionId);
+      return;
+    }
+
+    pendingQuestionRef.current = questionId;
+    setCurrentStepIndex(index);
   };
 
   // Persist on every choice: a refresh or a nav click mid-questionnaire
@@ -297,12 +330,6 @@ export default function QuestionnairePage() {
     return null;
   }
 
-  const railGroups = groupedQuestions.map((group) => ({
-    dimension: group.dimension,
-    answeredCount: group.questions.filter((question) => currentAnswers[question.id]).length,
-    totalCount: group.questions.length
-  }));
-
   return (
     <>
       <Band padding="header">
@@ -352,7 +379,16 @@ export default function QuestionnairePage() {
             <h2 id="steps-heading" className="sr-only">
               {t.questionnaire.stepsHeading}
             </h2>
-            <PartRail groups={railGroups} currentIndex={currentStepIndex} onSelect={changeStep} />
+            <PartRail
+              groups={groupedQuestions}
+              currentIndex={currentStepIndex}
+              answers={currentAnswers}
+              activeQuestionId={activeQuestion?.id}
+              totalQuestions={questions.length}
+              questionNumber={(questionId) => questionNumbers.get(questionId) ?? 0}
+              onSelect={changeStep}
+              onSelectQuestion={jumpToQuestion}
+            />
           </div>
 
           {currentGroup ? (

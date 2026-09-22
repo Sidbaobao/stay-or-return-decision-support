@@ -3,17 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { buildShareUrl } from "@/lib/share";
 import { useLocale } from "@/lib/i18n/provider";
+import { PrimaryButton } from "@/components/ui/primary-button";
 import { SecondaryButton } from "@/components/ui/secondary-button";
 import { Answers, Weights } from "@/types";
 
 type ShareResultButtonProps = {
   answers: Answers;
   weights: Weights;
+  // Primary where copying the link is the page's main action.
+  tone?: "primary" | "secondary";
 };
 
 type CopyState = "idle" | "copied" | "manual";
 
-export function ShareResultButton({ answers, weights }: ShareResultButtonProps) {
+export function ShareResultButton({ answers, weights, tone = "secondary" }: ShareResultButtonProps) {
   const { t } = useLocale();
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const [shareUrl, setShareUrl] = useState<string | null>(null);
@@ -56,7 +59,13 @@ export function ShareResultButton({ answers, weights }: ShareResultButtonProps) 
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
-        <SecondaryButton onClick={handleShare}>{t.share.copy}</SecondaryButton>
+        {tone === "primary" ? (
+          <PrimaryButton type="button" onClick={handleShare}>
+            {t.share.copy}
+          </PrimaryButton>
+        ) : (
+          <SecondaryButton onClick={handleShare}>{t.share.copy}</SecondaryButton>
+        )}
         <span aria-live="polite" className="text-sm font-medium text-ink/70">
           {copyState === "copied" ? t.share.copied : ""}
         </span>
