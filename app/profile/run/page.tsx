@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/i18n";
 import { useContent } from "@/lib/i18n/content";
 import { useLocale, useLocalizedTitle } from "@/lib/i18n/provider";
 import { strongestReason } from "@/lib/reasons";
+import { DecisionBalance } from "@/components/results/decision-balance";
 import { PartTiles } from "@/components/results/part-tiles";
 import { SplitBar } from "@/components/results/split-bar";
 import { VerdictHeader } from "@/components/results/verdict-header";
@@ -77,6 +78,17 @@ function RunSnapshotContent() {
     ? t.results.headline(direction, confidence, difference)
     : t.snapshot.pastHeadline(entry.direction, entry.confidence, entry.difference);
 
+  // The page's actions: in the heading column on a wide screen, under the
+  // tiles on a phone.
+  const actions = (
+    <>
+      {isCurrentVersion ? <RestoreRunButton entry={entry} /> : null}
+      <QuietLink href="/profile" className="-mx-2">
+        {t.snapshot.backProfile}
+      </QuietLink>
+    </>
+  );
+
   return (
     <>
       <Band>
@@ -91,13 +103,14 @@ function RunSnapshotContent() {
           difference={difference}
           confidence={confidence}
           isRevealed
-          aside={isCurrentVersion ? <RestoreRunButton entry={entry} /> : null}
         >
           <div className="space-y-2 text-body-sm text-ink/65">
             <p>{snapshotResult ? t.snapshot.restoreNote : t.snapshot.earlierVersionBody}</p>
-            <QuietLink href="/profile" className="-mx-2">
-              {t.snapshot.backProfile}
-            </QuietLink>
+            {!snapshotResult ? (
+              <QuietLink href="/profile" className="-mx-2">
+                {t.snapshot.backProfile}
+              </QuietLink>
+            ) : null}
           </div>
         </VerdictHeader>
       </Band>
@@ -105,21 +118,34 @@ function RunSnapshotContent() {
       {snapshotResult ? (
         <>
           <Band tone="white">
-            <OffsetGrid aside={<h2 className="text-section-title text-ink">{t.results.splitHeading}</h2>}>
+            <OffsetGrid
+              aside={
+                <div>
+                  <h2 className="text-section-title text-ink">{t.results.splitHeading}</h2>
+                  <div className="mt-6 hidden lg:block">
+                    <DecisionBalance difference={difference} recommendedScenario={direction} isRevealed />
+                  </div>
+                </div>
+              }
+            >
               <SplitBar
                 stay={snapshotResult.weightedTotals.stay_us}
                 goBack={snapshotResult.weightedTotals.return_china}
                 isRevealed
               />
+              <div className="mt-8 lg:hidden">
+                <DecisionBalance difference={difference} recommendedScenario={direction} isRevealed />
+              </div>
             </OffsetGrid>
           </Band>
 
           <Band>
             <OffsetGrid
               aside={
-                <div>
+                <div className="lg:sticky lg:top-8">
                   <h2 className="text-section-title text-ink">{t.results.partsHeading}</h2>
                   <p className="num mt-3 text-label text-ink/45">{t.snapshot.asOf(completedDate)}</p>
+                  <div className="mt-7 hidden flex-col items-start gap-3 lg:flex">{actions}</div>
                 </div>
               }
             >
@@ -130,6 +156,7 @@ function RunSnapshotContent() {
                 isRevealed
                 reasonFor={(dimensionId, scenario) => strongestReason(questions, entry.answers, dimensionId, scenario)}
               />
+              <div className="mt-8 flex flex-wrap items-center gap-3 lg:hidden">{actions}</div>
             </OffsetGrid>
           </Band>
         </>

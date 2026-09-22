@@ -60,6 +60,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
 
       <section
         className="memo-block bg-surface-warm px-memo-x py-memo-section-y sm:px-memo-x-sm sm:py-memo-section-y-sm lg:px-memo-x-lg lg:py-memo-section-y-lg"
+        id="memo-overall"
         aria-labelledby="recommendation-heading"
       >
         <p className="text-eyebrow text-ink/65">{memo.recommendation}</p>
@@ -80,6 +81,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
 
       <section
         className="memo-comparison px-memo-x py-memo-comparison-y sm:px-memo-x-sm sm:py-memo-comparison-y-sm lg:px-memo-x-lg lg:py-memo-comparison-y-lg"
+        id="memo-parts"
         aria-labelledby="comparison-heading"
       >
         <div>
@@ -162,6 +164,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
       <div className="grid bg-canvas lg:grid-cols-2 lg:gap-x-6">
         <section
           className="memo-block px-memo-x py-memo-comparison-y sm:px-memo-x-sm lg:px-memo-x-lg lg:py-memo-section-y-lg"
+          id="memo-change"
           aria-labelledby="change-heading"
         >
           <h2 id="change-heading" className="font-serif text-card-title text-ink">
@@ -180,6 +183,7 @@ export function ReportSummary({ report, scoringResult, generatedDate }: ReportSu
 
         <section
           className="memo-block px-memo-x py-memo-comparison-y pt-0 sm:px-memo-x-sm lg:px-memo-x-lg lg:py-memo-section-y-lg"
+          id="memo-before"
           aria-labelledby="before-heading"
         >
           <h2 id="before-heading" className="font-serif text-card-title text-ink">

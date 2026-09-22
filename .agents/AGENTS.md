@@ -153,6 +153,12 @@ tokens in `app/globals.css` and mapped in `tailwind.config.ts`.
   shares of one bar (`SplitBar`) and the six parts as tiles with rings
   (`PartTiles`), each ring the share of that part's points on its leading
   side. The memo keeps the ranked bars and the analysis in words.
+- A side column is the page's navigation and actions, never a heading
+  alone: the questionnaire rail carries a dot per question (a way to any
+  question) and the three keys; a result's columns carry the balance scale
+  and the page's actions; the memo's column carries an outline of the
+  sheet with the current section marked. On a phone each becomes a strip
+  or a row of the same controls, never a duplicate block of copy.
 - Alignment varies with the layout, on purpose: the hero and the home
   page's closing line centred; page headers, questions, rows and prose
   left; a band with one action puts the words left and the control
