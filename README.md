@@ -15,11 +15,18 @@ how much each dimension matters, and shows what is pulling them in each directio
 confident that result really is.  Users leave with a decision memo, not a verdict.
 
 The whole site is available in English and Simplified Chinese (中文): the switch sits in the
-home page header, and the choice stays on the device with everything else.
+header, and the choice stays on the device with everything else.  The home page opens on a
+WebGL field of point sprites moving under typed-array physics, with the worries the
+questionnaire actually asks about drifting across it — the H-1B lottery, OPT running out, rent,
+family needing you — each one a link into the question it belongs to.
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="49%" alt="Home">
-  <img src="docs/screenshots/questionnaire.png" width="49%" alt="Questionnaire">
+  <img src="docs/screenshots/home.jpg" width="49%" alt="Home">
+  <img src="docs/screenshots/questionnaire.jpg" width="49%" alt="The questions">
+</p>
+<p align="center">
+  <img src="docs/screenshots/home-zh.jpg" width="49%" alt="The same page in Chinese">
+  <br><sub>The same page, switched to Chinese</sub>
 </p>
 
 ## How it works
@@ -28,13 +35,15 @@ home page header, and the choice stays on the device with everything else.
    situation; any step can be revisited.
 2. **Weights** — an interactive bubble layout (d3-hierarchy) where the user sets how much each
    dimension matters, with fine-grained controls.
-3. **Results** — a single **weighted-gap score** on a bipolar stay ↔ return scale, a confidence
-   tier (low / medium / high, from how far the gap sits from neutral), the key drivers, the
-   dimensions that are still close, and a sensitivity check of whether different weights could
-   flip the result.
-4. **Memo** — a print-friendly decision memo: the recommendation with how far the answers lean
-   and which dimensions carry it, one lean per dimension, what would change the result, and
-   what to check before deciding.
+3. **Result** — the quick read: a single **weighted-gap score** on a bipolar stay ↔ return
+   scale, a confidence tier (low / medium / high, from how far the gap sits from neutral), the
+   dimensions pulling each way, the ones still close, and whether different weights could flip
+   the sign.  It stops there; the reasoning belongs to the memo.
+4. **Memo** — a print-friendly decision memo written from this run and nothing else: how far
+   the answers lean, which dimensions made the lead **and which of the user's own answers those
+   were**, what pulls the other way, and what would have to change to flip it.  The sentences
+   live in each language's dictionary, one per line; `lib/report.ts` decides which apply and
+   hands them the reader's answers to quote (`lib/reasons.ts`).  No template prose.
 5. **Profile & history** — a device-local profile (optional nickname) and the last ten results,
    each reopenable as a read-only snapshot or restored as the current run.
 6. **Share** — a read-only copy of a result that travels entirely inside the link.
@@ -54,6 +63,20 @@ the close dimensions would have to move to flip the sign.  Every answer moves on
 between the two paths — strong stay, lean stay, balanced, lean return, strong return — and the
 interface shows exactly that, once, instead of two mirror-image numbers.
 
+## The look
+
+One surface per page and nothing framed inside it.  Sections are separated by hairlines and by
+bands of tone rather than by cards, headings sit offset against the text they introduce, and the
+page rises into place on arrival instead of fading.  Two shadow levels exist: a 1 px lift for
+things that sit on the page, and a soft one for the bar that sticks while scrolling — a raised
+element gets a hairline of light along its top edge, never a grey drop shadow.
+
+Headings are set in **Newsreader** at reading size with no capitals, running text in **Source
+Sans 3**, Chinese in the system serif with **Noto Serif SC** behind it.  Every number — the
+score, the counters, `00 / 24` — is tabular, so nothing shifts as it counts up.  The result
+reveal is the one piece of choreography: the bars grow and the balance marker settles with a
+small overshoot (`--motion-duration-reveal`, 650 ms), and it respects reduced motion.
+
 ## Privacy by design
 
 | | |
@@ -64,10 +87,6 @@ interface shows exactly that, once, instead of two mirror-image numbers.
 | Owner-only view | Aggregate stats are readable only with a Bearer token; every other request to that endpoint answers 404 |
 | Export / delete | Users can export everything the device knows as JSON, or erase profile and history, at any time |
 
-<p align="center">
-  <img src="docs/screenshots/profile.png" width="62%" alt="Profile page: private to this device">
-</p>
-
 ## Project structure
 
 ```
@@ -75,12 +94,18 @@ app/            App Router pages: /, /questionnaire, /weights, /results, /report
                 /profile/run (history snapshot), /shared (read-only shared result), /api/stats
 components/     UI by page (home, questionnaire, weights, results, report, profile, share)
                 + layout/ (nav, profile chip) + shared ui/
+                home/decision-map-canvas.tsx is the WebGL hero field
 data/           dimensions.ts, questions.ts (24 items), and their Chinese copy (*.zh.ts)
-lib/            scoring.ts (weighted-gap model), report.ts, i18n/ (dictionaries, provider), storage.ts (all localStorage),
-                guards.ts, share.ts (link codec), stats-schema.ts, stats-client.ts
-middleware.ts   redirects damaged links (stray punctuation, capitals, old aliases) to the page they meant; lib/routes.ts holds the route list
+lib/            scoring.ts (weighted-gap model), report.ts + reasons.ts (the memo, quoting
+                the reader's answers), run-state.ts (one source of truth for the current run),
+                guards.ts, share.ts (link codec), routes.ts, stats-schema.ts, stats-client.ts
+lib/i18n/       en.ts, zh.ts, content.ts, provider.tsx — every sentence the site can say
+lib/storage/    every localStorage access, split by concern (current-run, history, profile,
+                locale, data-export, stats-marker) behind the lib/storage.ts barrel
 lib/server/     stats-store.ts (Upstash REST, no SDK), stats-keys.ts, rate-limit.ts, env.ts
-public/         hero videos (compressed from 56.4 MB to 2.6 MB, lazy-loaded) and posters
+middleware.ts   sends damaged links — stray punctuation, capitals, invisible characters, an
+                emoji, a folded fragment, an address pasted into itself — to the page they meant
+public/         two short city videos further down the home page, and their posters
 types/          shared TypeScript types
 docs/           screenshots used in this README
 .agents/        AGENTS.md — the engineering rules every change follows
@@ -109,7 +134,8 @@ curl -H "Authorization: Bearer $STATS_ADMIN_TOKEN" https://stayorreturn.com/api/
 
 ## Built with
 
-Next.js 15 · React · TypeScript · Tailwind CSS · d3-hierarchy · lucide-react · Upstash Redis
+Next.js 15.5 · React 19 · TypeScript · Tailwind CSS · WebGL (hero field) · d3-hierarchy
+(weights) · lucide-react · Newsreader + Source Sans 3, Noto Serif SC for Chinese · Upstash Redis
 (via Vercel Marketplace) · Vercel
 
 Designed and developed independently from product definition through deployment, with team
