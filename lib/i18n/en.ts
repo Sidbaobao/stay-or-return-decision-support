@@ -84,14 +84,14 @@ export const en = {
 
   home: {
     heroTitle: "Should you stay in the US or go back to China?",
-    heroFacts: ["24 questions", "About 20 minutes", "Nothing leaves your browser"],
+    heroFacts: ["36 questions", "About 30 minutes", "Nothing leaves your browser"],
     flowAria: "The things this decision turns on",
     factorQuestion: (index: number) => `Question ${index}`,
     howItWorks: "How it works",
     steps: [
       {
         step: "Step 1",
-        title: "Answer 24 questions",
+        title: "Answer 36 questions",
         description: "They cover work, money, your visa, your family, daily life and the long term"
       },
       {
@@ -366,7 +366,7 @@ export const en = {
       return `Their answers lean slightly toward ${pathWord[direction]}`;
     },
     cta: "Facing the same decision?",
-    ctaBody: "It's 24 questions and about 20 minutes",
+    ctaBody: "It's 36 questions and about 30 minutes",
     tryIt: "Try it yourself",
     explore: "See how it works",
     versionTitle: "This link is from an older version",

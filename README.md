@@ -9,7 +9,7 @@ the U.S. and returning to China.**
 ![Deployed on Vercel](https://img.shields.io/badge/deployed-Vercel-000)
 
 Choosing where to build a life is too personal for a black box.  Stay or Return breaks the
-decision into **24 questions across six dimensions** — career, salary and cost of living,
+decision into **36 questions across six dimensions** — career, salary and cost of living,
 immigration and policy uncertainty, family, lifestyle, long-term development — lets users decide
 how much each dimension matters, and shows what is pulling them in each direction and how
 confident that result really is.  Users leave with a decision memo, not a verdict.
@@ -73,7 +73,7 @@ element gets a hairline of light along its top edge, never a grey drop shadow.
 
 Headings are set in **Newsreader** at reading size with no capitals, running text in **Source
 Sans 3**, Chinese in the system serif with **Noto Serif SC** behind it.  Every number — the
-score, the counters, `00 / 24` — is tabular, so nothing shifts as it counts up.  The result
+score, the counters, `00 / 36` — is tabular, so nothing shifts as it counts up.  The result
 reveal is the one piece of choreography: the bars grow and the balance marker settles with a
 small overshoot (`--motion-duration-reveal`, 650 ms), and it respects reduced motion.
 
@@ -95,7 +95,7 @@ app/            App Router pages: /, /questionnaire, /weights, /results, /report
 components/     UI by page (home, questionnaire, weights, results, report, profile, share)
                 + layout/ (nav, profile chip) + shared ui/
                 home/decision-map-canvas.tsx is the WebGL hero field
-data/           dimensions.ts, questions.ts (24 items), and their Chinese copy (*.zh.ts)
+data/           dimensions.ts, questions.ts (36 items), and their Chinese copy (*.zh.ts)
 lib/            scoring.ts (weighted-gap model), report.ts + reasons.ts (the memo, quoting
                 the reader's answers), run-state.ts (one source of truth for the current run),
                 guards.ts, share.ts (link codec), routes.ts, stats-schema.ts, stats-client.ts

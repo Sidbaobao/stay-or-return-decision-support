@@ -5,9 +5,9 @@ type QuestionCardProps = {
   question: Question;
   value?: string;
   onChange: (questionId: string, optionId: string) => void;
-  // The reader's place in the whole questionnaire, 1 to 24.
+  // The reader's place in the whole questionnaire, 1 to 36.
   number: number;
-  // "Question 3 of 24", for screen readers.
+  // "Question 3 of 36", for screen readers.
   numberLabel: string;
   // The first open question in the part, the one the reader is on.
   isActive: boolean;
