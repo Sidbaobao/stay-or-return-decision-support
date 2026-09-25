@@ -47,15 +47,39 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     }
   },
   career_work_model_fit: {
-    prompt: "哪边的工作方式更适合你？",
+    prompt: "美国和中国的职场，哪边更适合你？",
     options: {
       career_work_model_fit_us: "美国",
       career_work_model_fit_balanced: "两边都可以",
       career_work_model_fit_china: "中国"
     },
     reasons: {
-      career_work_model_fit_us: "美国的工作方式更适合你",
-      career_work_model_fit_china: "中国的工作方式更适合你"
+      career_work_model_fit_us: "美国的职场更适合你",
+      career_work_model_fit_china: "中国的职场更适合你"
+    }
+  },
+  career_fresh_grad_hiring: {
+    prompt: "你在国内想做的那类工作，是不是主要招应届生？",
+    options: {
+      career_fresh_grad_hiring_any_stage: "不是，什么时候进都行",
+      career_fresh_grad_hiring_mixed: "看具体岗位",
+      career_fresh_grad_hiring_fresh_only: "是，基本只招应届生"
+    },
+    reasons: {
+      career_fresh_grad_hiring_any_stage: "你在国内想做的工作什么时候进都行",
+      career_fresh_grad_hiring_fresh_only: "你在国内想做的工作基本只招应届生"
+    }
+  },
+  career_field_frontier: {
+    prompt: "现在你这个行业最前沿的工作，主要在美国还是中国？",
+    options: {
+      career_field_frontier_us: "美国",
+      career_field_frontier_balanced: "两边都有，看方向",
+      career_field_frontier_china: "中国"
+    },
+    reasons: {
+      career_field_frontier_us: "你这个行业最前沿的工作主要在美国",
+      career_field_frontier_china: "你这个行业最前沿的工作主要在中国"
     }
   },
   salary_take_home_outlook: {
@@ -83,15 +107,15 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     }
   },
   salary_savings_outlook: {
-    prompt: "在哪边攒钱更现实？",
+    prompt: "未来五年，你觉得在哪边工资涨得更快？",
     options: {
       salary_savings_outlook_us: "美国",
       salary_savings_outlook_balanced: "差不多",
       salary_savings_outlook_china: "中国"
     },
     reasons: {
-      salary_savings_outlook_us: "在美国攒钱对你来说更现实",
-      salary_savings_outlook_china: "在中国攒钱对你来说更现实"
+      salary_savings_outlook_us: "你觉得在美国工资涨得更快",
+      salary_savings_outlook_china: "你觉得在中国工资涨得更快"
     }
   },
   salary_cost_tradeoff_acceptability: {
@@ -104,6 +128,30 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     reasons: {
       salary_cost_tradeoff_acceptability_us: "美国的生活成本你更能接受",
       salary_cost_tradeoff_acceptability_china: "中国的生活成本你更能接受"
+    }
+  },
+  salary_job_gap_runway: {
+    prompt: "如果在美国一时没了工作，房租和开销你能撑多久？",
+    options: {
+      salary_job_gap_runway_long: "半年以上没问题",
+      salary_job_gap_runway_months: "几个月吧",
+      salary_job_gap_runway_short: "最多撑一两个月"
+    },
+    reasons: {
+      salary_job_gap_runway_long: "在美国就算一时没了工作，房租和开销也能撑半年以上",
+      salary_job_gap_runway_short: "在美国要是没了工作，房租和开销最多撑一两个月"
+    }
+  },
+  salary_timing_money: {
+    prompt: "哪边有你晚了就拿不到的东西，比如没到期的股票或者留学生落户？",
+    options: {
+      salary_timing_money_us: "美国",
+      salary_timing_money_balanced: "两边都没什么",
+      salary_timing_money_china: "中国"
+    },
+    reasons: {
+      salary_timing_money_us: "现在离开美国会损失没到期的股票这类东西",
+      salary_timing_money_china: "再拖着不回国，留学生落户这类好处就拿不到了"
     }
   },
   immigration_stress_level: {
@@ -119,7 +167,7 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     }
   },
   immigration_timeline_tolerance: {
-    prompt: "在美国安定下来可能要等好几年，而且没有确定的时间，你能接受吗？",
+    prompt: "在美国可能要等好几年才能安定下来，还没个准日子，你能接受吗？",
     options: {
       immigration_timeline_tolerance_high: "能，我可以等",
       immigration_timeline_tolerance_balanced: "能等一段时间，但不能一直等",
@@ -131,7 +179,7 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     }
   },
   immigration_dependency_risk: {
-    prompt: "留在美国通常要好几件事同时顺利才行，比如工作、抽签和时间点，你能接受吗？",
+    prompt: "留下来通常要工作、抽签、时机都对上才行，你能接受吗？",
     options: {
       immigration_dependency_risk_high_tolerance: "能，这个风险我愿意承担",
       immigration_dependency_risk_balanced: "不确定值不值得",
@@ -143,26 +191,50 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     }
   },
   immigration_constraint_acceptance: {
-    prompt: "你愿意让签证规则决定你多少事，比如做什么工作、住哪个城市、什么时候能回家？",
+    prompt: "你愿意让签证决定多少事，比如工作、住哪儿、什么时候能回家？",
     options: {
       immigration_constraint_acceptance_high: "可以接受很多，只要这条路值得",
-      immigration_constraint_acceptance_balanced: "一部分，但有限度",
+      immigration_constraint_acceptance_balanced: "能接受一些，但有限度",
       immigration_constraint_acceptance_low: "越少越好"
     },
     reasons: {
-      immigration_constraint_acceptance_high: "只要这条路值得，你愿意让签证规则决定不少事",
-      immigration_constraint_acceptance_low: "你不想让签证规则决定你太多事"
+      immigration_constraint_acceptance_high: "只要这条路值得，你愿意让签证决定不少事",
+      immigration_constraint_acceptance_low: "你不想让签证决定你太多事"
+    }
+  },
+  immigration_lottery_runway: {
+    prompt: "OPT 到期前，你还有几次抽签的机会？",
+    options: {
+      immigration_lottery_runway_more: "不止一次，或者我不用抽签",
+      immigration_lottery_runway_one: "就剩一次了",
+      immigration_lottery_runway_none: "没有了，OPT 马上就到期"
+    },
+    reasons: {
+      immigration_lottery_runway_more: "你还有不止一次抽签的机会，或者根本不用抽",
+      immigration_lottery_runway_none: "OPT 马上就到期，你已经没机会再抽签"
+    }
+  },
+  immigration_green_card_path: {
+    prompt: "留下的话，你拿绿卡有没有不用等很多年的路？",
+    options: {
+      immigration_green_card_path_fast: "有，我能走更快的路",
+      immigration_green_card_path_unsure: "还不知道",
+      immigration_green_card_path_queue: "没有，只能等很多年"
+    },
+    reasons: {
+      immigration_green_card_path_fast: "你拿绿卡能走更快的路",
+      immigration_green_card_path_queue: "你拿绿卡只能等很多年"
     }
   },
   family_proximity_importance: {
     prompt: "未来三到五年，离家人近对你有多重要？",
     options: {
-      family_proximity_importance_low: "重要，但不是决定因素",
-      family_proximity_importance_balanced: "比较重要",
-      family_proximity_importance_high: "非常重要"
+      family_proximity_importance_low: "重要，但不会因为这个决定去留",
+      family_proximity_importance_balanced: "挺重要，肯定要考虑进去",
+      family_proximity_importance_high: "非常重要，可能就看这个了"
     },
     reasons: {
-      family_proximity_importance_low: "离家人近对你重要，但不是决定因素",
+      family_proximity_importance_low: "离家人近对你重要，但不会因为这个决定去留",
       family_proximity_importance_high: "未来几年离家人近对你非常重要"
     }
   },
@@ -202,6 +274,30 @@ export const questionsZh: Record<string, QuestionTranslation> = {
       family_expectation_constraint_high: "家里人的期望让你有些选择其实做不了"
     }
   },
+  family_partner_plans: {
+    prompt: "如果你有另一半，对方希望你们以后在哪边生活？",
+    options: {
+      family_partner_plans_us: "在美国",
+      family_partner_plans_balanced: "单身，或者对方没有明确想法",
+      family_partner_plans_china: "在中国"
+    },
+    reasons: {
+      family_partner_plans_us: "你的另一半希望你们以后在美国生活",
+      family_partner_plans_china: "你的另一半希望你们以后在中国生活"
+    }
+  },
+  family_parent_care: {
+    prompt: "你觉得爸妈多久之后会需要你在身边？",
+    options: {
+      family_parent_care_later: "还有很多年",
+      family_parent_care_few_years: "几年之内",
+      family_parent_care_soon: "很快，或者已经需要了"
+    },
+    reasons: {
+      family_parent_care_later: "爸妈还有很多年才需要你在身边",
+      family_parent_care_soon: "爸妈很快就需要你在身边"
+    }
+  },
   lifestyle_daily_fit: {
     prompt: "哪边的日常生活更接近你想要的？",
     options: {
@@ -227,15 +323,15 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     }
   },
   lifestyle_adjustment_cost: {
-    prompt: "对你来说，现在哪个改变更小？",
+    prompt: "留下还是回国，现在哪个对你来说变化更小？",
     options: {
       lifestyle_adjustment_cost_us: "留下",
-      lifestyle_adjustment_cost_balanced: "两个改变都很大",
+      lifestyle_adjustment_cost_balanced: "两边变化都很大",
       lifestyle_adjustment_cost_china: "回国"
     },
     reasons: {
-      lifestyle_adjustment_cost_us: "留下对你来说是更小的改变",
-      lifestyle_adjustment_cost_china: "回国对你来说是更小的改变"
+      lifestyle_adjustment_cost_us: "现在留下对你来说变化更小",
+      lifestyle_adjustment_cost_china: "现在回国对你来说变化更小"
     }
   },
   lifestyle_location_flexibility: {
@@ -248,6 +344,30 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     reasons: {
       lifestyle_location_flexibility_us: "在美国你更有可能选到自己喜欢的城市和生活方式",
       lifestyle_location_flexibility_china: "在中国你更有可能选到自己喜欢的城市和生活方式"
+    }
+  },
+  lifestyle_belonging: {
+    prompt: "在美国和中国，你在哪边更有归属感？",
+    options: {
+      lifestyle_belonging_us: "美国",
+      lifestyle_belonging_balanced: "说不好",
+      lifestyle_belonging_china: "中国"
+    },
+    reasons: {
+      lifestyle_belonging_us: "你在美国更有归属感",
+      lifestyle_belonging_china: "你在中国更有归属感"
+    }
+  },
+  lifestyle_healthcare: {
+    prompt: "要是生了大病，你更愿意在哪边看病、处理保险？",
+    options: {
+      lifestyle_healthcare_us: "美国",
+      lifestyle_healthcare_balanced: "差不多",
+      lifestyle_healthcare_china: "中国"
+    },
+    reasons: {
+      lifestyle_healthcare_us: "生了大病你更愿意在美国看",
+      lifestyle_healthcare_china: "生了大病你更愿意在中国看"
     }
   },
   long_term_location_alignment: {
@@ -263,15 +383,15 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     }
   },
   long_term_option_preservation: {
-    prompt: "哪个选择以后的余地更大？",
+    prompt: "如果以后想去第三个国家，现在哪个选择更方便？",
     options: {
       long_term_option_preservation_us: "留下",
-      long_term_option_preservation_balanced: "两个都有余地",
+      long_term_option_preservation_balanced: "两个都行",
       long_term_option_preservation_china: "回国"
     },
     reasons: {
-      long_term_option_preservation_us: "留下以后的余地更大",
-      long_term_option_preservation_china: "回国以后的余地更大"
+      long_term_option_preservation_us: "留下以后更方便去第三个国家",
+      long_term_option_preservation_china: "回国以后更方便去第三个国家"
     }
   },
   long_term_reentry_cost: {
@@ -287,15 +407,39 @@ export const questionsZh: Record<string, QuestionTranslation> = {
     }
   },
   long_term_growth_platform: {
-    prompt: "长远来看，哪边更适合作为你发展的起点？",
+    prompt: "长远来看，在哪边打基础对你更好？",
     options: {
       long_term_growth_platform_us: "美国",
       long_term_growth_platform_balanced: "两边都可以",
       long_term_growth_platform_china: "中国"
     },
     reasons: {
-      long_term_growth_platform_us: "长远来看，美国更适合作为你发展的起点",
-      long_term_growth_platform_china: "长远来看，中国更适合作为你发展的起点"
+      long_term_growth_platform_us: "长远来看，在美国打基础对你更好",
+      long_term_growth_platform_china: "长远来看，在中国打基础对你更好"
+    }
+  },
+  long_term_retirement_place: {
+    prompt: "等你老了，你想在哪边生活？",
+    options: {
+      long_term_retirement_place_us: "美国",
+      long_term_retirement_place_balanced: "还没想那么远",
+      long_term_retirement_place_china: "中国"
+    },
+    reasons: {
+      long_term_retirement_place_us: "你老了想在美国生活",
+      long_term_retirement_place_china: "你老了想在中国生活"
+    }
+  },
+  long_term_children_schooling: {
+    prompt: "如果以后有孩子，你希望孩子在哪边长大、上学？",
+    options: {
+      long_term_children_schooling_us: "美国",
+      long_term_children_schooling_balanced: "不打算要孩子，或者还没想过",
+      long_term_children_schooling_china: "中国"
+    },
+    reasons: {
+      long_term_children_schooling_us: "你希望孩子在美国长大、上学",
+      long_term_children_schooling_china: "你希望孩子在中国长大、上学"
     }
   }
 };

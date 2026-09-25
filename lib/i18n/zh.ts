@@ -64,14 +64,14 @@ export const zh: Dictionary = {
 
   home: {
     heroTitle: "留在美国，还是回国？",
-    heroFacts: ["24 道题", "大概 20 分钟", "所有内容只在你的浏览器里"],
+    heroFacts: ["36 道题", "大概 30 分钟", "所有内容只在你的浏览器里"],
     flowAria: "这个决定会牵扯到的事",
     factorQuestion: (index) => `第 ${index} 题`,
     howItWorks: "怎么用",
     steps: [
       {
         step: "第一步",
-        title: "回答 24 道题",
+        title: "回答 36 道题",
         description: "题目涉及工作、钱、签证、家人、日常生活和长远发展"
       },
       {
@@ -320,7 +320,7 @@ export const zh: Dictionary = {
       return `这份答案稍微倾向${pathWord[direction]}`;
     },
     cta: "你也在做同样的决定？",
-    ctaBody: "一共 24 道题，大概 20 分钟",
+    ctaBody: "一共 36 道题，大概 30 分钟",
     tryIt: "自己试试",
     explore: "看看怎么用",
     versionTitle: "这个链接来自旧版本",

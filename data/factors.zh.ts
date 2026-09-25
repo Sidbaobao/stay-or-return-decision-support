@@ -11,7 +11,7 @@ export const factorsZh: Record<string, string> = {
   exchange_rate: "汇率",
   "996": "996",
   visa_stress: "签证压力",
-  savings: "存款",
+  savings: "涨薪空间",
   opt: "OPT 到期",
   time_zone: "时差",
   layoffs: "裁员",
@@ -30,5 +30,10 @@ export const factorsZh: Record<string, string> = {
   bad_days: "难过的时候找谁",
   family_expectations: "家里人的期望",
   money_pressure: "家里的经济压力",
-  growth: "发展最快的地方"
+  growth: "发展最快的地方",
+  fresh_grad: "应届生身份",
+  partner: "另一半想在哪",
+  job_gap: "没了工作能撑多久",
+  kids_school: "孩子在哪上学",
+  retire: "老了住哪"
 };

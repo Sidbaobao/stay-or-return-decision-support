@@ -40,6 +40,10 @@ Tone across the product: calm, warm, trustworthy, Qatchup-like.
   report/, profile/, share/, layout/, ui/.
 - `data/` — questions.ts, dimensions.ts, factors.ts (the home page's
   chips, each pointing at a question), with .zh twins.
+  questions.ts holds 36 questions, six per part, and `QUESTIONS_VERSION`
+  in `lib/questionnaire-version.ts` (v3) is bumped whenever a question is
+  added or removed, so older share links and saved decisions read as an
+  older version. Existing ids and scores never change, wording may.
 - `lib/` — scoring.ts, storage.ts (all localStorage), guards.ts,
   report.ts, share.ts (link codec), stats-client.ts, utils.ts,
   server/ (Redis REST wrapper — server only).

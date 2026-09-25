@@ -1,6 +1,6 @@
 import { Question } from "@/types";
 
-// Twenty-four questions, four per part. Each asks one thing in an ordinary
+// Thirty-six questions, six per part. Each asks one thing in an ordinary
 // sentence; each option is a plain answer. Ids and scores are the contract
 // with the scoring engine and never change. `reason` is the answer quoted
 // back on the result page and in the memo, as a clause after "you said".
@@ -89,7 +89,7 @@ export const questions: Question[] = [
   {
     id: "career_work_model_fit",
     dimensionId: "career",
-    prompt: "Which work culture suits you better?",
+    prompt: "Which suits you better, the way people work in the US or the way they work in China?",
     options: [
       {
         id: "career_work_model_fit_us",
@@ -108,6 +108,60 @@ export const questions: Question[] = [
         id: "career_work_model_fit_china",
         label: "China",
         reason: "the way people work in China suits you better",
+        stay_us_score: 2,
+        return_china_score: 4
+      }
+    ]
+  },
+  {
+    id: "career_fresh_grad_hiring",
+    dimensionId: "career",
+    prompt: "Do the jobs you'd go for in China mostly only take new graduates?",
+    options: [
+      {
+        id: "career_fresh_grad_hiring_any_stage",
+        label: "No, they hire at any stage",
+        reason: "the jobs you'd go for in China hire at any stage",
+        stay_us_score: 4,
+        return_china_score: 2
+      },
+      {
+        id: "career_fresh_grad_hiring_mixed",
+        label: "Depends on the job",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "career_fresh_grad_hiring_fresh_only",
+        label: "Yes, mostly only new graduates",
+        reason: "the jobs you'd go for in China mostly only take new graduates",
+        stay_us_score: 2,
+        return_china_score: 4
+      }
+    ]
+  },
+  {
+    id: "career_field_frontier",
+    dimensionId: "career",
+    prompt: "Right now, is the best work in your field being done in the US or in China?",
+    options: [
+      {
+        id: "career_field_frontier_us",
+        label: "The US",
+        reason: "the best work in your field is being done in the US",
+        stay_us_score: 4,
+        return_china_score: 2
+      },
+      {
+        id: "career_field_frontier_balanced",
+        label: "Both, or it depends",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "career_field_frontier_china",
+        label: "China",
+        reason: "the best work in your field is being done in China",
         stay_us_score: 2,
         return_china_score: 4
       }
@@ -170,12 +224,12 @@ export const questions: Question[] = [
   {
     id: "salary_savings_outlook",
     dimensionId: "salary_cost",
-    prompt: "Where is it more realistic for you to save money?",
+    prompt: "Over the next five years, where do you expect your pay to grow faster?",
     options: [
       {
         id: "salary_savings_outlook_us",
         label: "The US",
-        reason: "it's more realistic for you to save money in the US",
+        reason: "you expect your pay to grow faster in the US",
         stay_us_score: 4,
         return_china_score: 2
       },
@@ -188,7 +242,7 @@ export const questions: Question[] = [
       {
         id: "salary_savings_outlook_china",
         label: "China",
-        reason: "it's more realistic for you to save money in China",
+        reason: "you expect your pay to grow faster in China",
         stay_us_score: 2,
         return_china_score: 4
       }
@@ -197,12 +251,12 @@ export const questions: Question[] = [
   {
     id: "salary_cost_tradeoff_acceptability",
     dimensionId: "salary_cost",
-    prompt: "Which cost of living is easier for you to accept?",
+    prompt: "Which place has a cost of living you'd be more comfortable with day to day?",
     options: [
       {
         id: "salary_cost_tradeoff_acceptability_us",
         label: "The US",
-        reason: "the cost of living in the US is easier for you to accept",
+        reason: "you'd be more comfortable with the cost of living in the US day to day",
         stay_us_score: 4,
         return_china_score: 2
       },
@@ -215,7 +269,61 @@ export const questions: Question[] = [
       {
         id: "salary_cost_tradeoff_acceptability_china",
         label: "China",
-        reason: "the cost of living in China is easier for you to accept",
+        reason: "you'd be more comfortable with the cost of living in China day to day",
+        stay_us_score: 2,
+        return_china_score: 4
+      }
+    ]
+  },
+  {
+    id: "salary_job_gap_runway",
+    dimensionId: "salary_cost",
+    prompt: "If you were between jobs in the US, how long could you keep paying rent and bills?",
+    options: [
+      {
+        id: "salary_job_gap_runway_long",
+        label: "Half a year or more",
+        reason: "you could keep paying rent and bills in the US for half a year or more between jobs",
+        stay_us_score: 4,
+        return_china_score: 2
+      },
+      {
+        id: "salary_job_gap_runway_months",
+        label: "A few months",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "salary_job_gap_runway_short",
+        label: "A month or two at most",
+        reason: "you could only keep paying rent and bills in the US for a month or two between jobs",
+        stay_us_score: 1,
+        return_china_score: 5
+      }
+    ]
+  },
+  {
+    id: "salary_timing_money",
+    dimensionId: "salary_cost",
+    prompt: "Which place has something you'd lose by getting the timing wrong, like unvested stock or a returnee hukou?",
+    options: [
+      {
+        id: "salary_timing_money_us",
+        label: "The US",
+        reason: "leaving the US now would cost you something like unvested stock",
+        stay_us_score: 4,
+        return_china_score: 2
+      },
+      {
+        id: "salary_timing_money_balanced",
+        label: "Nothing much either way",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "salary_timing_money_china",
+        label: "China",
+        reason: "putting off going back would cost you a returnee hukou or a subsidy",
         stay_us_score: 2,
         return_china_score: 4
       }
@@ -251,7 +359,7 @@ export const questions: Question[] = [
   {
     id: "immigration_timeline_tolerance",
     dimensionId: "immigration",
-    prompt: "How do you feel about waiting years to feel settled in the US, with no fixed date?",
+    prompt: "Can you live with waiting years to feel settled in the US, without knowing when it ends?",
     options: [
       {
         id: "immigration_timeline_tolerance_high",
@@ -278,7 +386,7 @@ export const questions: Question[] = [
   {
     id: "immigration_dependency_risk",
     dimensionId: "immigration",
-    prompt: "Are you okay with staying depending on several things working out at once, like the job, the lottery and the timing?",
+    prompt: "Can you accept that staying needs the job, the lottery and the timing to all line up?",
     options: [
       {
         id: "immigration_dependency_risk_high_tolerance",
@@ -305,7 +413,7 @@ export const questions: Question[] = [
   {
     id: "immigration_constraint_acceptance",
     dimensionId: "immigration",
-    prompt: "How much of your life are you willing to let visa rules decide, like which job you take, which city you live in, and when you can travel?",
+    prompt: "How much would you let visa rules decide, like your job, your city and when you can go home?",
     options: [
       {
         id: "immigration_constraint_acceptance_high",
@@ -330,26 +438,80 @@ export const questions: Question[] = [
     ]
   },
   {
+    id: "immigration_lottery_runway",
+    dimensionId: "immigration",
+    prompt: "Before your OPT runs out, how many more times can you enter the H-1B lottery?",
+    options: [
+      {
+        id: "immigration_lottery_runway_more",
+        label: "More than one, or I don't need the lottery",
+        reason: "you still have more than one shot at the lottery, or don't need one",
+        stay_us_score: 4,
+        return_china_score: 2
+      },
+      {
+        id: "immigration_lottery_runway_one",
+        label: "Just one more",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "immigration_lottery_runway_none",
+        label: "None, my OPT is nearly over",
+        reason: "your OPT is nearly over and you have no lottery chance left",
+        stay_us_score: 1,
+        return_china_score: 5
+      }
+    ]
+  },
+  {
+    id: "immigration_green_card_path",
+    dimensionId: "immigration",
+    prompt: "Is there a realistic way for you to get a green card without waiting many years?",
+    options: [
+      {
+        id: "immigration_green_card_path_fast",
+        label: "Yes, I have a faster route",
+        reason: "you have a faster route to a green card",
+        stay_us_score: 4,
+        return_china_score: 2
+      },
+      {
+        id: "immigration_green_card_path_unsure",
+        label: "I don't know yet",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "immigration_green_card_path_queue",
+        label: "No, it would be the usual long wait",
+        reason: "getting a green card would mean the usual long wait for you",
+        stay_us_score: 2,
+        return_china_score: 4
+      }
+    ]
+  },
+  {
     id: "family_proximity_importance",
     dimensionId: "family_emotion",
     prompt: "Over the next three to five years, how important is it for you to be close to your family?",
     options: [
       {
         id: "family_proximity_importance_low",
-        label: "Important, but it won't decide this",
+        label: "It matters, but it won't decide this",
         reason: "being close to family matters to you but won't decide this",
         stay_us_score: 4,
         return_china_score: 2
       },
       {
         id: "family_proximity_importance_balanced",
-        label: "Fairly important",
+        label: "Important, it's a big part of this",
         stay_us_score: 3,
         return_china_score: 3
       },
       {
         id: "family_proximity_importance_high",
-        label: "Very important",
+        label: "Very important, it could decide this",
         reason: "being close to your family is very important to you over the next few years",
         stay_us_score: 1,
         return_china_score: 5
@@ -438,6 +600,60 @@ export const questions: Question[] = [
     ]
   },
   {
+    id: "family_partner_plans",
+    dimensionId: "family_emotion",
+    prompt: "If you have a partner, where do they want the two of you to live?",
+    options: [
+      {
+        id: "family_partner_plans_us",
+        label: "In the US",
+        reason: "your partner wants the two of you to live in the US",
+        stay_us_score: 5,
+        return_china_score: 1
+      },
+      {
+        id: "family_partner_plans_balanced",
+        label: "I'm single, or they have no firm view",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "family_partner_plans_china",
+        label: "In China",
+        reason: "your partner wants the two of you to live in China",
+        stay_us_score: 1,
+        return_china_score: 5
+      }
+    ]
+  },
+  {
+    id: "family_parent_care",
+    dimensionId: "family_emotion",
+    prompt: "How soon do you think your parents will need you living nearby?",
+    options: [
+      {
+        id: "family_parent_care_later",
+        label: "Not for a long time",
+        reason: "your parents won't need you nearby for a long time",
+        stay_us_score: 4,
+        return_china_score: 2
+      },
+      {
+        id: "family_parent_care_few_years",
+        label: "In a few years",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "family_parent_care_soon",
+        label: "Soon, or they already do",
+        reason: "your parents will need you nearby soon",
+        stay_us_score: 1,
+        return_china_score: 5
+      }
+    ]
+  },
+  {
     id: "lifestyle_daily_fit",
     dimensionId: "lifestyle",
     prompt: "Which place is closer to the everyday life you want?",
@@ -494,7 +710,7 @@ export const questions: Question[] = [
   {
     id: "lifestyle_adjustment_cost",
     dimensionId: "lifestyle",
-    prompt: "Which would be the smaller change for you right now?",
+    prompt: "Which would mean a smaller change for you right now, staying or going back?",
     options: [
       {
         id: "lifestyle_adjustment_cost_us",
@@ -546,6 +762,60 @@ export const questions: Question[] = [
     ]
   },
   {
+    id: "lifestyle_belonging",
+    dimensionId: "lifestyle",
+    prompt: "Where do you feel more at home these days, the US or China?",
+    options: [
+      {
+        id: "lifestyle_belonging_us",
+        label: "The US",
+        reason: "you feel more at home in the US",
+        stay_us_score: 4,
+        return_china_score: 2
+      },
+      {
+        id: "lifestyle_belonging_balanced",
+        label: "Hard to say",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "lifestyle_belonging_china",
+        label: "China",
+        reason: "you feel more at home in China",
+        stay_us_score: 2,
+        return_china_score: 4
+      }
+    ]
+  },
+  {
+    id: "lifestyle_healthcare",
+    dimensionId: "lifestyle",
+    prompt: "If you got seriously ill, where would you rather be dealing with doctors and insurance?",
+    options: [
+      {
+        id: "lifestyle_healthcare_us",
+        label: "The US",
+        reason: "you'd rather be in the US if you got seriously ill",
+        stay_us_score: 4,
+        return_china_score: 2
+      },
+      {
+        id: "lifestyle_healthcare_balanced",
+        label: "About the same",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "lifestyle_healthcare_china",
+        label: "China",
+        reason: "you'd rather be in China if you got seriously ill",
+        stay_us_score: 2,
+        return_china_score: 4
+      }
+    ]
+  },
+  {
     id: "long_term_location_alignment",
     dimensionId: "long_term",
     prompt: "Ten years from now, where do you honestly see yourself living?",
@@ -575,25 +845,25 @@ export const questions: Question[] = [
   {
     id: "long_term_option_preservation",
     dimensionId: "long_term",
-    prompt: "Which option keeps more doors open for you later on?",
+    prompt: "If you later wanted to move to a third country, which choice now would make that easier?",
     options: [
       {
         id: "long_term_option_preservation_us",
         label: "Staying",
-        reason: "staying keeps more doors open for you later on",
+        reason: "staying would make it easier to move to a third country later",
         stay_us_score: 4,
         return_china_score: 2
       },
       {
         id: "long_term_option_preservation_balanced",
-        label: "Both keep doors open",
+        label: "Both keep that open",
         stay_us_score: 3,
         return_china_score: 3
       },
       {
         id: "long_term_option_preservation_china",
         label: "Going back",
-        reason: "going back keeps more doors open for you later on",
+        reason: "going back would make it easier to move to a third country later",
         stay_us_score: 2,
         return_china_score: 4
       }
@@ -629,12 +899,12 @@ export const questions: Question[] = [
   {
     id: "long_term_growth_platform",
     dimensionId: "long_term",
-    prompt: "In the long run, which place gives you the better base to build from?",
+    prompt: "In the long run, which place is better for you to build your career and life in?",
     options: [
       {
         id: "long_term_growth_platform_us",
         label: "The US",
-        reason: "the US is the better base for you in the long run",
+        reason: "the US is the better place for you to build your career and life in the long run",
         stay_us_score: 4,
         return_china_score: 2
       },
@@ -647,7 +917,61 @@ export const questions: Question[] = [
       {
         id: "long_term_growth_platform_china",
         label: "China",
-        reason: "China is the better base for you in the long run",
+        reason: "China is the better place for you to build your career and life in the long run",
+        stay_us_score: 2,
+        return_china_score: 4
+      }
+    ]
+  },
+  {
+    id: "long_term_retirement_place",
+    dimensionId: "long_term",
+    prompt: "When you're old, where do you want to be living?",
+    options: [
+      {
+        id: "long_term_retirement_place_us",
+        label: "The US",
+        reason: "you want to be living in the US when you're old",
+        stay_us_score: 4,
+        return_china_score: 2
+      },
+      {
+        id: "long_term_retirement_place_balanced",
+        label: "I haven't thought that far",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "long_term_retirement_place_china",
+        label: "China",
+        reason: "you want to be living in China when you're old",
+        stay_us_score: 2,
+        return_china_score: 4
+      }
+    ]
+  },
+  {
+    id: "long_term_children_schooling",
+    dimensionId: "long_term",
+    prompt: "If you have children one day, where would you want them to grow up and go to school?",
+    options: [
+      {
+        id: "long_term_children_schooling_us",
+        label: "The US",
+        reason: "you'd want your children to grow up and go to school in the US",
+        stay_us_score: 4,
+        return_china_score: 2
+      },
+      {
+        id: "long_term_children_schooling_balanced",
+        label: "I don't plan on children, or I don't know yet",
+        stay_us_score: 3,
+        return_china_score: 3
+      },
+      {
+        id: "long_term_children_schooling_china",
+        label: "China",
+        reason: "you'd want your children to grow up and go to school in China",
         stay_us_score: 2,
         return_china_score: 4
       }
